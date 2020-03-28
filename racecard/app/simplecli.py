@@ -185,6 +185,9 @@ def play_round():
                         pass  # Nothing to do, hand is done.
                     elif isinstance(result, int):
                         # Playing a hazard card can return the index of the target's safety card that can Coup Fourré.
+                        if target_id is None and len(client.players) == 2:
+                            # In 2 a player game, targed_id can be omitted for convenience.  Here we actaully need it.
+                            target_id = [id for id in client.players if id != client.current_player.id][0]
                         handle_coup_fourre(target_id, result)
                     else:
                         raise ValueError('Unknown play return value: '+repr(result))
