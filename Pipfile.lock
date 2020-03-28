@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "7f7606f08e0544d8d012ef4d097dabdd6df6843a28793eb6551245d4b2db4242"
+            "sha256": "2a35ddc745edecc6144daba47e99a769726bf3a9c690fc259ffeaa86e39e503b"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -15,6 +15,11 @@
             }
         ]
     },
-    "default": {},
+    "default": {
+        "racecard-krys": {
+            "editable": true,
+            "path": "."
+        }
+    },
     "develop": {}
 }

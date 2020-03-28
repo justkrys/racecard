@@ -1,3 +1,6 @@
-race_card.code-workspace
+*.code-workspace
 .idea/*
 *.pyc
+dist/*
+build/*
+*.egg-info

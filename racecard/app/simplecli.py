@@ -1,3 +1,19 @@
+#    Race Card - An implementation of the card game Mille Bornes
+#    Copyright (C) 2020  Krys Lawrence <krys AT krys DOT ca>
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU Affero General Public License as published
+#    by the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU Affero General Public License for more details.
+#
+#    You should have received a copy of the GNU Affero General Public License
+#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 
 import sys
 
@@ -184,7 +200,13 @@ def play_hand():
 
 
 def main():
-    print('Racecard!  Lets Race!')
+    print('''
+Race Card Copyright (C) 2020 Krys Lawrence
+This program comes with ABSOLUTELY NO WARRANTY; for details see the LICENCE file
+This is free software, and you are welcome to redistribute it under certain conditions; see the LICENCE file for details. 
+
+    ''')
+    print('Race Card!  Lets Race!')
     num_players = get_num_players()
     names = get_player_names(num_players)
     for name in names:
