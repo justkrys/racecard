@@ -92,8 +92,6 @@ class Hand:
     def _no_coup_fourre(self):
         self._last_target_id = None
 
-    # FIXME: Playing Hazards on hazards, hazards on rememedies and speed limit while not
-    #        rolling are all problematic.  They need fixing.
     def _play_hazard(self, card_index, card, player_state, target_id=None):
         if target_id is None:
             if len(self._player_ids) > 2:

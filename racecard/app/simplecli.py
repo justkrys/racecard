@@ -154,9 +154,19 @@ def ask_yn(question):
     return answer == "y"
 
 
-# FIXME: There is something wrong with coup fourees.
 def handle_coup_fourre(player_id, safety_index):
-    """Handles Coup Fourré oppotunity by asking player and then triggering it."""
+    """Handles Coup Fourré oppotunity by asking player and then triggering it.
+
+    player_id is the player who was attacked and can coup fourré.
+    """
+    # Note: player_id can be different from the current player when there are more than
+    # 2 players.  Also, the attacking player's turn has already ended at this point and
+    # the current player is the next one in turn order.
+    if player_id is None and len(client.players) == 2:
+        # In 2 a player game, player_id can be omitted for convenience (==None).  Here
+        # we actually need it.  But in this case we know it is the current player since
+        # there are only 2 players.
+        player_id = client.current_player.id
     print(f"\nATTENTION {client.players[player_id].name}!")
     state = client.get_player_state(player_id)
     print_player_state(state)
@@ -199,12 +209,6 @@ def handle_play_result(result, target_id):
     elif isinstance(result, int):
         # Playing a hazard card can return the index of the target's
         # safety card that can Coup Fourré.
-        if target_id is None and len(client.players) == 2:
-            # In 2 a player game, targed_id can be omitted for
-            # convenience.  Here we actaully need it.
-            target_id = [id for id in client.players if id != client.current_player.id][
-                0
-            ]
         handle_coup_fourre(target_id, result)
     else:
         raise ValueError("Unknown play return value: " + repr(result))
