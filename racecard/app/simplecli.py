@@ -154,6 +154,7 @@ def ask_yn(question):
     return answer == "y"
 
 
+# FIXME: There is something wrong with coup fourees.
 def handle_coup_fourre(player_id, safety_index):
     """Handles Coup Fourré oppotunity by asking player and then triggering it."""
     print(f"\nATTENTION {client.players[player_id].name}!")
