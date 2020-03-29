@@ -107,6 +107,8 @@ class Hand:
             card.prevented_by is safety.type for safety in target_state.all_safeties
         ):
             raise exceptions.InvalidPlayError()
+        if not target_state.is_rolling:
+            raise exceptions.InvalidPlayError()
         pile = (
             target_state.battle_pile
             if card.pile is deck.CardPiles.BATTLE
