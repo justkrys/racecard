@@ -108,6 +108,11 @@ class LocalServer(base.ServerBase):
         with _game_exceptions():
             return self._game.current_hand.current_player_id
 
+    @property
+    def hand_winner_id(self):
+        """Returns the id of the player that won the most recent hand."""
+        return self._game.current_hand.winner_id
+
     def get_player_state(self, player_id=None):
         """Returns the state data for the given player.
 
@@ -171,3 +176,8 @@ class LocalServer(base.ServerBase):
     def get_player_scores(self):
         """Return the scores of all the players."""
         return self._game.current_hand.get_player_scores()
+
+    def next_hand(self):
+        """Starts the next hand of the game."""
+        with _game_exceptions():
+            self._game.new_hand()

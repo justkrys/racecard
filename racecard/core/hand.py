@@ -37,11 +37,11 @@ class Hand:
         self.round = 1
         self.is_extended = False
         self.is_completed = False
+        self.winner_id = None
         self._player_ids = player_ids_in_turn_order
         self._turn_index = 0
         self._last_target_id = None
         self._player_states = {}
-        self._winner_id = None
         self._player_scores = {}
         self._win_target = (
             self.SMALL_WIN_TARGET if self.is_small_deck else self.LARGE_WIN_TARGET
@@ -141,7 +141,7 @@ class Hand:
         state.distance_pile.append(state.hand.pop(card_index))
         if total == self._win_target:
             self.is_completed = True
-            self._winner_id = self.current_player_id
+            self.winner_id = self.current_player_id
             return True, False  # Win, no next turn.
 
     @staticmethod
@@ -157,6 +157,8 @@ class Hand:
             raise exceptions.InvalidPlayError()
         pile.append(state.hand.pop(card_index))
 
+    # FIXME: Playing safety as a remedy still required a subsequent roll, this is not
+    #        implemented.
     def _play_safety(self, card_index, card, state):
         if state.battle_pile and state.battle_pile[-1].type in card.prevents:
             self._tray.discard(state.battle_pile.pop())
@@ -198,6 +200,22 @@ class Hand:
     def is_small_deck(self):
         """Returns True if a small deck is being used (i.e. a 2-player game)."""
         return len(self._player_ids) < self.LARGE_DECK_PLAYERS
+
+    @property
+    def is_draw_pile_empty(self):
+        """Return True is all cards have been drawn."""
+        return self._tray.is_draw_pile_empty
+
+    @property
+    def is_shutout(self):
+        """Returns True if only the winner has any distance cards played."""
+        if not self.is_completed:
+            raise exceptions.HandInProgressError()
+        return not any(
+            bool(self._player_states[id_].distance_pile)
+            for id_ in self._player_ids
+            if id_ != self.winner_id
+        )
 
     def get_player_state(self, player_id=None):
         """Returns the state data for the given player.
@@ -269,7 +287,7 @@ class Hand:
             result, next_player = result
         if self._is_all_hands_empty():
             self.is_completed = True
-            self._winner_id = None
+            self.winner_id = None
             return False
         if next_player:  # Any other return value should just be passed through.
             self._next_player()
@@ -327,7 +345,7 @@ class Hand:
         if self.is_extended:
             raise exceptions.AlreadyExtendedError()
         self._check_completed()
-        if player_id != self._winner_id:
+        if player_id != self.winner_id:
             raise exceptions.OutOfTurnError()
         if not self.is_small_deck:
             raise exceptions.ExtensionNotAllowedError()

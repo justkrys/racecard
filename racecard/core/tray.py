@@ -78,4 +78,4 @@ class Tray:
     @property
     def is_draw_pile_empty(self):
         """Returns True if the draw pile is empty (i.e. no more cards to draw)."""
-        return bool(self._draw_pile)
+        return not bool(self._draw_pile)

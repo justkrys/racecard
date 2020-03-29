@@ -249,12 +249,34 @@ def play_round():
             print("\n" + str(error))
 
 
+def print_scores(scores, title_prefix):
+    """Print the given scores of all players.
+
+    title is printed at the top of all the scores.
+    """
+    print("=" * 10)
+    print(f"\n{title_prefix} SCORES:\n")
+    for player_id, score_card in scores.items():
+        player = client.players[player_id]
+        print("-" * 10)
+        print(f"Player {player.name}\n")
+        for point_type, score in score_card.items():
+            point_type = point_type.replace("_", " ").title()
+            print(f"{point_type}: {score}")
+        print()
+    print("=" * 10)
+
+
 def play_hand():
     """Plays one hand by repeatedly playing rounds until hand is completed."""
     print("\nHand: ", client.hand_number)
     print("=" * 10)
     while not client.is_hand_completed:
         play_round()
+    winner = client.players[client.hand_winner_id]
+    print(f"\nHUZZAH! Winner: {winner.name}! Congratulations!")
+    scores = client.get_player_scores()
+    print_scores(scores, f"HAND {client.hand_number}")
 
 
 def main():
@@ -276,7 +298,12 @@ conditions.  See the LICENCE file for details.
             client.add_player(name)
         print("\nBegin!")
         client.start_game()
-        play_hand()
+        next_hand = True
+        while next_hand:
+            play_hand()
+            next_hand = ask_yn("\nPlay next hand?")
+            if next_hand:
+                client.next_hand()
     except KeyboardInterrupt:
         print("\nAww... Bye bye. :(")
         sys.exit(-1)

@@ -100,6 +100,11 @@ class LocalClient(base.ClientBase):
         with _server_exceptions():
             return self._server.top_discarded_card
 
+    @property
+    def hand_winner_id(self):
+        """Returns the id of the player that won the most recent hand."""
+        return self._server.hand_winner_id
+
     def add_player(self, name):
         """Add a player to the game with the given name."""
         new_id = self._server.add_player()
@@ -175,3 +180,8 @@ class LocalClient(base.ClientBase):
     def get_player_scores(self):
         """Return the scores of all the players."""
         return self._server.get_player_scores()
+
+    def next_hand(self):
+        """Starts the next hand of the game."""
+        with _server_exceptions():
+            self._server.next_hand()
