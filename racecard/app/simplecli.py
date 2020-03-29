@@ -264,13 +264,17 @@ conditions.  See the LICENCE file for details.
     """
     )
     print("Race Card!  Lets Race!")
-    num_players = get_num_players()
-    names = get_player_names(num_players)
-    for name in names:
-        client.add_player(name)
-    print("\nBegin!")
-    client.start_game()
-    play_hand()
+    try:
+        num_players = get_num_players()
+        names = get_player_names(num_players)
+        for name in names:
+            client.add_player(name)
+        print("\nBegin!")
+        client.start_game()
+        play_hand()
+    except KeyboardInterrupt:
+        print("\nAww... Bye bye. :(")
+        sys.exit(-1)
 
 
 if __name__ == "__main__":
