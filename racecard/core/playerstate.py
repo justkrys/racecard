@@ -56,10 +56,10 @@ class PlayerState:
 
         False means a hazard of some kind needs to be dealt with.
         """
-        if self.battle_pile and self.battle_pile[-1].type is deck.RemedyTypes.ROLL:
+        if self.battle_pile and self.battle_pile[-1].type == deck.RemedyTypes.ROLL:
             return True
         if any(
-            [card.type is deck.SafetyTypes.RIGHT_OF_WAY for card in self.all_safeties]
+            [card.type == deck.SafetyTypes.RIGHT_OF_WAY for card in self.all_safeties]
         ):
             return True
         return False

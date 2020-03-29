@@ -104,14 +104,14 @@ class Hand:
             raise exceptions.InvalidPlayError()
         target_state = self._player_states[target_id]
         if any(
-            card.prevented_by is safety.type for safety in target_state.all_safeties
+            card.prevented_by == safety.type for safety in target_state.all_safeties
         ):
             raise exceptions.InvalidPlayError()
-        if card.pile_type is deck.CardPileTypes.BATTLE and not target_state.is_rolling:
+        if card.pile_type == deck.CardPileTypes.BATTLE and not target_state.is_rolling:
             raise exceptions.InvalidPlayError()
         pile = (
             target_state.battle_pile
-            if card.pile_type is deck.CardPileTypes.BATTLE
+            if card.pile_type == deck.CardPileTypes.BATTLE
             else target_state.speed_pile
         )
         pile.append(player_state.hand.pop(card_index))
@@ -119,7 +119,7 @@ class Hand:
         # possible.
         for index, target_card in enumerate(target_state.hand):
             if (
-                target_card.kind is deck.CardKinds.SAFETY
+                target_card.kind == deck.CardKinds.SAFETY
                 and card.type in target_card.prevents
             ):
                 self._last_target_id = target_id
@@ -128,12 +128,12 @@ class Hand:
     def _play_distance(self, card_index, card, state):
         if not state.is_rolling:
             raise exceptions.InvalidPlayError()
-        if state.speed_pile and card.prevented_by is state.speed_pile[-1].type:
+        if state.speed_pile and card.prevented_by == state.speed_pile[-1].type:
             raise exceptions.InvalidPlayError()
         d200_count = sum(
-            1 for card in state.distance_pile if card.type is deck.DistanceTypes.D200
+            1 for card in state.distance_pile if card.type == deck.DistanceTypes.D200
         )
-        if card.type is deck.DistanceTypes.D200 and d200_count >= 2:
+        if card.type == deck.DistanceTypes.D200 and d200_count >= 2:
             raise exceptions.InvalidPlayError()
         total = card.value + state.total
         if total > self._win_target:
@@ -148,10 +148,10 @@ class Hand:
     def _play_remedy(card_index, card, state):
         pile = (
             state.battle_pile
-            if card.pile_type is deck.CardPileTypes.BATTLE
+            if card.pile_type == deck.CardPileTypes.BATTLE
             else state.speed_pile
         )
-        if (not pile and card.type is not deck.RemedyTypes.ROLL) or (
+        if (not pile and card.type != deck.RemedyTypes.ROLL) or (
             pile and not pile[-1].type in card.applies_to
         ):
             raise exceptions.InvalidPlayError()
@@ -249,7 +249,7 @@ class Hand:
         state = self._player_states[self.current_player_id]
         self._check_has_drawn(state)
         card = self._get_card(state, card_index)
-        if card.kind is deck.CardKinds.HAZARD:
+        if card.kind == deck.CardKinds.HAZARD:
             self._no_coup_fourre()
             safety_index = self._play_hazard(card_index, card, state, target_id)
             self._next_player()
@@ -308,7 +308,7 @@ class Hand:
                 continue
             top_card = pile[-1]
             if (
-                top_card.kind is deck.CardKinds.HAZARD
+                top_card.kind == deck.CardKinds.HAZARD
                 and top_card.type in card.prevents
             ):
                 valid_play = True
