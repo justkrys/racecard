@@ -22,8 +22,8 @@ from collections import namedtuple
 from contextlib import contextmanager
 
 from racecard.client import base
-from racecard.server import base as serverbase, localserver
-
+from racecard.server import base as serverbase
+from racecard.server import localserver
 
 Player = namedtuple("Player", "name id")
 

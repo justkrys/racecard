@@ -10,6 +10,7 @@ flake8 = "*"
 pipenv = "*"
 flake8-bugbear = "*"
 bandit = "*"
+isort = "*"
 
 [packages]
 racecard-krys = {editable = true,path = "."}

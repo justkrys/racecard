@@ -23,7 +23,6 @@ from collections import namedtuple
 
 from racecard.client import localclient
 
-
 Move = namedtuple("Move", "action target")
 client = localclient.LocalClient()  # pylint: disable=invalid-name
 
