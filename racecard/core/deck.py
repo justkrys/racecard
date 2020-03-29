@@ -15,10 +15,12 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-import random
-from enum import Enum, unique, auto
-from collections import abc
+"""Define all card types and create decks from which to draw."""
 
+
+import random
+from collections import abc
+from enum import Enum, auto, unique
 
 # Constants
 
@@ -27,6 +29,8 @@ DEFAULT_NUM_SHUFFLES = 3
 
 @unique
 class CardKinds(Enum):
+    """Each card has a kind (or class or category), they are enumerated here."""
+
     HAZARD = auto()
     REMEDY = auto()
     SAFETY = auto()
@@ -35,6 +39,8 @@ class CardKinds(Enum):
 
 @unique
 class CardPiles(Enum):
+    """Each card can only go in certain piles, the piles are enumerated here."""
+
     BATTLE = auto()
     SPEED = auto()
     SAFETY = auto()
@@ -43,6 +49,8 @@ class CardPiles(Enum):
 
 @unique
 class HazardTypes(Enum):
+    """Hazard cards are for attacking opponents, the types are enumarated here."""
+
     ACCIDENT = auto()
     OUT_OF_GAS = auto()
     FLAT_TIRE = auto()
@@ -52,6 +60,8 @@ class HazardTypes(Enum):
 
 @unique
 class RemedyTypes(Enum):
+    """Remedy cards recover from hazards, the types are enumarated here."""
+
     REPAIRS = auto()
     GASOLINE = auto()
     SPARE_TIRE = auto()
@@ -61,6 +71,11 @@ class RemedyTypes(Enum):
 
 @unique
 class SafetyTypes(Enum):
+    """Safety cards both recover and prevent hazards, the types are enumarated here.
+
+    They can also be used to interrupt the playing of a hazard.
+    """
+
     DRIVING_ACE = auto()
     EXTRA_TANK = auto()
     PUNCTURE_PROOF = auto()
@@ -69,6 +84,8 @@ class SafetyTypes(Enum):
 
 @unique
 class DistanceTypes(Enum):
+    """Distance cards increase player scores, the types are enumarated here."""
+
     D25 = 25
     D50 = 50
     D75 = 75
@@ -80,6 +97,8 @@ class DistanceTypes(Enum):
 
 
 class Card:
+    """Base class for all cards."""
+
     def __init__(self, kind, type_, pile):
         self.kind = kind
         self.type = type_
@@ -102,6 +121,8 @@ class Card:
 
 
 class HazardCard(Card):
+    """Hazard cards are for attacking opponents."""
+
     def __init__(self, type_, remedied_by, prevented_by, pile=CardPiles.BATTLE):
         super().__init__(CardKinds.HAZARD, type_, pile)
         self.remedied_by = remedied_by
@@ -109,6 +130,8 @@ class HazardCard(Card):
 
 
 class RemedyCard(Card):
+    """Remedy cards recover from hazards/"""
+
     def __init__(self, type_, applies_to, superseded_by, pile=CardPiles.BATTLE):
         super().__init__(CardKinds.REMEDY, type_, pile)
         self.applies_to = (
@@ -120,6 +143,8 @@ class RemedyCard(Card):
 
 
 class SafetyCard(Card):
+    """Safety cards both recover, prevent and even interrupt the playing of hazards."""
+
     def __init__(self, type_, prevents, supersedes):
         super().__init__(CardKinds.SAFETY, type_, CardPiles.SAFETY)
         self.prevents = (
@@ -129,6 +154,8 @@ class SafetyCard(Card):
 
 
 class DistanceCard(Card):
+    """Distance cards increase player scores."""
+
     def __init__(self, type_, prevented_by=None):
         super().__init__(CardKinds.DISTANCE, type_, CardPiles.DISTANCE)
         self.prevented_by = prevented_by
@@ -138,6 +165,7 @@ class DistanceCard(Card):
 
     @property
     def value(self):
+        """Returns the distance value of the card."""
         return self.type.value
 
 
@@ -145,6 +173,8 @@ class DistanceCard(Card):
 
 
 class AccidentCard(HazardCard):
+    """Accident stops an opponent. They need Repairs and ROll to recover."""
+
     def __init__(self):
         super().__init__(
             HazardTypes.ACCIDENT, RemedyTypes.REPAIRS, SafetyTypes.DRIVING_ACE
@@ -152,6 +182,8 @@ class AccidentCard(HazardCard):
 
 
 class OutOfGasCard(HazardCard):
+    """Out of Gas stops an opponent. They need Gasoline and Roll to recover."""
+
     def __init__(self):
         super().__init__(
             HazardTypes.OUT_OF_GAS, RemedyTypes.GASOLINE, SafetyTypes.EXTRA_TANK
@@ -159,6 +191,8 @@ class OutOfGasCard(HazardCard):
 
 
 class FlatTireCard(HazardCard):
+    """Flat Tire stops an opponent. They need Spare Tire and Roll to recover."""
+
     def __init__(self):
         super().__init__(
             HazardTypes.FLAT_TIRE, RemedyTypes.SPARE_TIRE, SafetyTypes.PUNCTURE_PROOF
@@ -166,11 +200,18 @@ class FlatTireCard(HazardCard):
 
 
 class StopCard(HazardCard):
+    """Stop stops an opponent. They need Roll to recover."""
+
     def __init__(self):
         super().__init__(HazardTypes.STOP, RemedyTypes.ROLL, SafetyTypes.RIGHT_OF_WAY)
 
 
 class SpeedLimitCard(HazardCard):
+    """Speed Limit slows an opponent by restricting distance cards use.
+
+    They need End of Limit to recover.
+    """
+
     def __init__(self):
         super().__init__(
             HazardTypes.SPEED_LIMIT,
@@ -184,6 +225,8 @@ class SpeedLimitCard(HazardCard):
 
 
 class RepairsCard(RemedyCard):
+    """Repairs recovers from Accident and is superceeded by Driving Ace."""
+
     def __init__(self):
         super().__init__(
             RemedyTypes.REPAIRS, HazardTypes.ACCIDENT, SafetyTypes.DRIVING_ACE
@@ -191,6 +234,8 @@ class RepairsCard(RemedyCard):
 
 
 class GasolineCard(RemedyCard):
+    """Gasoline recovers from Out of Gas and is superceeded by Extra Tank."""
+
     def __init__(self):
         super().__init__(
             RemedyTypes.GASOLINE, HazardTypes.OUT_OF_GAS, SafetyTypes.EXTRA_TANK
@@ -198,6 +243,8 @@ class GasolineCard(RemedyCard):
 
 
 class SpareTireCard(RemedyCard):
+    """Spare Tire recovers from Flat Tire and is superceeded by Puncture Proof."""
+
     def __init__(self):
         super().__init__(
             RemedyTypes.SPARE_TIRE, HazardTypes.FLAT_TIRE, SafetyTypes.PUNCTURE_PROOF
@@ -205,6 +252,11 @@ class SpareTireCard(RemedyCard):
 
 
 class RollCard(RemedyCard):
+    """Roll recovers from Stop and is superceeded by Right of Way.
+
+    It is also needed after all remedied hazards except Speed Limit/End of Limit.
+    """
+
     def __init__(self):
         applies_to = set(RemedyTypes)
         applies_to.remove(RemedyTypes.ROLL)
@@ -213,6 +265,8 @@ class RollCard(RemedyCard):
 
 
 class EndOfLimitCard(RemedyCard):
+    """End of Limit recovers from Speed Limit and is superceeded by Right of Way."""
+
     def __init__(self):
         super().__init__(
             RemedyTypes.END_OF_LIMIT,
@@ -226,6 +280,8 @@ class EndOfLimitCard(RemedyCard):
 
 
 class DrivingAceCard(SafetyCard):
+    """Driving Ace recovers and prevents Accident.  It is also an interrupt."""
+
     def __init__(self):
         super().__init__(
             SafetyTypes.DRIVING_ACE, HazardTypes.ACCIDENT, RemedyTypes.REPAIRS
@@ -233,6 +289,8 @@ class DrivingAceCard(SafetyCard):
 
 
 class ExtraTankCard(SafetyCard):
+    """Extra Tank recovers and prevents Out of Gass.  It is also an interrupt."""
+
     def __init__(self):
         super().__init__(
             SafetyTypes.EXTRA_TANK, HazardTypes.OUT_OF_GAS, RemedyTypes.GASOLINE
@@ -240,6 +298,8 @@ class ExtraTankCard(SafetyCard):
 
 
 class PunctureProofCard(SafetyCard):
+    """Puncture Proof recovers and prevents Flat Tire.  It is also an interrupt."""
+
     def __init__(self):
         super().__init__(
             SafetyTypes.PUNCTURE_PROOF, HazardTypes.FLAT_TIRE, RemedyTypes.SPARE_TIRE
@@ -247,6 +307,11 @@ class PunctureProofCard(SafetyCard):
 
 
 class RightOfWayCard(SafetyCard):
+    """Right of Way recovers and prevents Stop and Speed Limit. It is also an interrupt.
+
+    It also negates the need to play Roll cards completely.
+    """
+
     def __init__(self):
         super().__init__(
             SafetyTypes.RIGHT_OF_WAY,
@@ -259,26 +324,39 @@ class RightOfWayCard(SafetyCard):
 
 
 class D25Card(DistanceCard):
+    """Travel 25 km."""
+
     def __init__(self):
         super().__init__(DistanceTypes.D25)
 
 
 class D50Card(DistanceCard):
+    """Travel 50 km."""
+
     def __init__(self):
         super().__init__(DistanceTypes.D50)
 
 
 class D75Card(DistanceCard):
+    """Travel 75 km."""
+
     def __init__(self):
         super().__init__(DistanceTypes.D75, HazardTypes.SPEED_LIMIT)
 
 
 class D100Card(DistanceCard):
+    """Travel 100 km."""
+
     def __init__(self):
         super().__init__(DistanceTypes.D100, HazardTypes.SPEED_LIMIT)
 
 
 class D200Card(DistanceCard):
+    """Travel 200 km.
+
+    Also lose the Safe Trip score bonus.
+    """
+
     def __init__(self):
         super().__init__(DistanceTypes.D200, HazardTypes.SPEED_LIMIT)
 
@@ -291,6 +369,7 @@ TOTAL_SAFETIES = 4
 #       I.e. All AccidentCards are the same instance.  When removing a card from the
 #       deck, or moving a card to another list, it is the specific reference we want to
 #       (re)move, not the whole instance.
+# TODO: Would weakrefs be better here?
 _BASE_DECK = [
     *([RepairsCard()] * 6),
     *([GasolineCard()] * 6),
@@ -313,6 +392,7 @@ _BASE_DECK = [
 
 
 def _add_hazards(deck, small):
+    """Adds hazards to a deck.  Large decks get extra hazards."""
     extra = 0 if small else 1
     deck.extend(
         [
@@ -326,6 +406,7 @@ def _add_hazards(deck, small):
 
 
 def make_deck(small=False, num_shuffles=DEFAULT_NUM_SHUFFLES):
+    """Make a new deck, shuffle it and return it."""
     new_deck = _BASE_DECK.copy()
     _add_hazards(new_deck, small)
     for _ in range(num_shuffles):

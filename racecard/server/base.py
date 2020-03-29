@@ -15,12 +15,15 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
+"""Common and base classes for all servers."""
+
+
 from racecard.core import exceptions
 
 
 class ServerError(exceptions.ExceptionBase):
-    pass
+    """Base class for all server exceptions."""
 
 
 class ServerBase:
-    pass
+    """Base class for all servers."""

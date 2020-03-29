@@ -14,11 +14,14 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+"""Responsible for calculating player scores."""
 
 from racecard.core import deck
 
 
 class ScoreCard:
+    """A player's score card, calculated after a hand is completed."""
+
     def __init__(self, player_id):
         self.player_id = player_id
         self.distance = 0
@@ -33,6 +36,7 @@ class ScoreCard:
 
     @property
     def total(self):
+        """Returns the total distance traveled."""
         return sum(
             (
                 self.distance,
@@ -49,6 +53,10 @@ class ScoreCard:
 
 
 def score_player(player_id, hand):
+    """Create a ScoreCard for a player for the given completed hand and return it.
+
+    Calculates the score based on the given hand.
+    """
     card = ScoreCard(player_id)
     player_state = hand.player_states[player_id]
     card.distance = player_state.total

@@ -15,10 +15,15 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
+"""Code that defines all the player state data."""
+
+
 from racecard.core import deck
 
 
 class PlayerState:
+    """Data structure for all the state of one player."""
+
     def __init__(self):
         self.hand = []
         self.safeties = []  # All safeties, including the coup fourré cards.
@@ -29,18 +34,28 @@ class PlayerState:
 
     @property
     def has_drawn(self):
+        """Returns True when the player may not draw any more cards.
+
+        Returns False while the player should keep drawing more cards.
+        """
         return len(self.hand) == 7
 
     @property
     def all_safeties(self):
+        """Returns a list of all safety cards, including coup fourrés."""
         return self.safeties + self.coups_fourres
 
     @property
     def total(self):
+        """Returns the current total distance traveled."""
         return sum(card.value for card in self.distance_pile)
 
     @property
     def is_rolling(self):
+        """Returns True if the player can play distance cards, i.e. is rolling.
+
+        False means a hazard of some kind needs to be dealt with.
+        """
         if self.battle_pile and self.battle_pile[-1].type is deck.RemedyTypes.ROLL:
             return True
         if any(

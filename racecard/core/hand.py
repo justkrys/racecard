@@ -15,10 +15,17 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-from racecard.core import exceptions, playerstate, deck, tray, scoring
+"""Code to run/handle one hand of Race Card.  This is the heart of the game."""
+
+
+from racecard.core import deck, exceptions, playerstate, scoring, tray
 
 
 class Hand:
+    """Represents and runs one hand of the game, consisting of several rounds.
+
+    This class runs the core gameplay and tracks all state for the hand.
+    """
 
     MAX_CARDS_IN_HAND = 6
     SMALL_WIN_TARGET = 700
@@ -169,25 +176,40 @@ class Hand:
 
     @property
     def cards_remaining(self):
+        """Returns the number of cards left in the deck."""
         return self._tray.cards_remaining
 
     @property
     def top_discarded_card(self):
+        """Returns the top card on the discarded pile.
+
+        Note: It does not remove the card from the pile. It just peeks at it.
+        """
         return self._tray.top_discarded_card
 
     @property
     def current_player_id(self):
+        """Returns the id of the player who's turn it is."""
         return self._player_ids[self._turn_index]
 
     @property
     def is_small_deck(self):
+        """Returns True if a small deck is being used (i.e. a 2-player game)."""
         return len(self._player_ids) < self.LARGE_DECK_PLAYERS
 
     def get_player_state(self, player_id=None):
+        """Returns the state data for the given player.
+
+        If player_id is None, the current player is used.
+        """
         player_id = self._check_player_id(player_id)
         return self._player_states[player_id]
 
     def draw(self, player_id=None):
+        """Draw a card.
+
+        If player_id is None, the current player is used.
+        """
         self._check_not_completed()
         player_id = self._check_player_id(player_id)
         self._check_player_turn(player_id)
@@ -198,6 +220,10 @@ class Hand:
         state.hand.append(self._tray.draw())
 
     def draw_from_discard(self, player_id=None):
+        """Draw a card from the discard pile.
+
+        If player_id is None, the current player is used.
+        """
         self._check_not_completed()
         player_id = self._check_player_id(player_id)
         self._check_player_turn(player_id)
@@ -210,6 +236,13 @@ class Hand:
     # FIXME: Can play hazard when opponent not rolling yet.
     #        e.g. P1 battle at Replairs, P2 plays Stop and it does not fail.
     def play(self, card_index, target_id=None, player_id=None):
+        """Play a card.
+
+        If player_id is None, the current player is used.
+        target_id is only used for hazards.
+        If target_id is None, and this is a 2-player game, then the other player is
+        automatically the target.
+        """
         self._check_not_completed()
         player_id = self._check_player_id(player_id)
         self._check_player_turn(player_id)
@@ -243,6 +276,10 @@ class Hand:
         return result
 
     def discard(self, card_index, player_id=None):
+        """Discard a card
+
+        If player_id is None, the current player is used.
+        """
         self._check_not_completed()
         player_id = self._check_player_id(player_id)
         self._check_player_turn(player_id)
@@ -254,6 +291,11 @@ class Hand:
         self._next_player()
 
     def coup_fourre(self, safety_index, player_id=None):
+        """Trigger a Coup Fourré.
+
+        player_id is the player doing the coup fourré.
+        If player_id is None, the current player is used.
+        """
         self._check_not_completed()
         player_id = self._check_player_id(player_id)
         if player_id != self._last_target_id:
@@ -277,6 +319,10 @@ class Hand:
         state.coups_fourres.append(state.hand.pop(safety_index))
 
     def extension(self, winner_id=None):
+        """Trigger an extension on the current hand.
+
+        winner_id is the player that just won and has the option to extend.
+        """
         player_id = self._check_player_id(winner_id)
         if self.is_extended:
             raise exceptions.AlreadyExtendedError()
@@ -291,6 +337,7 @@ class Hand:
         self._next_player()
 
     def get_player_scores(self):
+        """Return the scores of all the players."""
         self._check_completed()
         if not self._player_scores:
             for player_id in self._player_ids:

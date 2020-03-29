@@ -15,17 +15,21 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
+"""A simple CLI interface to Race Card."""
+
+
 import sys
 from collections import namedtuple
 
 from racecard.client import localclient
 
 
-client = localclient.LocalClient()
 Move = namedtuple("Move", "action target")
+client = localclient.LocalClient()  # pylint: disable=invalid-name
 
 
 def get_num_players():
+    """Asks user how many players in the game and returns result."""
     num_players = 0
     while not 2 <= num_players <= 4:
         try:
@@ -38,6 +42,7 @@ def get_num_players():
 
 
 def get_player_names(num_players):
+    """Asks user for the name of each player and returns results as a list."""
     names = []
     for i in range(num_players):
         name = input(f"\nEnter Name for Player {i+1}: ").strip()  # nosec
@@ -46,12 +51,14 @@ def get_player_names(num_players):
 
 
 def print_card_list(prefix, cards):
+    """Print the list of cards."""
     print(
         prefix, ", ".join([f"{index+1}:[{card}]" for index, card in enumerate(cards)])
     )
 
 
 def print_player_state(state):
+    """Print the state of a player."""
     print_card_list("Hand:", state.hand)
     print_card_list("Safeties:", state.safeties)
     print_card_list("Coups Fourrés:", state.coups_fourres)
@@ -62,6 +69,7 @@ def print_player_state(state):
 
 
 def print_player_states():
+    """Print the state of all players."""
     for index, player in enumerate(client.players.values()):
         print(f"\nPlayer: {index+1}:[{player.name}]")
         state = client.get_player_state(player.id)
@@ -69,6 +77,7 @@ def print_player_states():
 
 
 def print_move_help():
+    """Print a help message for entering valid moves."""
     print(
         """
 Move Options:
@@ -86,6 +95,7 @@ e.g. "D", "X", "D2", "6", "31", etc.
 
 
 def is_valid_move(move):
+    """Returns True is the move is formatted correctly, False otherwise."""
     # Note: User input in 1-based not 0-based.
     hand_len = len(client.get_player_state().hand)
     # Single character inputs
@@ -116,6 +126,7 @@ def is_valid_move(move):
 
 
 def get_player_move():
+    """Asks player for their next move and returns result."""
     print("\nYour turn: ", client.current_player.name)
     while True:
         move_str = (
@@ -137,6 +148,7 @@ def get_player_move():
 
 
 def ask_yn(question):
+    """Ask user a Yes or No questions and return response."""
     answer = None
     while answer not in ("y", "n"):
         answer = input(f"{question} [Y/N] ").strip().lower()  # nosec
@@ -144,6 +156,7 @@ def ask_yn(question):
 
 
 def handle_coup_fourre(player_id, safety_index):
+    """Handles Coup Fourré oppotunity by asking player and then triggering it."""
     print(f"\nATTENTION {client.players[player_id].name}!")
     state = client.get_player_state(player_id)
     print_player_state(state)
@@ -154,6 +167,7 @@ def handle_coup_fourre(player_id, safety_index):
 
 
 def handle_extension():
+    """Handles end of round extension opportunity by asking player and triggering it."""
     if not client.is_hand_completed:
         raise RuntimeError("handle_extension called but hand is not done.")
     if not client.is_small_deck or client.is_hand_extended:
@@ -167,6 +181,7 @@ def handle_extension():
 
 
 def get_last_discarded():
+    """Returns the last card that was discarded."""
     try:
         return str(client.top_discarded_card)
     except localclient.LocalClientError as error:
@@ -174,6 +189,7 @@ def get_last_discarded():
 
 
 def handle_play_result(result, target_id):
+    """Handles the result of sending a play to ther server."""
     if result is True:
         # Playing a distance card can return True if the player wins.
         handle_extension()
@@ -195,6 +211,7 @@ def handle_play_result(result, target_id):
 
 
 def play_round():
+    """Plays one round by presenting state, asking for input and sending the play."""
     # Note: User input in 1-based not 0-based.
     current_round = client.round_number
     print("\nRound:", current_round)
@@ -223,12 +240,13 @@ def play_round():
                     target_id = None
                 result = client.play(card_index, target_id)
                 if result is not None:
-                    handle_play_result(result)
+                    handle_play_result(result, target_id)
         except localclient.LocalClientError as error:
             print("\n" + str(error))
 
 
 def play_hand():
+    """Plays one hand by repeatedly playing rounds until hand is completed."""
     print("\nHand: ", client.hand_number)
     print("=" * 10)
     while not client.is_hand_completed:
@@ -236,6 +254,7 @@ def play_hand():
 
 
 def main():
+    """Main entry point for the simple ClI interface."""
     print(
         """
 Race Card Copyright (C) 2020 Krys Lawrence

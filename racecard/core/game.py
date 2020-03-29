@@ -15,6 +15,9 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
+"""Top-level of core.  The Game class runs a whole game."""
+
+
 import random
 import uuid
 
@@ -22,6 +25,11 @@ from racecard.core import exceptions, hand
 
 
 class Game:
+    """Top-level Game class.  Registers players and runs multiple hands.
+
+    Servers/applications should instantiate this class.
+    """
+
     def __init__(self):
         self.player_ids = []
         self.turn_order = []
@@ -30,22 +38,25 @@ class Game:
     # @property
     # def is_running(self):
     #     # No hands, not running (game not started).
-    #     # Have hands, but last hand is completed, then also not running (game finished)  # noqa: B950
+    #     # Have hands, but last hand is completed, also not running (game finished)
     #     return bool(self.hands) and not self.current_hand.is_completed
 
     @property
     def current_hand(self):
+        """Returns the current hand object."""
         try:
             return self.hands[-1]
         except IndexError:
             raise exceptions.NotBegunError()
 
     def join(self):
+        """Adds a new player to the game and retruns their id."""
         new_id = uuid.uuid4()
         self.player_ids.append(new_id)
         return new_id
 
     def begin(self):
+        """Begin the game or InsufficientPlayersError if not enough players."""
         if len(self.player_ids) < 2:
             raise exceptions.InsufficientPlayersError()
         self.turn_order = self.player_ids.copy()
@@ -53,6 +64,7 @@ class Game:
         self.new_hand()
 
     def new_hand(self):
+        """Creates a new hand or HandInProgressError if current one is still going."""
         if self.hands and not self.current_hand.is_completed:
             raise exceptions.HandInProgressError()
         self.hands.append(hand.Hand(len(self.hands) + 1, self.turn_order))
