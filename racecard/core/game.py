@@ -22,7 +22,6 @@ from racecard.core import exceptions, hand
 
 
 class Game:
-
     def __init__(self):
         self.player_ids = []
         self.turn_order = []
@@ -31,7 +30,7 @@ class Game:
     # @property
     # def is_running(self):
     #     # No hands, not running (game not started).
-    #     # Have hands, but last hand is completed, then also not running (game finished)
+    #     # Have hands, but last hand is completed, then also not running (game finished)  # noqa: B950
     #     return bool(self.hands) and not self.current_hand.is_completed
 
     @property
@@ -56,4 +55,4 @@ class Game:
     def new_hand(self):
         if self.hands and not self.current_hand.is_completed:
             raise exceptions.HandInProgressError()
-        self.hands.append(hand.Hand(len(self.hands)+1, self.turn_order))
+        self.hands.append(hand.Hand(len(self.hands) + 1, self.turn_order))

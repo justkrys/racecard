@@ -33,81 +33,83 @@ class CoreException(ExceptionBase):
 
 # Game Exceptions
 
+
 class GameError(CoreException):
     pass
 
 
 class NotBegunError(GameError):
-    message = 'Game has not yet begun!'
+    message = "Game has not yet begun!"
 
 
 class InsufficientPlayersError(GameError):
-    message = 'Not enough player have joined this game!'
+    message = "Not enough player have joined this game!"
 
 
 # Hand Exceptions
+
 
 class HandError(CoreException):
     pass
 
 
 class InvalidPlayerError(HandError):
-    message = 'Invalid player ID!'
+    message = "Invalid player ID!"
 
 
 class MustDrawError(HandError):
-    message = 'Must draw a card first!'
+    message = "Must draw a card first!"
 
 
 class AlreadyDrawnError(HandError):
-    message = 'Already drawn, cannot draw again!'
+    message = "Already drawn, cannot draw again!"
 
 
 class AmbiguousTargetError(HandError):
-    message = 'Multiple target choices, a target player must be specified!'
+    message = "Multiple target choices, a target player must be specified!"
 
 
 class PreventedBySafetyError(HandError):
-    message = 'Play prevented by safety!'
+    message = "Play prevented by safety!"
 
 
 class InvalidPlayError(HandError):
-    message = 'Cannot play card at this time!'
+    message = "Cannot play card at this time!"
 
 
 class OutOfTurnError(HandError):
-    message = 'Not your turn!'
+    message = "Not your turn!"
 
 
 class InvalidCardIndexError(HandError):
-    message = 'Invalid card index!'
+    message = "Invalid card index!"
 
 
 class InvalidTargetError(HandError):
-    message = 'Card cannot be played on another player!'
+    message = "Card cannot be played on another player!"
 
 
 class HandInProgressError(HandError):
-    message = 'Hand is still in progress!'
+    message = "Hand is still in progress!"
 
 
 class ExtensionNotAllowedError(HandError):
-    message = 'Extension is not allowed!'
+    message = "Extension is not allowed!"
 
 
 class AlreadyExtendedError(HandError):
-    message = 'Has is already extended!'
+    message = "Has is already extended!"
 
 
 class HandCompletedError(HandError):
-    message = 'Hand is completed, no further plays allowed!'
+    message = "Hand is completed, no further plays allowed!"
 
 
 # Tray Exceptions
 
-class EmptyPileError(CoreException):
 
+class EmptyPileError(CoreException):
     def __init__(self, draw=False):
-        message = ('Draw' if draw else 'Discard') + ' pile is empty!'
+        message = ("Draw" if draw else "Discard") + " pile is empty!"
         super().__init__(message)
         self.draw = draw

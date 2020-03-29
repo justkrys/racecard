@@ -19,9 +19,9 @@ from racecard.core import exceptions
 
 
 class Tray:
-
     def __init__(self, deck):
-        # NOTE: The top of each of these piles is the last entry in the list.  Tail = top, head = bottom.
+        # NOTE: The top of each of these piles is the last entry in the list.
+        #       Tail = top, head = bottom.
         self._draw_pile = deck
         self._discard_pile = []
 

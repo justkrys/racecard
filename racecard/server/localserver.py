@@ -34,7 +34,6 @@ def _game_exceptions():
 
 
 class LocalServer(base.ServerBase):
-
     def __init__(self):
         self._game = game.Game()
 

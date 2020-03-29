@@ -22,7 +22,7 @@ from racecard.client import base
 from racecard.server import base as serverbase, localserver
 
 
-Player = namedtuple('Player', 'name id')
+Player = namedtuple("Player", "name id")
 
 
 class LocalClientError(base.ClientError):
@@ -38,10 +38,9 @@ def _server_exceptions():
 
 
 class LocalClient(base.ClientBase):
-
     def __init__(self, server=None):
         self.players = {}
-        self._server = (server if server else localserver.LocalServer())
+        self._server = server if server else localserver.LocalServer()
 
     @property
     def current_player(self):

@@ -36,7 +36,9 @@ class Hand:
         self._player_states = {}
         self._winner_id = None
         self._player_scores = {}
-        self._win_target = (self.SMALL_WIN_TARGET if self.is_small_deck else self.LARGE_WIN_TARGET)
+        self._win_target = (
+            self.SMALL_WIN_TARGET if self.is_small_deck else self.LARGE_WIN_TARGET
+        )
         self._tray = tray.Tray(deck.make_deck(self.is_small_deck))
         for player_id in self._player_ids:
             self._player_states[player_id] = playerstate.PlayerState()
@@ -88,19 +90,29 @@ class Hand:
             if len(self._player_ids) > 2:
                 raise exceptions.AmbiguousTargetError()
             # Only 2 players, so we can infer that target_id is the other player.
-            target_id = self._player_ids[self._turn_index-1]
+            target_id = self._player_ids[self._turn_index - 1]
         else:
             target_id = self._check_player_id(target_id)  # Validate the id
         if target_id == self.current_player_id:
             raise exceptions.InvalidPlayError()
         target_state = self._player_states[target_id]
-        if any(card.prevented_by is safety.type for safety in target_state.all_safeties):
+        if any(
+            card.prevented_by is safety.type for safety in target_state.all_safeties
+        ):
             raise exceptions.InvalidPlayError()
-        pile = (target_state.battle_pile if card.pile is deck.CardPiles.BATTLE else target_state.speed_pile)
+        pile = (
+            target_state.battle_pile
+            if card.pile is deck.CardPiles.BATTLE
+            else target_state.speed_pile
+        )
         pile.append(player_state.hand.pop(card_index))
-        # Check for possible Coup Fourré.  Return the safety card's index if one is possible.
+        # Check for possible Coup Fourré.  Return the safety card's index if one is
+        # possible.
         for index, target_card in enumerate(target_state.hand):
-            if target_card.kind is deck.CardKinds.SAFETY and card.type in target_card.prevents:
+            if (
+                target_card.kind is deck.CardKinds.SAFETY
+                and card.type in target_card.prevents
+            ):
                 self._last_target_id = target_id
                 return index
 
@@ -109,7 +121,9 @@ class Hand:
             raise exceptions.InvalidPlayError()
         if state.speed_pile and card.prevented_by is state.speed_pile[-1].type:
             raise exceptions.InvalidPlayError()
-        d200_count = sum(1 for card in state.distance_pile if card.type is deck.DistanceTypes.D200)
+        d200_count = sum(
+            1 for card in state.distance_pile if card.type is deck.DistanceTypes.D200
+        )
         if card.type is deck.DistanceTypes.D200 and d200_count >= 2:
             raise exceptions.InvalidPlayError()
         total = card.value + state.total
@@ -123,8 +137,14 @@ class Hand:
 
     @staticmethod
     def _play_remedy(card_index, card, state):
-        pile = (state.battle_pile if card.pile is deck.CardPiles.BATTLE else state.speed_pile)
-        if (not pile and card.type is not deck.RemedyTypes.ROLL) or (pile and not pile[-1].type in card.applies_to):
+        pile = (
+            state.battle_pile
+            if card.pile is deck.CardPiles.BATTLE
+            else state.speed_pile
+        )
+        if (not pile and card.type is not deck.RemedyTypes.ROLL) or (
+            pile and not pile[-1].type in card.applies_to
+        ):
             raise exceptions.InvalidPlayError()
         pile.append(state.hand.pop(card_index))
 
@@ -187,6 +207,8 @@ class Hand:
         self._no_coup_fourre()
         state.hand.append(self._tray.draw_from_discard())
 
+    # FIXME: Can play hazard when opponent not rolling yet.
+    #        e.g. P1 battle at Replairs, P2 plays Stop and it does not fail.
     def play(self, card_index, target_id=None, player_id=None):
         self._check_not_completed()
         player_id = self._check_player_id(player_id)
@@ -203,8 +225,11 @@ class Hand:
             raise exceptions.InvalidTargetError()
         self._no_coup_fourre()
         # All self-play methods have the same signature.
-        # If _play_X method returns a value, it must be a tuple of (value-to-return-to-caller, go-to-next-player?)
-        result = getattr(self, f'_play_{card.kind.name.lower()}')(card_index, card, state)
+        # If _play_X method returns a value, it must be a tuple of
+        # (value-to-return-to-caller, go-to-next-player?)
+        result = getattr(self, f"_play_{card.kind.name.lower()}")(
+            card_index, card, state
+        )
         if result is None:
             next_player = True
         else:
@@ -240,7 +265,10 @@ class Hand:
             if not pile:
                 continue
             top_card = pile[-1]
-            if top_card.kind is deck.CardKinds.HAZARD and top_card.type in card.prevents:
+            if (
+                top_card.kind is deck.CardKinds.HAZARD
+                and top_card.type in card.prevents
+            ):
                 valid_play = True
                 self._tray.discard(pile.pop())
         if not valid_play:

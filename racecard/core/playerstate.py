@@ -19,7 +19,6 @@ from racecard.core import deck
 
 
 class PlayerState:
-
     def __init__(self):
         self.hand = []
         self.safeties = []  # All safeties, including the coup fourré cards.
@@ -44,6 +43,8 @@ class PlayerState:
     def is_rolling(self):
         if self.battle_pile and self.battle_pile[-1].type is deck.RemedyTypes.ROLL:
             return True
-        if any([card.type is deck.SafetyTypes.RIGHT_OF_WAY for card in self.all_safeties]):
+        if any(
+            [card.type is deck.SafetyTypes.RIGHT_OF_WAY for card in self.all_safeties]
+        ):
             return True
         return False
