@@ -38,8 +38,8 @@ class CardKinds(Enum):
 
 
 @unique
-class CardPiles(Enum):
-    """Each card can only go in certain piles, the piles are enumerated here."""
+class CardPileTypes(Enum):
+    """Each card can only go in certain piles, the pile types are enumerated here."""
 
     BATTLE = auto()
     SPEED = auto()
@@ -99,13 +99,13 @@ class DistanceTypes(Enum):
 class Card:
     """Base class for all cards."""
 
-    def __init__(self, kind, type_, pile):
+    def __init__(self, kind, type_, pile_type):
         self.kind = kind
         self.type = type_
-        self.pile = pile
+        self.pile_type = pile_type
 
     def __repr__(self):
-        return f"Card({self.kind.name}, {self.type.name}, {self.pile.name})"
+        return f"Card({self.kind.name}, {self.type.name}, {self.pile_type.name})"
 
     def __str__(self):
         return self.type.name.replace("_", " ").title()
@@ -116,15 +116,17 @@ class Card:
         return (
             self.kind == other.kind
             and self.type == other.type
-            and self.pile == other.pile
+            and self.pile_type == other.pile_type
         )
 
 
 class HazardCard(Card):
     """Hazard cards are for attacking opponents."""
 
-    def __init__(self, type_, remedied_by, prevented_by, pile=CardPiles.BATTLE):
-        super().__init__(CardKinds.HAZARD, type_, pile)
+    def __init__(
+        self, type_, remedied_by, prevented_by, pile_type=CardPileTypes.BATTLE
+    ):
+        super().__init__(CardKinds.HAZARD, type_, pile_type)
         self.remedied_by = remedied_by
         self.prevented_by = prevented_by
 
@@ -132,8 +134,10 @@ class HazardCard(Card):
 class RemedyCard(Card):
     """Remedy cards recover from hazards/"""
 
-    def __init__(self, type_, applies_to, superseded_by, pile=CardPiles.BATTLE):
-        super().__init__(CardKinds.REMEDY, type_, pile)
+    def __init__(
+        self, type_, applies_to, superseded_by, pile_type=CardPileTypes.BATTLE
+    ):
+        super().__init__(CardKinds.REMEDY, type_, pile_type)
         self.applies_to = (
             {applies_to}
             if not isinstance(applies_to, abc.Iterable)
@@ -146,7 +150,7 @@ class SafetyCard(Card):
     """Safety cards both recover, prevent and even interrupt the playing of hazards."""
 
     def __init__(self, type_, prevents, supersedes):
-        super().__init__(CardKinds.SAFETY, type_, CardPiles.SAFETY)
+        super().__init__(CardKinds.SAFETY, type_, CardPileTypes.SAFETY)
         self.prevents = (
             {prevents} if not isinstance(prevents, abc.Iterable) else set(prevents)
         )
@@ -157,7 +161,7 @@ class DistanceCard(Card):
     """Distance cards increase player scores."""
 
     def __init__(self, type_, prevented_by=None):
-        super().__init__(CardKinds.DISTANCE, type_, CardPiles.DISTANCE)
+        super().__init__(CardKinds.DISTANCE, type_, CardPileTypes.DISTANCE)
         self.prevented_by = prevented_by
 
     def __str__(self):
@@ -217,7 +221,7 @@ class SpeedLimitCard(HazardCard):
             HazardTypes.SPEED_LIMIT,
             RemedyTypes.END_OF_LIMIT,
             SafetyTypes.RIGHT_OF_WAY,
-            CardPiles.SPEED,
+            CardPileTypes.SPEED,
         )
 
 
@@ -272,7 +276,7 @@ class EndOfLimitCard(RemedyCard):
             RemedyTypes.END_OF_LIMIT,
             HazardTypes.SPEED_LIMIT,
             SafetyTypes.RIGHT_OF_WAY,
-            CardPiles.SPEED,
+            CardPileTypes.SPEED,
         )
 
 

@@ -107,11 +107,11 @@ class Hand:
             card.prevented_by is safety.type for safety in target_state.all_safeties
         ):
             raise exceptions.InvalidPlayError()
-        if card.pile is deck.CardPiles.BATTLE and not target_state.is_rolling:
+        if card.pile_type is deck.CardPileTypes.BATTLE and not target_state.is_rolling:
             raise exceptions.InvalidPlayError()
         pile = (
             target_state.battle_pile
-            if card.pile is deck.CardPiles.BATTLE
+            if card.pile_type is deck.CardPileTypes.BATTLE
             else target_state.speed_pile
         )
         pile.append(player_state.hand.pop(card_index))
@@ -148,7 +148,7 @@ class Hand:
     def _play_remedy(card_index, card, state):
         pile = (
             state.battle_pile
-            if card.pile is deck.CardPiles.BATTLE
+            if card.pile_type is deck.CardPileTypes.BATTLE
             else state.speed_pile
         )
         if (not pile and card.type is not deck.RemedyTypes.ROLL) or (
