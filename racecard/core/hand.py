@@ -235,8 +235,6 @@ class Hand:
         self._no_coup_fourre()
         state.hand.append(self._tray.draw_from_discard())
 
-    # FIXME: Can play hazard when opponent not rolling yet.
-    #        e.g. P1 battle at Replairs, P2 plays Stop and it does not fail.
     def play(self, card_index, target_id=None, player_id=None):
         """Play a card.
 
