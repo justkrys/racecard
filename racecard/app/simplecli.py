@@ -19,12 +19,22 @@
 
 
 import sys
-from collections import namedtuple
+from dataclasses import asdict, dataclass
 
-from racecard.client import localclient
+from racecard.core import exceptions
+from racecard.core.game import Game, PlayResults
 
-Move = namedtuple("Move", "action target")
-client = localclient.LocalClient()  # pylint: disable=invalid-name
+
+@dataclass
+class Move:
+    """A player's move, as entered by the user."""
+
+    action: str
+    target: str = None
+
+
+game = Game()  # pylint: disable=invalid-name
+player_names = {}  # pylint: disable=invalid-name
 
 
 def get_num_players():
@@ -59,19 +69,20 @@ def print_card_list(prefix, cards):
 def print_player_state(state):
     """Print the state of a player."""
     print_card_list("Hand:", state.hand)
-    print_card_list("Safeties:", state.safeties)
-    print_card_list("Coups Fourrés:", state.coups_fourres)
+    print_card_list("Safeties:", state.safeties_pile)
     print_card_list("Battle:", state.battle_pile)
     print_card_list("Speed:", state.speed_pile)
     print_card_list("Distance:", state.distance_pile)
-    print("Total:", sum(card.value for card in state.distance_pile))
+    print("Total:", state.total)
 
 
 def print_player_states():
     """Print the state of all players."""
-    for index, player in enumerate(client.players.values()):
-        print(f"\nPlayer: {index+1}:[{player.name}]")
-        state = client.get_player_state(player.id)
+    for index, (id_, name) in enumerate(player_names.items()):
+        print(f"\nPlayer: {index+1}:[{name}]")
+        state = game.get_player_state(id_)
+        print("State:", state.state)
+        print("Coups Fourrés:", state.coups_fourres)
         print_player_state(state)
 
 
@@ -96,7 +107,7 @@ e.g. "D", "X", "D2", "6", "31", etc.
 def is_valid_move(move):
     """Returns True is the move is formatted correctly, False otherwise."""
     # Note: User input in 1-based not 0-based.
-    hand_len = len(client.get_player_state().hand)
+    hand_len = len(game.get_player_state(game.current_player_id).hand)
     # Single character inputs
     if move.target is None:
         if move.action in "dqx":
@@ -117,16 +128,16 @@ def is_valid_move(move):
         move.action.isdigit()
         and move.target.isdigit()
         and (0 < int(move.action) <= hand_len)
-        and (0 < int(move.target) <= len(client.players))
+        and (0 < int(move.target) <= len(player_names))
     ):
         # Valid play on target
         return True
     return False
 
 
-def get_player_move():
+def get_player_move(player_id):
     """Asks player for their next move and returns result."""
-    print("\nYour turn: ", client.current_player.name)
+    print("\nYour turn: ", player_names[player_id])
     while True:
         move_str = (
             input("Choose move [D, X, D#, #, ##, Q, or H for help]: ")  # nosec
@@ -139,7 +150,7 @@ def get_player_move():
         move_len = len(move_str)
         if 0 < move_len < 3:  # Validate length
             # Normalize input
-            move = Move._make((move_str, None) if move_len == 1 else tuple(move_str))
+            move = Move(move_str) if move_len == 1 else Move(*move_str)
             if is_valid_move(move):
                 break
         print("Invalid move, try again.")
@@ -154,112 +165,113 @@ def ask_yn(question):
     return answer == "y"
 
 
-def handle_coup_fourre(player_id, safety_index):
+def handle_coup_fourre(target_id):
     """Handles Coup Fourré oppotunity by asking player and then triggering it.
 
-    player_id is the player who was attacked and can coup fourré.
+    target_id is the player who was attacked and can coup fourré.
     """
-    # Note: player_id can be different from the current player when there are more than
+    # Note: target_id can be different from the current player when there are more than
     # 2 players.  Also, the attacking player's turn has already ended at this point and
     # the current player is the next one in turn order.
-    if player_id is None and len(client.players) == 2:
-        # In 2 a player game, player_id can be omitted for convenience (==None).  Here
+    if target_id is None and len(player_names) == 2:
+        # In 2 a player game, target_id can be omitted for convenience (==None).  Here
         # we actually need it.  But in this case we know it is the current player since
         # there are only 2 players.
-        player_id = client.current_player.id
-    print(f"\nATTENTION {client.players[player_id].name}!")
-    state = client.get_player_state(player_id)
+        target_id = game.current_player_id
+    state = game.get_player_state(target_id)
     print_player_state(state)
-    answer = ask_yn("Would you like to Coup Fourré?")
-    if not answer:
-        return
-    client.coup_fourre(safety_index, player_id)
+    print(f"\nATTENTION {player_names[target_id]}!")
+    if ask_yn("Would you like to Coup Fourré?"):
+        game.coup_fourre(target_id)
 
 
-def handle_extension():
+def handle_extension(player_id):
     """Handles end of round extension opportunity by asking player and triggering it."""
-    if not client.is_hand_completed:
-        raise RuntimeError("handle_extension called but hand is not done.")
-    if not client.is_small_deck or client.is_hand_extended:
-        return
-    print(f"\nATTENTION {client.current_player.name}!")
-    print_player_states()
-    answer = ask_yn("Would you like to call an Extension?")
-    if not answer:
-        return
-    client.extension()
+    print(f"\nATTENTION {player_names[player_id]}!")
+    if ask_yn("Would you like to call an Extension?"):
+        game.extension(player_id)
+    else:
+        game.no_extension(player_id)
 
 
 def get_last_discarded():
     """Returns the last card that was discarded."""
     try:
-        return str(client.top_discarded_card)
-    except localclient.LocalClientError as error:
+        return str(game.top_discarded_card)
+    except exceptions.EmptyPileError as error:
         return str(error)
 
 
-def handle_play_result(result, target_id):
+def handle_play_result(result, player_id, target_id):
     """Handles the result of sending a play to ther server."""
-    if result is True:
+    if result == PlayResults.WIN_CAN_EXTEND:
         # Playing a distance card can return True if the player wins.
-        handle_extension()
-    elif result is False:
-        # Hand is done, ran out of cards.
-        pass  # Nothing to do, hand is done.
-    elif isinstance(result, int):
-        # Playing a hazard card can return the index of the target's
-        # safety card that can Coup Fourré.
-        handle_coup_fourre(target_id, result)
-    else:
-        raise ValueError("Unknown play return value: " + repr(result))
+        handle_extension(player_id)
+    elif result == PlayResults.CAN_COUP_FOURRE:
+        handle_coup_fourre(target_id)
+
+
+def handle_discard(player_id, move):
+    """Handles discarding a card, even if it is a Safety."""
+    card_index = int(move.target) - 1
+    try:
+        game.discard(player_id, card_index)
+    except exceptions.DiscardSafetyWarning:
+        if ask_yn("WARNING: Are you sure you want to discard a Safety card?!"):
+            game.discard(player_id, card_index, force=True)
+
+
+def get_target_id(move):
+    """Returns the player id of the target from move, or None if not possible."""
+    try:
+        target_index = int(move.target) - 1
+        return tuple(player_names)[target_index]
+    except TypeError:
+        return None
 
 
 def play_round():
     """Plays one round by presenting state, asking for input and sending the play."""
     # Note: User input in 1-based not 0-based.
-    current_round = client.round_number
+    current_round = game.round_number
     print("\nRound:", current_round)
     print("-" * 10)
-    while client.round_number == current_round and not client.is_hand_completed:
-        print("\nCards Remaining:", client.cards_remaining)
+    while game.round_number == current_round and not game.is_hand_completed:
+        print("\nCards Remaining:", game.cards_remaining)
         print("Last Discarded:", get_last_discarded())
         print_player_states()
-        move = get_player_move()
+        player_id = game.current_player_id
+        move = get_player_move(player_id)
         if move.action == "q":
             sys.exit(0)
         try:
             if move.action == "d" and move.target is None:
-                client.draw()
+                game.draw(player_id)
             elif move.action == "x" and move.target is None:
-                client.draw_from_discard()
+                game.draw(player_id, discard=True)
             elif move.action == "d":
-                card_index = int(move.target) - 1
-                client.discard(card_index)
+                handle_discard(player_id, move)
             else:  # move.action is the index of a card to play
                 card_index = int(move.action) - 1
-                try:
-                    target_index = int(move.target) - 1
-                    target_id = client.players.values()[target_index].id
-                except TypeError:
-                    target_id = None
-                result = client.play(card_index, target_id)
-                if result is not None:
-                    handle_play_result(result, target_id)
-        except localclient.LocalClientError as error:
-            print("\n" + str(error))
+                target_id = get_target_id(move)
+                result = game.play(player_id, card_index, target_id)
+                handle_play_result(result, player_id, target_id)
+        except exceptions.CoreException as error:
+            print("\nATTENTION:", str(error))
 
 
-def print_scores(scores, title_prefix):
-    """Print the given scores of all players.
+def print_scores(title_prefix, winner_id=None):
+    """Print the scores of all players.
 
-    title is printed at the top of all the scores.
+    A title with the given prefix is printed at the top of all the scores.
     """
     print("=" * 10)
     print(f"\n{title_prefix} SCORES:\n")
-    for player_id, score_card in scores.items():
-        player = client.players[player_id]
+    for index, (id_, name) in enumerate(player_names.items()):
+        winner = "WINNER!" if id_ == winner_id else ""
         print("-" * 10)
-        print(f"Player {player.name}\n")
+        print(f"Player {index+1}: [{name}] {winner}\n")
+        score_card = asdict(game.get_player_state(id_).score_card)
         for point_type, score in score_card.items():
             point_type = point_type.replace("_", " ").title()
             print(f"{point_type}: {score}")
@@ -269,14 +281,16 @@ def print_scores(scores, title_prefix):
 
 def play_hand():
     """Plays one hand by repeatedly playing rounds until hand is completed."""
-    print("\nHand: ", client.hand_number)
+    print("\nHand: ", game.hand_number)
     print("=" * 10)
-    while not client.is_hand_completed:
+    while not game.is_hand_completed:
         play_round()
-    winner = client.players[client.hand_winner_id]
-    print(f"\nHUZZAH! Winner: {winner.name}! Congratulations!")
-    scores = client.get_player_scores()
-    print_scores(scores, f"HAND {client.hand_number}")
+    if game.hand_winner_id is not None:
+        winner = player_names[game.hand_winner_id]
+        print(f"\nHUZZAH! Winner: {winner}! Congratulations!")
+    else:
+        print("Awww. No winner this hand.")
+    print_scores(f"HAND {game.hand_number}", game.hand_winner_id)
 
 
 def main():
@@ -295,15 +309,21 @@ conditions.  See the LICENCE file for details.
         num_players = get_num_players()
         names = get_player_names(num_players)
         for name in names:
-            client.add_player(name)
+            id_ = game.add_player()
+            player_names[id_] = name
         print("\nBegin!")
-        client.start_game()
+        game.begin()
+        for id_ in player_names:
+            game.toggle_sort(id_)
         next_hand = True
         while next_hand:
             play_hand()
             next_hand = ask_yn("\nPlay next hand?")
             if next_hand:
-                client.next_hand()
+                game.next_hand()
+        print("\n Good Game!")
+        print_scores("FINAL", game.winner_id)
+        print("See you!  See you in the mosh'sh pit!")
     except KeyboardInterrupt:
         print("\nAww... Bye bye. :(")
         sys.exit(-1)
