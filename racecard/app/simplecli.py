@@ -116,6 +116,7 @@ def is_valid_move(move):
         if move.action.isdigit() and (0 < int(move.action) <= hand_len):
             # Valid play on yourself or valid hazard play in 2-player games
             return True
+        return False
     # 2-character inputs
     if (
         move.action == "d"
@@ -258,6 +259,7 @@ def play_round():
                 handle_play_result(result, player_id, target_id)
         except exceptions.CoreException as error:
             print("\nATTENTION:", str(error))
+        print("-" * 10)
 
 
 def print_scores(title_prefix, winner_id=None):
