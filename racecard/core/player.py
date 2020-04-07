@@ -219,6 +219,11 @@ class Player:
             raise exceptions.InvalidPlayError()
         if self._distance_total + card.value > win_score:
             raise exceptions.InvalidPlayError()
+        if (
+            card.is_a(deck.D200Card)
+            and len([c for c in self._distance_pile if c.is_a(deck.D200Card)]) >= 2
+        ):
+            raise exceptions.InvalidPlayError()
         self._clear_last_hazard()
         self._move_card(self._hand, self._distance_pile, card_index)
         self._sort_hand()
