@@ -3,3 +3,6 @@ max-line-length=88
 
 [MESSAGES CONTROL]
 disable=bad-continuation
+
+[DESIGN]
+max-attributes=12
