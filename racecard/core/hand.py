@@ -42,6 +42,7 @@ class Hand:
     def __init__(self, player_ids_in_turn_order):
         self.round_number = 1
         self.winner_id = None
+        self.is_completed = False
         self._turn_index = 0
         self._extended = False
         self._last_target = None
@@ -161,15 +162,17 @@ class Hand:
 
     def _complete(self, winner=True):
         """Complete the hand.  It is over."""
-        winner_id = self.current_player_id if winner else None
-        losers = [player for id_, player in self._players.items() if id_ != winner_id]
+        self.winner_id = self.current_player_id if winner else None
+        losers = [
+            player for id_, player in self._players.items() if id_ != self.winner_id
+        ]
         for loser in losers:
             loser.lost()
         shutout = all([loser.is_shutout for loser in losers])
         draw_empty = not self._tray.cards_remaining
         for player in self._players.values():
             player.calc_score(draw_empty, self._extended, shutout)
-        self.winner_id = winner_id
+        self.is_completed = True
 
     def _check_no_more_cards(self, result=None, next_turn=True):
         """Returns COMPLETE_NO_WINNER if there are no more cards to play.
@@ -189,11 +192,6 @@ class Hand:
     def current_player_id(self):
         """Returns the id of the current player."""
         return tuple(self._players)[self._turn_index]
-
-    @property
-    def is_completed(self):
-        """Returns True if the hand is completed/done/finished."""
-        return bool(self.winner_id)
 
     @property
     def cards_remaining(self):
