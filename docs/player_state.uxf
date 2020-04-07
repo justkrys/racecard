@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <diagram program="umlet" version="14.3.0">
-  <zoom_level>13</zoom_level>
+  <zoom_level>10</zoom_level>
   <element>
     <id>UMLSpecialState</id>
     <coordinates>
-      <x>65</x>
-      <y>299</y>
-      <w>26</w>
-      <h>26</h>
+      <x>50</x>
+      <y>280</y>
+      <w>20</w>
+      <h>20</h>
     </coordinates>
     <panel_attributes>type=initial</panel_attributes>
     <additional_attributes/>
@@ -15,10 +15,10 @@
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>299</x>
-      <y>286</y>
-      <w>117</w>
-      <h>52</h>
+      <x>140</x>
+      <y>270</y>
+      <w>90</w>
+      <h>40</h>
     </coordinates>
     <panel_attributes>stopped</panel_attributes>
     <additional_attributes/>
@@ -26,21 +26,21 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>78</x>
-      <y>299</y>
-      <w>247</w>
-      <h>39</h>
+      <x>60</x>
+      <y>280</y>
+      <w>100</w>
+      <h>30</h>
     </coordinates>
     <panel_attributes>lt=-&gt;</panel_attributes>
-    <additional_attributes>10.0;10.0;170.0;10.0</additional_attributes>
+    <additional_attributes>10.0;10.0;80.0;10.0</additional_attributes>
   </element>
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>637</x>
-      <y>286</y>
-      <w>117</w>
-      <h>52</h>
+      <x>400</x>
+      <y>270</y>
+      <w>90</w>
+      <h>40</h>
     </coordinates>
     <panel_attributes>rolling</panel_attributes>
     <additional_attributes/>
@@ -48,10 +48,10 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>403</x>
-      <y>286</y>
-      <w>260</w>
-      <h>52</h>
+      <x>220</x>
+      <y>270</y>
+      <w>200</w>
+      <h>40</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
 play roll</panel_attributes>
@@ -60,10 +60,10 @@ play roll</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>403</x>
-      <y>312</y>
-      <w>260</w>
-      <h>78</h>
+      <x>220</x>
+      <y>290</y>
+      <w>200</w>
+      <h>60</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
 play right of way</panel_attributes>
@@ -72,34 +72,34 @@ play right of way</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>702</x>
-      <y>325</y>
-      <w>156</w>
-      <h>169</h>
+      <x>370</x>
+      <y>210</y>
+      <w>110</w>
+      <h>80</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
 play distance</panel_attributes>
-    <additional_attributes>10.0;10.0;10.0;110.0</additional_attributes>
+    <additional_attributes>40.0;60.0;40.0;20.0;60.0;20.0;60.0;60.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>650</x>
-      <y>195</y>
-      <w>117</w>
-      <h>117</h>
+      <x>430</x>
+      <y>170</y>
+      <w>90</w>
+      <h>120</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
 play safety</panel_attributes>
-    <additional_attributes>20.0;70.0;20.0;20.0;60.0;20.0;60.0;70.0</additional_attributes>
+    <additional_attributes>30.0;100.0;30.0;20.0;50.0;20.0;50.0;100.0</additional_attributes>
   </element>
   <element>
     <id>UMLState</id>
     <coordinates>
-      <x>1157</x>
-      <y>286</y>
-      <w>117</w>
-      <h>52</h>
+      <x>630</x>
+      <y>270</y>
+      <w>90</w>
+      <h>40</h>
     </coordinates>
     <panel_attributes>broken</panel_attributes>
     <additional_attributes/>
@@ -107,177 +107,69 @@ play safety</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>741</x>
-      <y>286</y>
-      <w>182</w>
-      <h>52</h>
+      <x>480</x>
+      <y>260</y>
+      <w>170</w>
+      <h>40</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
 play hazard</panel_attributes>
-    <additional_attributes>10.0;20.0;120.0;20.0</additional_attributes>
+    <additional_attributes>10.0;20.0;150.0;20.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>351</x>
-      <y>117</y>
-      <w>871</w>
-      <h>195</h>
+      <x>190</x>
+      <y>140</y>
+      <w>490</w>
+      <h>150</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-play correct remedy</panel_attributes>
-    <additional_attributes>650.0;130.0;650.0;20.0;10.0;20.0;10.0;130.0</additional_attributes>
+play remedy</panel_attributes>
+    <additional_attributes>470.0;130.0;470.0;20.0;10.0;20.0;10.0;130.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>403</x>
-      <y>247</y>
-      <w>260</w>
-      <h>78</h>
+      <x>220</x>
+      <y>240</y>
+      <w>200</w>
+      <h>60</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
 have right of way</panel_attributes>
     <additional_attributes>10.0;40.0;30.0;20.0;160.0;20.0;180.0;40.0</additional_attributes>
   </element>
   <element>
-    <id>UMLSpecialState</id>
-    <coordinates>
-      <x>897</x>
-      <y>234</y>
-      <w>156</w>
-      <h>156</h>
-    </coordinates>
-    <panel_attributes>type=decision
-coup fourre?</panel_attributes>
-    <additional_attributes/>
-  </element>
-  <element>
     <id>Relation</id>
     <coordinates>
-      <x>1040</x>
-      <y>286</y>
-      <w>143</w>
-      <h>52</h>
+      <x>160</x>
+      <y>100</y>
+      <w>550</w>
+      <h>190</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-no</panel_attributes>
-    <additional_attributes>10.0;20.0;90.0;20.0</additional_attributes>
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
-      <x>741</x>
-      <y>312</y>
-      <w>260</w>
-      <h>156</h>
-    </coordinates>
-    <panel_attributes>lt=-&gt;
-yes</panel_attributes>
-    <additional_attributes>180.0;60.0;180.0;100.0;20.0;100.0;20.0;40.0;10.0;10.0</additional_attributes>
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
-      <x>312</x>
-      <y>65</y>
-      <w>949</w>
-      <h>247</h>
-    </coordinates>
-    <panel_attributes>lt=-&gt;
-play correct safety</panel_attributes>
-    <additional_attributes>710.0;170.0;710.0;20.0;10.0;20.0;10.0;170.0</additional_attributes>
+play safety</panel_attributes>
+    <additional_attributes>530.0;170.0;530.0;20.0;10.0;20.0;10.0;170.0</additional_attributes>
   </element>
   <element>
     <id>UMLSpecialState</id>
     <coordinates>
-      <x>676</x>
-      <y>468</y>
-      <w>78</w>
-      <h>78</h>
-    </coordinates>
-    <panel_attributes>type=decision
-win?</panel_attributes>
-    <additional_attributes/>
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
-      <x>663</x>
-      <y>325</y>
-      <w>65</w>
-      <h>208</h>
-    </coordinates>
-    <panel_attributes>lt=-&gt;
-no</panel_attributes>
-    <additional_attributes>10.0;140.0;10.0;10.0</additional_attributes>
-  </element>
-  <element>
-    <id>UMLSpecialState</id>
-    <coordinates>
-      <x>650</x>
-      <y>637</y>
-      <w>130</w>
-      <h>130</h>
-    </coordinates>
-    <panel_attributes>type=decision
-extension</panel_attributes>
-    <additional_attributes/>
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
-      <x>702</x>
-      <y>533</y>
-      <w>65</w>
-      <h>130</h>
-    </coordinates>
-    <panel_attributes>lt=-&gt;
-yes</panel_attributes>
-    <additional_attributes>10.0;10.0;10.0;80.0</additional_attributes>
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
-      <x>624</x>
-      <y>325</y>
-      <w>65</w>
-      <h>403</h>
-    </coordinates>
-    <panel_attributes>lt=-&gt;
-yes</panel_attributes>
-    <additional_attributes>20.0;290.0;10.0;290.0;10.0;40.0;20.0;10.0</additional_attributes>
-  </element>
-  <element>
-    <id>UMLSpecialState</id>
-    <coordinates>
-      <x>1157</x>
-      <y>689</y>
-      <w>26</w>
-      <h>26</h>
+      <x>560</x>
+      <y>390</y>
+      <w>20</w>
+      <h>20</h>
     </coordinates>
     <panel_attributes>type=final</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
-    <id>Relation</id>
-    <coordinates>
-      <x>767</x>
-      <y>676</y>
-      <w>169</w>
-      <h>52</h>
-    </coordinates>
-    <panel_attributes>lt=-&gt;
-no</panel_attributes>
-    <additional_attributes>10.0;20.0;110.0;20.0</additional_attributes>
-  </element>
-  <element>
     <id>UMLState</id>
     <coordinates>
-      <x>910</x>
-      <y>676</y>
-      <w>117</w>
-      <h>52</h>
+      <x>400</x>
+      <y>380</y>
+      <w>90</w>
+      <h>40</h>
     </coordinates>
     <panel_attributes>completed</panel_attributes>
     <additional_attributes/>
@@ -285,24 +177,48 @@ no</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1014</x>
-      <y>689</y>
-      <w>169</w>
-      <h>39</h>
+      <x>480</x>
+      <y>390</y>
+      <w>100</w>
+      <h>30</h>
     </coordinates>
     <panel_attributes>lt=-&gt;</panel_attributes>
-    <additional_attributes>10.0;10.0;110.0;10.0</additional_attributes>
+    <additional_attributes>10.0;10.0;80.0;10.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>702</x>
-      <y>715</y>
-      <w>286</w>
-      <h>117</h>
+      <x>480</x>
+      <y>280</y>
+      <w>170</w>
+      <h>40</h>
     </coordinates>
     <panel_attributes>lt=-&gt;
-already extended</panel_attributes>
-    <additional_attributes>10.0;40.0;10.0;70.0;200.0;70.0;200.0;10.0</additional_attributes>
+coup fourre</panel_attributes>
+    <additional_attributes>150.0;20.0;10.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>410</x>
+      <y>300</y>
+      <w>50</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+win</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;80.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>460</x>
+      <y>300</y>
+      <w>100</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+extension</panel_attributes>
+    <additional_attributes>10.0;80.0;10.0;10.0</additional_attributes>
   </element>
 </diagram>
