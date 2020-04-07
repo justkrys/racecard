@@ -25,6 +25,10 @@ from racecard.core import exceptions
 from racecard.core.game import Game, PlayResults
 
 
+class QuitException(exceptions.ExceptionBase):
+    """Raised when quitting the game."""
+
+
 @dataclass
 class Move:
     """A player's move, as entered by the user."""
@@ -97,6 +101,7 @@ Move Options:
     "D#" for discard card
     "#" (card) to play a card on yourself
     "##" (card then target player) to play on another player
+    "S" to toggle auto sorting of your hand
     "Q" to quit
 
 e.g. "D", "X", "D2", "6", "31", etc.
@@ -110,7 +115,7 @@ def is_valid_move(move):
     hand_len = len(game.get_player_state(game.current_player_id).hand)
     # Single character inputs
     if move.target is None:
-        if move.action in "dqx":
+        if move.action in "dqsx":
             # Valid single letter move
             return True
         if move.action.isdigit() and (0 < int(move.action) <= hand_len):
@@ -141,7 +146,7 @@ def get_player_move(player_id):
     print("\nYour turn: ", player_names[player_id])
     while True:
         move_str = (
-            input("Choose move [D, X, D#, #, ##, Q, or H for help]: ")  # nosec
+            input("Choose move [D, X, D#, #, ##, S, Q, or H for help]: ")  # nosec
             .strip()
             .lower()
         )
@@ -244,12 +249,14 @@ def play_round():
         player_id = game.current_player_id
         move = get_player_move(player_id)
         if move.action == "q":
-            sys.exit(0)
+            raise QuitException()
         try:
             if move.action == "d" and move.target is None:
                 game.draw(player_id)
             elif move.action == "x" and move.target is None:
                 game.draw(player_id, discard=True)
+            elif move.action == "s" and move.target is None:
+                game.toggle_sort(player_id)
             elif move.action == "d":
                 handle_discard(player_id, move)
             else:  # move.action is the index of a card to play
@@ -315,8 +322,6 @@ conditions.  See the LICENCE file for details.
             player_names[id_] = name
         print("\nBegin!")
         game.begin()
-        for id_ in player_names:
-            game.toggle_sort(id_)
         next_hand = True
         while next_hand:
             play_hand()
@@ -325,7 +330,10 @@ conditions.  See the LICENCE file for details.
                 game.next_hand()
         print("\n Good Game!")
         print_scores("FINAL", game.winner_id)
+        raise QuitException()
+    except QuitException:
         print("See you!  See you in the mosh'sh pit!")
+        sys.exit(0)
     except KeyboardInterrupt:
         print("\nAww... Bye bye. :(")
         sys.exit(-1)
