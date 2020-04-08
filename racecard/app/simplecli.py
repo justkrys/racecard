@@ -87,6 +87,7 @@ def print_player_states():
         state = game.get_player_state(id_)
         print("State:", state.state)
         print("Coups Fourrés:", state.coups_fourres)
+        print("Sort Hand:", state.sort_hand)
         print_player_state(state)
 
 

@@ -55,6 +55,7 @@ class _PlayerState:
     winner: bool
     hand: tuple
     coups_fourres: int
+    sort_hand: bool
     total: int
     score_card: _ScoreCard
     safeties_pile: tuple = field(default_factory=tuple)
@@ -404,6 +405,7 @@ class Player:
             state=self._state.name,
             winner=self._winner,
             coups_fourres=self._coup_fourre_count,
+            sort_hand=self._should_sort_hand,
             total=sum(card.value for card in self._distance_pile),
             hand=tuple(card.name for card in self._hand),
             score_card=self._score_card,
