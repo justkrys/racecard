@@ -11,6 +11,7 @@ pipenv = "*"
 flake8-bugbear = "*"
 bandit = "*"
 isort = "*"
+pre-commit = "*"
 
 [packages]
 racecard-krys = {editable = true,path = "."}
