@@ -17,11 +17,13 @@
 
 """Core error types and base classes for all Race Card exceptions."""
 
+# Base Classes
+
 
 class ExceptionBase(Exception):
     """Base class for all Race Card exceptions.
 
-    Includes support for default messages.
+    Includes support for default messages and using doctstrings as messages.
     """
 
     message = None
@@ -41,78 +43,38 @@ class CoreException(ExceptionBase):
     """Base class for all core exceptions."""
 
 
-# Game Exceptions
+# General Exceptions
 
 
-class GameError(CoreException):
-    """Base class for all Game exceptions."""
-
-
-class NotBegunError(GameError):
-    """Game has not yet begun!"""
-
-
-class InsufficientPlayersError(GameError):
-    """Not enough player have joined this game!"""
-
-
-# Hand Exceptions
-
-
-class HandError(CoreException):
-    """Base class for all Hand exceptions."""
-
-
-class InvalidPlayerError(HandError):
-    """Invalid player ID!"""
-
-
-class MustDrawError(HandError):
-    """Must draw a card first!"""
-
-
-class AlreadyDrawnError(HandError):
-    """Already drawn, cannot draw again!"""
-
-
-class AmbiguousTargetError(HandError):
-    """Multiple target choices, a target player must be specified!"""
-
-
-class PreventedBySafetyError(HandError):
-    """Play prevented by safety!"""
-
-
-class InvalidPlayError(HandError):
-    """Cannot play card at this time!"""
-
-
-class OutOfTurnError(HandError):
-    """Not your turn!"""
-
-
-class InvalidCardIndexError(HandError):
-    """Invalid card index!"""
-
-
-class InvalidTargetError(HandError):
-    """Card cannot be played on another player!"""
-
-
-class HandInProgressError(HandError):
+class HandInProgressError(CoreException):
     """Hand is still in progress!"""
 
 
-class ExtensionNotAllowedError(HandError):
-    """Extension is not allowed!"""
+class HandCompletedError(CoreException):
+    """Hand is completed!"""
 
 
-class AlreadyExtendedError(HandError):
-    """Has is already extended!"""
+class CannotCoupFourreError(CoreException):
+    """Cannot Coup Fourré at this time!"""
 
 
-class HandCompletedError(HandError):
-    """Hand is completed, no further plays allowed!"""
+# Player Exceptions
+
+
+class InvalidCardIndexError(CoreException):
+    """Invalid card index!"""
+
+
+class InvalidCardError(CoreException):
+    """Invalid card!"""
+
+
+class InvalidPlayError(CoreException):
+    """Cannot play card at this time!"""
+
+
+class DiscardSafetyWarning(CoreException):
+    """Do not discard Safety cards!"""
 
 
 # Tray Exceptions
@@ -124,4 +86,45 @@ class EmptyPileError(CoreException):
     def __init__(self, draw=False):
         message = ("Draw" if draw else "Discard") + " pile is empty!"
         super().__init__(message)
-        self.draw = draw
+
+
+# Hand Exceptions
+
+
+class InvalidPlayerError(CoreException):
+    """Invalid player!"""
+
+
+class InvalidTargetError(CoreException):
+    """Invalid target player!"""
+
+
+class OutOfTurnError(CoreException):
+    """Not your turn!"""
+
+
+class MustDrawError(CoreException):
+    """Must draw a card first!"""
+
+
+class CannotDrawError(CoreException):
+    """Cannot draw another card!"""
+
+
+class CannotExtendError(CoreException):
+    """Cannot call an extension!"""
+
+
+# Game Exceptions
+
+
+class InsufficientPlayersError(CoreException):
+    """Not enough player have joined this game!"""
+
+
+class NotBegunError(CoreException):
+    """Game has not yet begun!"""
+
+
+class TooManyPlayers(CoreException):
+    """Too many players!  Max player count already met."""

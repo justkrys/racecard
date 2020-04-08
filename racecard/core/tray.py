@@ -35,35 +35,6 @@ class Tray:
         """Returns the number of cards remaining in the draw pile."""
         return len(self._draw_pile)
 
-    def draw(self):
-        """Draw one card from the top of the draw pile and return it.
-
-        The card is removed from the draw pile, and the one under it becomes the new
-        top card.
-        """
-        try:
-            return self._draw_pile.pop()
-        except IndexError:
-            raise exceptions.EmptyPileError(draw=True)
-
-    def discard(self, card):
-        """Discard one card to the discard pile.
-
-        The card is added to the top of the discard pile.
-        """
-        self._discard_pile.append(card)
-
-    def draw_from_discard(self):
-        """Draw one card from the top of the discard pile and return it.
-
-        The card is removed from the discard pile, and the one under it becomes the new
-        top card.
-        """
-        try:
-            return self._discard_pile.pop()
-        except IndexError:
-            raise exceptions.EmptyPileError()
-
     @property
     def top_discarded_card(self):
         """Returns the top card on the discard pile or EmptyPileError is none exists.
@@ -75,7 +46,21 @@ class Tray:
         except IndexError:
             raise exceptions.EmptyPileError()
 
-    @property
-    def is_draw_pile_empty(self):
-        """Returns True if the draw pile is empty (i.e. no more cards to draw)."""
-        return not bool(self._draw_pile)
+    def draw(self, discard=False):
+        """Draw one card from the top of either the draw or discard pile and return it.
+
+        The card is removed from the pile, and the one under it becomes the new top
+        card.
+        """
+        pile = self._draw_pile if not discard else self._discard_pile
+        try:
+            return pile.pop()
+        except IndexError:
+            raise exceptions.EmptyPileError(draw=True)
+
+    def discard(self, card):
+        """Discard one card to the discard pile.
+
+        The card is added to the top of the discard pile.
+        """
+        self._discard_pile.append(card)

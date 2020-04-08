@@ -19,361 +19,252 @@
 
 
 import random
-from collections import abc
-from enum import Enum, auto, unique
+from abc import ABC, abstractmethod
 
-# Constants
-
-DEFAULT_NUM_SHUFFLES = 3
-
-
-@unique
-class CardKinds(Enum):
-    """Each card has a kind (or class or category), they are enumerated here."""
-
-    HAZARD = auto()
-    REMEDY = auto()
-    SAFETY = auto()
-    DISTANCE = auto()
-
-
-@unique
-class CardPileTypes(Enum):
-    """Each card can only go in certain piles, the pile types are enumerated here."""
-
-    BATTLE = auto()
-    SPEED = auto()
-    SAFETY = auto()
-    DISTANCE = auto()
-
-
-@unique
-class HazardTypes(Enum):
-    """Hazard cards are for attacking opponents, the types are enumarated here."""
-
-    ACCIDENT = auto()
-    OUT_OF_GAS = auto()
-    FLAT_TIRE = auto()
-    STOP = auto()
-    SPEED_LIMIT = auto()
-
-
-@unique
-class RemedyTypes(Enum):
-    """Remedy cards recover from hazards, the types are enumarated here."""
-
-    REPAIRS = auto()
-    GASOLINE = auto()
-    SPARE_TIRE = auto()
-    ROLL = auto()
-    END_OF_LIMIT = auto()
-
-
-@unique
-class SafetyTypes(Enum):
-    """Safety cards both recover and prevent hazards, the types are enumarated here.
-
-    They can also be used to interrupt the playing of a hazard.
-    """
-
-    DRIVING_ACE = auto()
-    EXTRA_TANK = auto()
-    PUNCTURE_PROOF = auto()
-    RIGHT_OF_WAY = auto()
-
-
-@unique
-class DistanceTypes(Enum):
-    """Distance cards increase player scores, the types are enumarated here."""
-
-    D25 = 25
-    D50 = 50
-    D75 = 75
-    D100 = 100
-    D200 = 200
-
+from racecard.core import config
 
 # Base Classes
 
 
-class Card:
+class Card(ABC):  # pylint: disable=too-few-public-methods
+
     """Base class for all cards."""
 
-    def __init__(self, kind, type_, pile_type):
-        self.kind = kind
-        self.type = type_
-        self.pile_type = pile_type
-
-    def __repr__(self):
-        return f"Card({self.kind.name}, {self.type.name}, {self.pile_type.name})"
-
-    def __str__(self):
-        return self.type.name.replace("_", " ").title()
-
-    def __eq__(self, other):
-        if not isinstance(other, Card):
-            return False
-        return (
-            self.kind == other.kind
-            and self.type == other.type
-            and self.pile_type == other.pile_type
-        )
-
-
-class HazardCard(Card):
-    """Hazard cards are for attacking opponents."""
-
-    def __init__(
-        self, type_, remedied_by, prevented_by, pile_type=CardPileTypes.BATTLE
-    ):
-        super().__init__(CardKinds.HAZARD, type_, pile_type)
-        self.remedied_by = remedied_by
-        self.prevented_by = prevented_by
-
-
-class RemedyCard(Card):
-    """Remedy cards recover from hazards/"""
-
-    def __init__(
-        self, type_, applies_to, superseded_by, pile_type=CardPileTypes.BATTLE
-    ):
-        super().__init__(CardKinds.REMEDY, type_, pile_type)
-        self.applies_to = (
-            {applies_to}
-            if not isinstance(applies_to, abc.Iterable)
-            else set(applies_to)
-        )
-        self.superseded_by = superseded_by
-
-
-class SafetyCard(Card):
-    """Safety cards both recover, prevent and even interrupt the playing of hazards."""
-
-    def __init__(self, type_, prevents, supersedes):
-        super().__init__(CardKinds.SAFETY, type_, CardPileTypes.SAFETY)
-        self.prevents = (
-            {prevents} if not isinstance(prevents, abc.Iterable) else set(prevents)
-        )
-        self.supersedes = supersedes
-
-
-class DistanceCard(Card):
-    """Distance cards increase player scores."""
-
-    def __init__(self, type_, prevented_by=None):
-        super().__init__(CardKinds.DISTANCE, type_, CardPileTypes.DISTANCE)
-        self.prevented_by = prevented_by
-
-    def __str__(self):
-        return super().__str__()[1:]  # Strip initial D character
+    @property
+    @abstractmethod
+    def name(self):
+        """The name of the card."""
 
     @property
+    @abstractmethod
+    def weight(self):
+        """A weight number of the card when sorting a hand. Higher = more top/left."""
+
+    def __str__(self):
+        return self.name
+
+    def is_a(self, type_):
+        """Returns True if the card is an instance of the given type."""
+        return isinstance(self, type_)
+
+
+class SafetyCard(Card):  # pylint: disable=too-few-public-methods,abstract-method
+    """Safety cards both recover, prevent and even interrupt the playing of hazards."""
+
+
+class BattleCard(Card):  # pylint: disable=too-few-public-methods,abstract-method
+    """Cards that go on the battle pile."""
+
+
+class SpeedCard(Card):  # pylint: disable=too-few-public-methods,abstract-method
+    """Cards that go on the speed pile."""
+
+
+class RemedyCard(Card):  # pylint: disable=too-few-public-methods,abstract-method
+    """Remedy cards recover from hazards."""
+
+
+class HazardCard(Card):  # pylint: disable=too-few-public-methods
+    """Hazard cards are for attacking opponents."""
+
+    @property
+    @abstractmethod
+    def remedied_by(self):
+        """Can be remedied by this card type."""
+
+    @property
+    @abstractmethod
+    def prevented_by(self):
+        """Can be prevented by this card type."""
+
+
+class DistanceCard(Card):  # pylint: disable=too-few-public-methods
+    """Distance cards increase player scores."""
+
+    @property
+    @abstractmethod
     def value(self):
-        """Returns the distance value of the card."""
-        return self.type.value
+        """The numeric value of the card."""
 
-
-# Hazard Cards
-
-
-class AccidentCard(HazardCard):
-    """Accident stops an opponent. They need Repairs and ROll to recover."""
-
-    def __init__(self):
-        super().__init__(
-            HazardTypes.ACCIDENT, RemedyTypes.REPAIRS, SafetyTypes.DRIVING_ACE
-        )
-
-
-class OutOfGasCard(HazardCard):
-    """Out of Gas stops an opponent. They need Gasoline and Roll to recover."""
-
-    def __init__(self):
-        super().__init__(
-            HazardTypes.OUT_OF_GAS, RemedyTypes.GASOLINE, SafetyTypes.EXTRA_TANK
-        )
-
-
-class FlatTireCard(HazardCard):
-    """Flat Tire stops an opponent. They need Spare Tire and Roll to recover."""
-
-    def __init__(self):
-        super().__init__(
-            HazardTypes.FLAT_TIRE, RemedyTypes.SPARE_TIRE, SafetyTypes.PUNCTURE_PROOF
-        )
-
-
-class StopCard(HazardCard):
-    """Stop stops an opponent. They need Roll to recover."""
-
-    def __init__(self):
-        super().__init__(HazardTypes.STOP, RemedyTypes.ROLL, SafetyTypes.RIGHT_OF_WAY)
-
-
-class SpeedLimitCard(HazardCard):
-    """Speed Limit slows an opponent by restricting distance cards use.
-
-    They need End of Limit to recover.
-    """
-
-    def __init__(self):
-        super().__init__(
-            HazardTypes.SPEED_LIMIT,
-            RemedyTypes.END_OF_LIMIT,
-            SafetyTypes.RIGHT_OF_WAY,
-            CardPileTypes.SPEED,
-        )
-
-
-# Remedy Cards
-
-
-class RepairsCard(RemedyCard):
-    """Repairs recovers from Accident and is superceeded by Driving Ace."""
-
-    def __init__(self):
-        super().__init__(
-            RemedyTypes.REPAIRS, HazardTypes.ACCIDENT, SafetyTypes.DRIVING_ACE
-        )
-
-
-class GasolineCard(RemedyCard):
-    """Gasoline recovers from Out of Gas and is superceeded by Extra Tank."""
-
-    def __init__(self):
-        super().__init__(
-            RemedyTypes.GASOLINE, HazardTypes.OUT_OF_GAS, SafetyTypes.EXTRA_TANK
-        )
-
-
-class SpareTireCard(RemedyCard):
-    """Spare Tire recovers from Flat Tire and is superceeded by Puncture Proof."""
-
-    def __init__(self):
-        super().__init__(
-            RemedyTypes.SPARE_TIRE, HazardTypes.FLAT_TIRE, SafetyTypes.PUNCTURE_PROOF
-        )
-
-
-class RollCard(RemedyCard):
-    """Roll recovers from Stop and is superceeded by Right of Way.
-
-    It is also needed after all remedied hazards except Speed Limit/End of Limit.
-    """
-
-    def __init__(self):
-        applies_to = set(RemedyTypes)
-        applies_to.remove(RemedyTypes.ROLL)
-        applies_to.add(HazardTypes.STOP)
-        super().__init__(RemedyTypes.ROLL, applies_to, SafetyTypes.RIGHT_OF_WAY)
-
-
-class EndOfLimitCard(RemedyCard):
-    """End of Limit recovers from Speed Limit and is superceeded by Right of Way."""
-
-    def __init__(self):
-        super().__init__(
-            RemedyTypes.END_OF_LIMIT,
-            HazardTypes.SPEED_LIMIT,
-            SafetyTypes.RIGHT_OF_WAY,
-            CardPileTypes.SPEED,
-        )
+    @property
+    def name(self):
+        return str(self.value)
 
 
 # Safety Cards
 
 
-class DrivingAceCard(SafetyCard):
+class DrivingAceCard(SafetyCard):  # pylint: disable=too-few-public-methods
     """Driving Ace recovers and prevents Accident.  It is also an interrupt."""
 
-    def __init__(self):
-        super().__init__(
-            SafetyTypes.DRIVING_ACE, HazardTypes.ACCIDENT, RemedyTypes.REPAIRS
-        )
+    name = "Driving Ace"
+    weight = config.DRIVING_ACE_WEIGHT
 
 
-class ExtraTankCard(SafetyCard):
+class ExtraTankCard(SafetyCard):  # pylint: disable=too-few-public-methods
     """Extra Tank recovers and prevents Out of Gass.  It is also an interrupt."""
 
-    def __init__(self):
-        super().__init__(
-            SafetyTypes.EXTRA_TANK, HazardTypes.OUT_OF_GAS, RemedyTypes.GASOLINE
-        )
+    name = "Extra Tank"
+    weight = config.EXTRA_TANK_WEIGHT
 
 
-class PunctureProofCard(SafetyCard):
+class PunctureProofCard(SafetyCard):  # pylint: disable=too-few-public-methods
     """Puncture Proof recovers and prevents Flat Tire.  It is also an interrupt."""
 
-    def __init__(self):
-        super().__init__(
-            SafetyTypes.PUNCTURE_PROOF, HazardTypes.FLAT_TIRE, RemedyTypes.SPARE_TIRE
-        )
+    name = "Puncture Proof"
+    weight = config.PUNCTURE_PROOF_WEIGHT
 
 
-class RightOfWayCard(SafetyCard):
+class RightOfWayCard(SafetyCard):  # pylint: disable=too-few-public-methods
     """Right of Way recovers and prevents Stop and Speed Limit. It is also an interrupt.
 
     It also negates the need to play Roll cards completely.
     """
 
-    def __init__(self):
-        super().__init__(
-            SafetyTypes.RIGHT_OF_WAY,
-            (HazardTypes.STOP, HazardTypes.SPEED_LIMIT),
-            RemedyTypes.ROLL,
-        )
+    name = "Right of Way"
+    weight = config.RIGHT_OF_WAY_WEIGHT
+
+
+# Remedy Cards
+
+
+class EndOfLimitCard(SpeedCard, RemedyCard):  # pylint: disable=too-few-public-methods
+    """End of Limit recovers from Speed Limit and is superceeded by Right of Way."""
+
+    name = "End of Limit"
+    weight = config.END_OF_LIMIT_WEIGHT
+
+
+class SpareTireCard(BattleCard, RemedyCard):  # pylint: disable=too-few-public-methods
+    """Spare Tire recovers from Flat Tire and is superceeded by Puncture Proof."""
+
+    name = "Spare Tire"
+    weight = config.SPARE_TIRE_WEIGHT
+
+
+class RepairsCard(BattleCard, RemedyCard):  # pylint: disable=too-few-public-methods
+    """Repairs recovers from Accident and is superceeded by Driving Ace."""
+
+    name = "Repairs"
+    weight = config.REPAIRS_WEIGHT
+
+
+class GasolineCard(BattleCard, RemedyCard):  # pylint: disable=too-few-public-methods
+    """Gasoline recovers from Out of Gas and is superceeded by Extra Tank."""
+
+    name = "Gasoline"
+    weight = config.GASOLINE_WEIGHT
+
+
+class RollCard(BattleCard, RemedyCard):  # pylint: disable=too-few-public-methods
+    """Roll recovers from Stop and is superceeded by Right of Way.
+
+    It is also needed after all remedied hazards except Speed Limit/End of Limit.
+    """
+
+    name = "Roll"
+    weight = config.ROLL_WEIGHT
+
+
+# Hazard Cards
+
+
+class SpeedLimitCard(SpeedCard, HazardCard):  # pylint: disable=too-few-public-methods
+    """Speed Limit slows an opponent by restricting distance cards use.
+
+    They need End of Limit to recover.
+    """
+
+    name = "Speed Limit"
+    weight = config.SPEED_LIMIT_WEIGHT
+    remedied_by = EndOfLimitCard
+    prevented_by = RightOfWayCard
+    max_speed = config.SPEED_LIMIT_LIMIT
+
+
+class StopCard(BattleCard, HazardCard):  # pylint: disable=too-few-public-methods
+    """Stop stops an opponent. They need Roll to recover."""
+
+    name = "Stop"
+    weight = config.STOP_WEIGHT
+    remedied_by = RollCard
+    prevented_by = RightOfWayCard
+
+
+class OutOfGasCard(BattleCard, HazardCard):  # pylint: disable=too-few-public-methods
+    """Out of Gas stops an opponent. They need Gasoline and Roll to recover."""
+
+    name = "Out of Gas"
+    weight = config.OUT_OF_GASS_WEIGHT
+    remedied_by = GasolineCard
+    prevented_by = ExtraTankCard
+
+
+class FlatTireCard(BattleCard, HazardCard):  # pylint: disable=too-few-public-methods
+    """Flat Tire stops an opponent. They need Spare Tire and Roll to recover."""
+
+    name = "Flat Tire"
+    weight = config.FLAT_TIRE_WEIGHT
+    remedied_by = SpareTireCard
+    prevented_by = PunctureProofCard
+
+
+class AccidentCard(BattleCard, HazardCard):  # pylint: disable=too-few-public-methods
+    """Accident stops an opponent. They need Repairs and Roll to recover."""
+
+    name = "Accident"
+    weight = config.ACCIDENT_WEIGHT
+    remedied_by = RepairsCard
+    prevented_by = DrivingAceCard
 
 
 # Distance Cards
 
 
-class D25Card(DistanceCard):
+class D25Card(DistanceCard):  # pylint: disable=too-few-public-methods
     """Travel 25 km."""
 
-    def __init__(self):
-        super().__init__(DistanceTypes.D25)
+    value = 25
+    weight = config.D25_WEIGHT
 
 
-class D50Card(DistanceCard):
+class D50Card(DistanceCard):  # pylint: disable=too-few-public-methods
     """Travel 50 km."""
 
-    def __init__(self):
-        super().__init__(DistanceTypes.D50)
+    value = 50
+    weight = config.D50_WEIGHT
 
 
-class D75Card(DistanceCard):
+class D75Card(DistanceCard):  # pylint: disable=too-few-public-methods
     """Travel 75 km."""
 
-    def __init__(self):
-        super().__init__(DistanceTypes.D75, HazardTypes.SPEED_LIMIT)
+    value = 75
+    weight = config.D75_WEIGHT
 
 
-class D100Card(DistanceCard):
+class D100Card(DistanceCard):  # pylint: disable=too-few-public-methods
     """Travel 100 km."""
 
-    def __init__(self):
-        super().__init__(DistanceTypes.D100, HazardTypes.SPEED_LIMIT)
+    value = 100
+    weight = config.D100_WEIGHT
 
 
-class D200Card(DistanceCard):
+class D200Card(DistanceCard):  # pylint: disable=too-few-public-methods
     """Travel 200 km.
 
     Also lose the Safe Trip score bonus.
     """
 
-    def __init__(self):
-        super().__init__(DistanceTypes.D200, HazardTypes.SPEED_LIMIT)
+    value = 200
+    weight = config.D200_WEIGHT
 
 
 # Constants 2
-
-TOTAL_SAFETIES = 4
 
 # NOTE: We are using multiple references to single instances for our deck's contents.
 #       I.e. All AccidentCards are the same instance.  When removing a card from the
 #       deck, or moving a card to another list, it is the specific reference we want to
 #       (re)move, not the whole instance.
-# TODO: Would weakrefs be better here?
 _BASE_DECK = [
     *([RepairsCard()] * 6),
     *([GasolineCard()] * 6),
@@ -409,10 +300,10 @@ def _add_hazards(deck, small):
     )
 
 
-def make_deck(small=False, num_shuffles=DEFAULT_NUM_SHUFFLES):
+def make_deck(small=False):
     """Make a new deck, shuffle it and return it."""
     new_deck = _BASE_DECK.copy()
     _add_hazards(new_deck, small)
-    for _ in range(num_shuffles):
+    for _ in range(config.NUM_SHUFFLES):
         random.shuffle(new_deck)
     return new_deck

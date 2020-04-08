@@ -21,7 +21,8 @@
 import random
 import uuid
 
-from racecard.core import exceptions, hand
+from racecard.core import config, exceptions
+from racecard.core.hand import Hand, PlayResults
 
 
 class Game:
@@ -31,40 +32,146 @@ class Game:
     """
 
     def __init__(self):
-        self.player_ids = []
-        self.turn_order = []
-        self.hands = []
+        self._players = {}  # Stores player ids and running totals.
+        self._turn_order = []
+        self._hands = []
+        self.winner_id = None
 
-    # @property
-    # def is_running(self):
-    #     # No hands, not running (game not started).
-    #     # Have hands, but last hand is completed, also not running (game finished)
-    #     return bool(self.hands) and not self.current_hand.is_completed
+    # Internal Attributes
 
     @property
-    def current_hand(self):
+    def _current_hand(self):
         """Returns the current hand object."""
-        try:
-            return self.hands[-1]
-        except IndexError:
+        self._ensure_begun()
+        return self._hands[-1]
+
+    def _ensure_begun(self):
+        if not self._hands:
             raise exceptions.NotBegunError()
 
-    def join(self):
+    # Public Attributes
+
+    @property
+    def hand_number(self):
+        """Returns the number of the current hand."""
+        self._ensure_begun()
+        return len(self._hands)
+
+    @property
+    def is_completed(self):
+        """Returns True if the game is completed/finished/done."""
+        return bool(self.winner_id)
+
+    @property
+    def is_hand_completed(self):
+        """Returns True if the current hand is completed."""
+        # Overridden to change name
+        return self._current_hand.is_completed
+
+    @property
+    def hand_winner_id(self):
+        """Returns the id of the player who won the current hand, if possible."""
+        # Overridden to change name
+        return self._current_hand.winner_id
+
+    def add_player(self):
         """Adds a new player to the game and retruns their id."""
+        if len(self._players) > config.MAX_PLAYERS:
+            raise exceptions.TooManyPlayers()
         new_id = uuid.uuid4()
-        self.player_ids.append(new_id)
+        self._players[new_id] = 0
         return new_id
 
     def begin(self):
-        """Begin the game or InsufficientPlayersError if not enough players."""
-        if len(self.player_ids) < 2:
+        """Begin the game or raise InsufficientPlayersError if not enough players."""
+        if len(self._players) < 2:
             raise exceptions.InsufficientPlayersError()
-        self.turn_order = self.player_ids.copy()
-        random.shuffle(self.turn_order)  # Shuffle is an in-place operation!
-        self.new_hand()
+        self._turn_order = list(self._players.keys())
+        for _ in range(config.NUM_SHUFFLES):
+            random.shuffle(self._turn_order)
+        self.next_hand()
 
-    def new_hand(self):
+    def next_hand(self):
         """Creates a new hand or HandInProgressError if current one is still going."""
-        if self.hands and not self.current_hand.is_completed:
+        if self._hands and not self._current_hand.is_completed:
             raise exceptions.HandInProgressError()
-        self.hands.append(hand.Hand(len(self.hands) + 1, self.turn_order))
+        self._turn_order.append(self._turn_order.pop(0))
+        self._hands.append(Hand(self._turn_order))
+
+    def play(self, player_id, card_index, targed_id=None):
+        """Passes a play to the current hand and returns the result.
+
+        Also updates game state when necessary (i.e. winning the whole game).
+
+        target_id is only used for hazards.
+        If target_id is None, and this is a 2-player game, then the other player is
+        automatically selected as the target.
+        """
+        # This overrides Hand.play to include extra game-level logic.
+        result = self._current_hand.play(player_id, card_index, targed_id)
+        if result == PlayResults.WIN_CANNOT_EXTEND:
+            for _id in self._players:
+                state = self._current_hand.get_player_state(_id)
+                self._players[_id] += state.score_card.total
+                if self._players[_id] >= config.GAME_WIN_SCORE:
+                    self.is_completed = True
+                    self.winner_id = _id
+                    break
+        return result
+
+    # Non-overridden Hand attributes
+
+    @property
+    def round_number(self):
+        """Returns the number of the current round."""
+        return self._current_hand.round_number
+
+    @property
+    def current_player_id(self):
+        """Returns the id of the current player."""
+        return self._current_hand.current_player_id
+
+    @property
+    def cards_remaining(self):
+        """Returns the number of cards left in the deck."""
+        return self._current_hand.cards_remaining
+
+    @property
+    def top_discarded_card(self):
+        """Returns the top card on the discarded pile.
+
+        Note: It does not remove the card from the pile. It just peeks at it.
+        """
+        return self._current_hand.top_discarded_card
+
+    def get_player_state(self, player_id):
+        """Returns the state of the given player."""
+        return self._current_hand.get_player_state(player_id)
+
+    def draw(self, player_id, discard=False):
+        """Draw a card from either the draw or discard pile."""
+        self._current_hand.draw(player_id, discard)
+
+    def discard(self, player_id, card_index, force=False):
+        """Discards a card from the player's hand.
+
+        Attempting to discard a Safety will raise DiscardSafetyWarning unless force is
+        set to True.
+        """
+        self._current_hand.discard(player_id, card_index, force)
+
+    def coup_fourre(self, player_id):
+        """Triggers a Coup Fourré if possible."""
+        self._current_hand.coup_fourre(player_id)
+
+    def extension(self, player_id):
+        """Call an extension to the game."""
+        self._current_hand.extension(player_id)
+
+    def no_extension(self, player_id):
+        """Signal that an extension was declined and the hand should complete."""
+        self._current_hand.no_extension(player_id)
+
+    def toggle_sort(self, player_id):
+        """Toggles whether or not a player's hand should always be sorted."""
+        self._current_hand.toggle_sort(player_id)
