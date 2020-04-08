@@ -20,9 +20,18 @@
 
 import random
 import uuid
+from dataclasses import dataclass
 
 from racecard.core import config, exceptions
 from racecard.core.hand import Hand, PlayResults
+
+
+@dataclass
+class _PlayerData:
+    """Stores game-level player data."""
+
+    total: int = 0  # Running game total
+    sort_hand: bool = False  # Remembers toggle_sort() choice between hands.
 
 
 class Game:
@@ -32,7 +41,7 @@ class Game:
     """
 
     def __init__(self):
-        self._players = {}  # Stores player ids and running totals.
+        self._players = {}  # Stores player ids and game-level player data.
         self._turn_order = []
         self._hands = []
         self.winner_id = None
@@ -79,14 +88,14 @@ class Game:
         if len(self._players) > config.MAX_PLAYERS:
             raise exceptions.TooManyPlayers()
         new_id = uuid.uuid4()
-        self._players[new_id] = 0
+        self._players[new_id] = _PlayerData()
         return new_id
 
     def begin(self):
         """Begin the game or raise InsufficientPlayersError if not enough players."""
         if len(self._players) < 2:
             raise exceptions.InsufficientPlayersError()
-        self._turn_order = list(self._players.keys())
+        self._turn_order = list(self._players)
         for _ in range(config.NUM_SHUFFLES):
             random.shuffle(self._turn_order)
         self.next_hand()
@@ -96,7 +105,12 @@ class Game:
         if self._hands and not self._current_hand.is_completed:
             raise exceptions.HandInProgressError()
         self._turn_order.append(self._turn_order.pop(0))
-        self._hands.append(Hand(self._turn_order))
+        hand = Hand(self._turn_order)
+        # Preserve toggle_sort() setting between hands.
+        for id_, data in self._players.items():
+            if data.sort_hand:
+                hand.toggle_sort(id_)
+        self._hands.append(hand)
 
     def play(self, player_id, card_index, targed_id=None):
         """Passes a play to the current hand and returns the result.
@@ -110,14 +124,19 @@ class Game:
         # This overrides Hand.play to include extra game-level logic.
         result = self._current_hand.play(player_id, card_index, targed_id)
         if result == PlayResults.WIN_CANNOT_EXTEND:
-            for _id in self._players:
+            for _id, data in self._players.items():
                 state = self._current_hand.get_player_state(_id)
-                self._players[_id] += state.score_card.total
-                if self._players[_id] >= config.GAME_WIN_SCORE:
+                data.total += state.score_card.total
+                if data.total >= config.GAME_WIN_SCORE:
                     self.is_completed = True
                     self.winner_id = _id
                     break
         return result
+
+    def toggle_sort(self, player_id):
+        """Toggles whether or not a player's hand should always be sorted."""
+        self._current_hand.toggle_sort(player_id)
+        self._players[player_id].sort_hand = not self._players[player_id].sort_hand
 
     # Non-overridden Hand attributes
 
@@ -171,7 +190,3 @@ class Game:
     def no_extension(self, player_id):
         """Signal that an extension was declined and the hand should complete."""
         self._current_hand.no_extension(player_id)
-
-    def toggle_sort(self, player_id):
-        """Toggles whether or not a player's hand should always be sorted."""
-        self._current_hand.toggle_sort(player_id)
