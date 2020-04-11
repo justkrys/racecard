@@ -35,7 +35,7 @@ class _States(Enum):
 
 
 @dataclass
-class _ScoreCard:
+class ScoreCard:
 
     distance: int = 0
     safeties: int = 0
@@ -56,8 +56,8 @@ class _PlayerState:
     hand: tuple
     coups_fourres: int
     sort_hand: bool
-    total: int
-    score_card: _ScoreCard
+    running_total: int
+    score_card: ScoreCard
     safeties_pile: tuple = field(default_factory=tuple)
     battle_pile: tuple = field(default_factory=tuple)
     speed_pile: tuple = field(default_factory=tuple)
@@ -379,7 +379,7 @@ class Player:
         if self._score_card is not None:
             return
         # pylint: disable=attribute-defined-outside-init
-        card = _ScoreCard()
+        card = ScoreCard()
         card.distance = self._distance_total
         safeties_count = len(self._safeties_pile)
         card.safeties = config.SAFETY_SCORE * safeties_count
@@ -406,7 +406,7 @@ class Player:
             winner=self._winner,
             coups_fourres=self._coup_fourre_count,
             sort_hand=self._should_sort_hand,
-            total=sum(card.value for card in self._distance_pile),
+            running_total=self._distance_total,
             hand=tuple(card.name for card in self._hand),
             score_card=self._score_card,
         )

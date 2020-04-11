@@ -128,3 +128,7 @@ class NotBegunError(CoreException):
 
 class TooManyPlayers(CoreException):
     """Too many players!  Max player count already met."""
+
+
+class GameNotCompleted(CoreException):
+    """Game is not yet completed!"""

@@ -20,18 +20,33 @@
 
 import random
 import uuid
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 
 from racecard.core import config, exceptions
 from racecard.core.hand import Hand, PlayResults
+from racecard.core.player import ScoreCard
 
 
 @dataclass
 class _PlayerData:
     """Stores game-level player data."""
 
-    total: int = 0  # Running game total
     sort_hand: bool = False  # Remembers toggle_sort() choice between hands.
+    score_card: ScoreCard = None
+
+
+@dataclass
+class _GameScoreCard(ScoreCard):
+
+    game_total: int = 0
+
+    @classmethod
+    def from_score_card(cls, score_card, game_total=0):
+        """Returns a new instance based on the given score card."""
+        attributes = {
+            name: getattr(score_card, name) for name in score_card.__dataclass_fields__
+        }
+        return cls(game_total=game_total, **attributes)
 
 
 class Game:
@@ -55,8 +70,32 @@ class Game:
         return self._hands[-1]
 
     def _ensure_begun(self):
+        """Raises exception of the game is not yet begug."""
         if not self._hands:
             raise exceptions.NotBegunError()
+
+    def _get_game_total(self, player_id):
+        """Calculates and returns the current game total for the given player."""
+        game_total = 0
+        for hand in self._hands:
+            score_card = hand.get_player_state(player_id).score_card
+            if score_card:
+                game_total += score_card.total
+        return game_total
+
+    def _check_game_complete(self):
+        """Checks if the game is completed and updates status accordingly."""
+        if self.is_completed or not self.is_hand_completed:
+            return
+        game_totals = {
+            player_id: self._get_game_total(player_id) for player_id in self._players
+        }
+        if any(
+            True for total in game_totals.values() if total >= config.GAME_WIN_SCORE
+        ):
+            self.winner_id = max(
+                game_totals, key=lambda player_id: game_totals[player_id]
+            )
 
     # Public Attributes
 
@@ -71,23 +110,11 @@ class Game:
         """Returns True if the game is completed/finished/done."""
         return bool(self.winner_id)
 
-    @property
-    def is_hand_completed(self):
-        """Returns True if the current hand is completed."""
-        # Overridden to change name
-        return self._current_hand.is_completed
-
-    @property
-    def hand_winner_id(self):
-        """Returns the id of the player who won the current hand, if possible."""
-        # Overridden to change name
-        return self._current_hand.winner_id
-
     def add_player(self):
         """Adds a new player to the game and retruns their id."""
         if len(self._players) > config.MAX_PLAYERS:
             raise exceptions.TooManyPlayers()
-        new_id = uuid.uuid4()
+        new_id = uuid.uuid4().hex
         self._players[new_id] = _PlayerData()
         return new_id
 
@@ -112,6 +139,55 @@ class Game:
                 hand.toggle_sort(id_)
         self._hands.append(hand)
 
+    def get_hand_scores(self):
+        """Returns the current hand score cards for all players.
+
+        Only  called once the current hand is completed.
+        Also includes a game_total attribute.
+        """
+        if not self.is_hand_completed:
+            raise exceptions.GameNotCompleted()
+        score_cards = {}
+        for player_id in self._players:
+            # score_card always exists because hand is guraranteed completed by check
+            # above.
+            score_card = self.get_player_state(player_id).score_card
+            # game_total includes current hand because it is guraranteed completed by
+            # check above.
+            game_total = self._get_game_total(player_id)
+            score_card = _GameScoreCard.from_score_card(score_card, game_total)
+            score_cards[player_id] = score_card
+        return score_cards
+
+    def get_game_scores(self):
+        """Returns game-total score cards for all players."""
+        if not self.is_completed:
+            raise exceptions.GameNotCompleted()
+        for id_, data in self._players.items():
+            if data.score_card is not None:
+                continue  # Already calculated
+            game_card = data.score_card = ScoreCard()
+            for hand in self._hands:
+                hand_card = hand.get_player_state(id_).score_card
+                for point_type, hand_score in asdict(hand_card).items():
+                    current_score = getattr(game_card, point_type)
+                    setattr(game_card, point_type, current_score + hand_score)
+        return {id_: data.score_card for id_, data in self._players.items()}
+
+    # Overridden Hand attributes
+
+    @property
+    def is_hand_completed(self):
+        """Returns True if the current hand is completed."""
+        # Overridden to change name
+        return self._current_hand.is_completed
+
+    @property
+    def hand_winner_id(self):
+        """Returns the id of the player who won the current hand, if possible."""
+        # Overridden to change name
+        return self._current_hand.winner_id
+
     def play(self, player_id, card_index, targed_id=None):
         """Passes a play to the current hand and returns the result.
 
@@ -124,19 +200,30 @@ class Game:
         # This overrides Hand.play to include extra game-level logic.
         result = self._current_hand.play(player_id, card_index, targed_id)
         if result == PlayResults.WIN_CANNOT_EXTEND:
-            for _id, data in self._players.items():
-                state = self._current_hand.get_player_state(_id)
-                data.total += state.score_card.total
-                if data.total >= config.GAME_WIN_SCORE:
-                    self.is_completed = True
-                    self.winner_id = _id
-                    break
+            self._check_game_complete()
         return result
 
     def toggle_sort(self, player_id):
         """Toggles whether or not a player's hand should always be sorted."""
+        # This overrides Hand.play to include extra game-level logic.
         self._current_hand.toggle_sort(player_id)
         self._players[player_id].sort_hand = not self._players[player_id].sort_hand
+
+    def discard(self, player_id, card_index, force=False):
+        """Discards a card from the player's hand.
+
+        Attempting to discard a Safety will raise DiscardSafetyWarning unless force is
+        set to True.
+        """
+        # This overrides Hand.play to include extra game-level logic.
+        self._current_hand.discard(player_id, card_index, force)
+        self._check_game_complete()
+
+    def no_extension(self, player_id):
+        """Signal that an extension was declined and the hand should complete."""
+        # This overrides Hand.play to include extra game-level logic.
+        self._current_hand.no_extension(player_id)
+        self._check_game_complete()
 
     # Non-overridden Hand attributes
 
@@ -163,21 +250,9 @@ class Game:
         """
         return self._current_hand.top_discarded_card
 
-    def get_player_state(self, player_id):
-        """Returns the state of the given player."""
-        return self._current_hand.get_player_state(player_id)
-
     def draw(self, player_id, discard=False):
         """Draw a card from either the draw or discard pile."""
         self._current_hand.draw(player_id, discard)
-
-    def discard(self, player_id, card_index, force=False):
-        """Discards a card from the player's hand.
-
-        Attempting to discard a Safety will raise DiscardSafetyWarning unless force is
-        set to True.
-        """
-        self._current_hand.discard(player_id, card_index, force)
 
     def coup_fourre(self, player_id):
         """Triggers a Coup Fourré if possible."""
@@ -187,6 +262,6 @@ class Game:
         """Call an extension to the game."""
         self._current_hand.extension(player_id)
 
-    def no_extension(self, player_id):
-        """Signal that an extension was declined and the hand should complete."""
-        self._current_hand.no_extension(player_id)
+    def get_player_state(self, player_id):
+        """Returns the state of the given player."""
+        return self._current_hand.get_player_state(player_id)

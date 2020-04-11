@@ -77,7 +77,7 @@ def print_player_state(state):
     print_card_list("Battle:", state.battle_pile)
     print_card_list("Speed:", state.speed_pile)
     print_card_list("Distance:", state.distance_pile)
-    print("Total:", state.total)
+    print("Total:", state.running_total)
 
 
 def print_player_states():
@@ -270,7 +270,7 @@ def play_round():
         print("-" * 10)
 
 
-def print_scores(title_prefix, winner_id=None):
+def print_scores(title_prefix, winner_id, score_cards):
     """Print the scores of all players.
 
     A title with the given prefix is printed at the top of all the scores.
@@ -281,8 +281,8 @@ def print_scores(title_prefix, winner_id=None):
         winner = "WINNER!" if id_ == winner_id else ""
         print("-" * 10)
         print(f"Player {index+1}: [{name}] {winner}\n")
-        score_card = asdict(game.get_player_state(id_).score_card)
-        for point_type, score in score_card.items():
+        score_card = score_cards[id_]
+        for point_type, score in asdict(score_card).items():
             point_type = point_type.replace("_", " ").title()
             print(f"{point_type}: {score}")
         print()
@@ -300,7 +300,9 @@ def play_hand():
         print(f"\nHUZZAH! Winner: {winner}! Congratulations!")
     else:
         print("Awww. No winner this hand.")
-    print_scores(f"HAND {game.hand_number}", game.hand_winner_id)
+    print_scores(
+        f"\nHAND {game.hand_number}", game.hand_winner_id, game.get_hand_scores()
+    )
 
 
 def main():
@@ -326,11 +328,13 @@ conditions.  See the LICENCE file for details.
         next_hand = True
         while next_hand:
             play_hand()
+            if game.is_completed:
+                print("\n\nGood Game!")
+                print_scores("GAME", game.winner_id, game.get_game_scores())
+                break
             next_hand = ask_yn("\nPlay next hand?")
             if next_hand:
                 game.next_hand()
-        print("\n Good Game!")
-        print_scores("FINAL", game.winner_id)
         raise QuitException()
     except QuitException:
         print("See you!  See you in the mosh'sh pit!")
