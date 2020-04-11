@@ -19,6 +19,7 @@
 
 
 import random
+import typing
 import uuid
 from dataclasses import asdict, dataclass
 
@@ -32,7 +33,7 @@ class _PlayerData:
     """Stores game-level player data."""
 
     sort_hand: bool = False  # Remembers toggle_sort() choice between hands.
-    score_card: ScoreCard = None
+    score_card: typing.Union[ScoreCard, None] = None
 
 
 @dataclass

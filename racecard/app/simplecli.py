@@ -19,6 +19,7 @@
 
 
 import sys
+import typing
 from dataclasses import asdict, dataclass
 
 from racecard.core import exceptions
@@ -34,11 +35,11 @@ class Move:
     """A player's move, as entered by the user."""
 
     action: str
-    target: str = None
+    target: typing.Union[str, None] = None
 
 
 game = Game()  # pylint: disable=invalid-name
-player_names = {}  # pylint: disable=invalid-name
+player_names: typing.Dict[str, str] = {}  # pylint: disable=invalid-name
 
 
 def get_num_players():

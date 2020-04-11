@@ -12,6 +12,7 @@ flake8-bugbear = "*"
 bandit = "*"
 isort = "*"
 pre-commit = "*"
+mypy = "*"
 
 [packages]
 racecard-krys = {editable = true,path = "."}
