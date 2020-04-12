@@ -1,0 +1,19 @@
+{
+  "files.trimTrailingWhitespace": true,
+  "editor.rulers": [
+    88
+  ],
+  "python.formatting.provider": "black",
+  "python.linting.banditEnabled": true,
+  "python.linting.flake8Enabled": true,
+  "python.linting.pylintCategorySeverity.refactor": "Information",
+  "python.linting.pylintUseMinimalCheckers": false,
+  "editor.formatOnSave": true,
+  "python.linting.mypyEnabled": true,
+  "python.sortImports.path": "isort",
+  "files.exclude": {
+    ".mypy_cache": true,
+    "*.egg-info": true,
+    "**/__pycache__": true
+  },
+}
