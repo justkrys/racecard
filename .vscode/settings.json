@@ -13,7 +13,9 @@
   "python.sortImports.path": "isort",
   "files.exclude": {
     ".mypy_cache": true,
+    ".venv": true,
     "*.egg-info": true,
     "**/__pycache__": true
   },
+  "python.pythonPath": "${workspaceFolder}/.venv/bin/python",
 }
