@@ -52,5 +52,11 @@ setuptools.setup(
     },
     packages=setuptools.find_packages(),
     python_requires=">=3.8",
-    entry_points={"console_scripts": ["racecard = racecard.app.simplecli:main"]},
+    entry_points={
+        "console_scripts": [
+            "racecard = racecard.app.simplecli:main",
+            "racecard-rest = racecard.server.rest:main [REST]",
+        ]
+    },
+    extras_require={"REST": ["connexion[swagger-ui]", "Flask", "python-dotenv"]},
 )

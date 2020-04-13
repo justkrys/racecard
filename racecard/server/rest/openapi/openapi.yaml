@@ -1,0 +1,37 @@
+openapi: "3.0.2"
+info:
+  title: Race Card API
+  version: "0.1.0"
+  description: Race Card is an implementation of the card game Mille Bornes.
+  contact:
+    name: Krys Lawrence
+    url: http://krys.ca
+    email: "code@krys.ca"
+  license:
+    name: GNU AGPLv3+
+    url: https://www.gnu.org/licenses/
+servers:
+  - url: /v0
+    description: Pre-release version of API.  All things can change without notice.
+paths:
+  /games:
+    get:
+      operationId: "racecard.server.rest.api.games.search"
+      summary: List all the games that currently exist.
+      tags: [games]
+      responses:
+        "200":
+          description:
+            Returns a list of IDs for all the games that currently exist or an empty
+            list if no games exist.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/uuidList"
+components:
+  schemas:
+    uuidList:
+      type: array
+      items:
+        type: string
+        format: uuid

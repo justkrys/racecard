@@ -15,7 +15,10 @@ pre-commit = "*"
 mypy = "*"
 
 [packages]
-racecard-krys = {editable = true,path = "."}
+connexion = {extras = ["swagger-ui"],version = "*"}
+flask = "*"
+python-dotenv = "*"
+racecard = {editable = true,extras = ["rest"],path = "."}
 
 [requires]
 python_version = "3.8"
