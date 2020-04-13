@@ -1,4 +1,22 @@
+#    Race Card - An implementation of the card game Mille Bornes
+#    Copyright (C) 2020  Krys Lawrence <krys AT krys DOT ca>
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU Affero General Public License as published
+#    by the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU Affero General Public License for more details.
+#
+#    You should have received a copy of the GNU Affero General Public License
+#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+
 """Build script for Race Card."""
+
 
 import setuptools
 
@@ -6,15 +24,15 @@ with open("README.md", "r") as fh:
     LONG_DESCRIPTION = fh.read()
 
 setuptools.setup(
-    name="racecard-krys",
+    name="racecard",
     version="0.1.0",
     description="Race Card: An implementation of the game card game Mille Bornes",
     long_description=LONG_DESCRIPTION,
     long_description_content_type="text/markdown",
     url="https://github.com/justkrys/racecard",
     author="Krys Lawrence",
-    author_email="krys AT krys DOT ca",
-    licence="AGPL-3.0-or-later",
+    author_email="code@krys.ca",
+    license="GNU AGPLv3+",
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: "
