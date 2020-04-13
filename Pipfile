@@ -4,7 +4,7 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
-black = "*"
+black = "==19.10b0"
 pylint = "*"
 flake8 = "*"
 pipenv = "*"
@@ -19,6 +19,3 @@ racecard-krys = {editable = true,path = "."}
 
 [requires]
 python_version = "3.8"
-
-[pipenv]
-allow_prereleases = true
