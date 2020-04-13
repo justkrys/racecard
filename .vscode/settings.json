@@ -18,4 +18,10 @@
     "**/__pycache__": true
   },
   "python.pythonPath": "${workspaceFolder}/.venv/bin/python",
+  "files.watcherExclude": {
+    "**/.mypy_cache/**": true,
+    "**/.venv/**": true,
+    "**/*.egg-info": true
+  },
+  "todo-tree.general.enableFileWatcher": true,
 }
