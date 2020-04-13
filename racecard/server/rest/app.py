@@ -21,7 +21,7 @@
 from connexion import FlaskApp
 
 app = FlaskApp(__name__, specification_dir="openapi/")
-app.add_api("openapi.yaml")
+app.add_api("openapi.yaml", strict_validation=True, validate_responses=True)
 
 
 def main():
