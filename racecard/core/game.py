@@ -115,7 +115,7 @@ class Game:
         """Adds a new player to the game and retruns their id."""
         if len(self._players) > config.MAX_PLAYERS:
             raise exceptions.TooManyPlayers()
-        new_id = uuid.uuid4().hex
+        new_id = uuid.uuid4()
         self._players[new_id] = _PlayerData()
         return new_id
 
