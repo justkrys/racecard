@@ -58,5 +58,7 @@ setuptools.setup(
             "racecard-rest = racecard.server.rest:main [REST]",
         ]
     },
-    extras_require={"REST": ["connexion[swagger-ui]", "Flask", "python-dotenv"]},
+    extras_require={
+        "REST": ["connexion[swagger-ui]", "Flask", "python-dotenv, rfc3987"]
+    },
 )
