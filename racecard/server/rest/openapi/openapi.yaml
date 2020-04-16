@@ -16,7 +16,7 @@ servers:
 paths:
   /games:
     get:
-      operationId: "racecard.server.rest.api.games.search"
+      operationId: games.search
       summary: List all the games that currently exist.
       tags: [games]
       responses:
