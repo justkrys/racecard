@@ -59,6 +59,11 @@ setuptools.setup(
         ]
     },
     extras_require={
-        "REST": ["connexion[swagger-ui]", "Flask", "python-dotenv", "rfc3987"]
+        "REST": [
+            "connexion[swagger-ui]",
+            "Flask",
+            "python-dotenv",
+            "jsonschema[format]",
+        ]
     },
 )

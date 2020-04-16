@@ -18,7 +18,7 @@ mypy = "*"
 connexion = {extras = ["swagger-ui"],version = "*"}
 flask = "*"
 python-dotenv = "*"
-rfc3987 = "*"
+jsonschema = {extras = ["format"],version = "*"}
 prance = {extras = ["osv"],version = "*"}
 racecard = {editable = true,extras = ["rest"],path = "."}
 
