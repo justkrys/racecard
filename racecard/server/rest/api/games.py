@@ -30,18 +30,18 @@ def search():
 
     Currently does not support searching or filtering.
     """
-    games = list(store.games) + ["1234"]
+    games = list(store.games)
     result = dict(
         jsonapi=dict(version="1.0"),
         data=[],
-        meta=dict(count=len(games)),
+        meta=dict(total=len(games)),
         links=dict(self=url_for(".games_search")),
     )
     for game_id in games:
         result["data"].append(
             dict(
-                id=game_id,
                 type="game",
+                id=game_id,
                 links=dict(self=url_for(".games_search") + f"/{game_id}"),
             )
         )

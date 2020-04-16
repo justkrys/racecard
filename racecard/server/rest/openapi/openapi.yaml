@@ -34,24 +34,93 @@ paths:
 components:
   schemas:
     gamesList:
-      title: Games List
-      description: List of game IDs in JSON:API format.
-      allOf:
-        - $ref: "jsonapi_oas3.yaml#/components/schemas/response"
-        - type: object
+      description:
+        List of games in JSON:API format, possibly paginated if the list is
+        large.
+      type: object
+      additionalProperties: false
+      required:
+        - jsonapi
+        - data
+        - links
+        - meta
+      properties:
+        jsonapi:
+          description: The version of JSON:API being used.
+          type: object
+          additionalProperties: false
+          required:
+            - version
           properties:
-            data:
-              type: array
-              items:
+            version:
+              type: string
+        data:
+          description: The list of games that currently exist along with links to them.
+          type: array
+          uniqueItems: true
+          items:
+            type: object
+            additionalProperties: false
+            required:
+              - type
+              - id
+              - links
+            properties:
+              type:
+                type: string
+              id:
+                type: string
+                format: uuid
+              links:
                 type: object
+                additionalProperties: false
+                required:
+                  - self
                 properties:
-                  id:
+                  self:
                     type: string
-                    format: uuid
-                    description: IDs are UUIDs.
-            meta:
-              type: object
-              properties:
-                count:
-                  type: integer
-                  description: The number of items returned.
+                    format: uri-reference
+        links:
+          description: Links for the list itself and any pagination resources if needed.
+          type: object
+          additionalProperties: false
+          required:
+            - self
+          properties:
+            self:
+              type: string
+              format: uri-reference
+            first:
+              type: string
+              format: uri-reference
+              nullable: true
+            last:
+              type: string
+              format: uri-reference
+              nullable: true
+            next:
+              type: string
+              format: uri-reference
+              nullable: true
+            prev:
+              type: string
+              format: uri-reference
+              nullable: true
+        meta:
+          type: object
+          additionalProperties: false
+          required:
+            - total
+          properties:
+            total:
+              description: The total games that exist.
+              type: integer
+              format: int64
+            pageSize:
+              description: The number of games listed per page if pagination is used.
+              type: integer
+              format: int64
+            pages:
+              description: The number of pages if pagination is used.
+              type: integer
+              format: int64
