@@ -19,9 +19,11 @@
 
 
 from pathlib import Path
+from uuid import UUID
 
 from connexion import App
 from connexion.resolver import Resolution, Resolver
+from jsonschema import FormatChecker
 from prance import ResolvingParser
 from prance.util.resolver import RESOLVE_FILES, RESOLVE_HTTP
 
@@ -58,6 +60,13 @@ class ImplicitPackageResolver(Resolver):
         full_operation_id = f"{self._base_package_name}.{operation_id}"
         function = self.resolve_function_from_operation_id(full_operation_id)
         return Resolution(function, operation_id)
+
+
+@FormatChecker.cls_checks("uuid", ValueError)
+def uuid_format_checker(value):
+    """Validates strings with "format: uuid" as being uuid v4."""
+    UUID(value, version=4)
+    return True
 
 
 def get_bundled_specs(main_file_path):
