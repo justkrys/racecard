@@ -1,7 +1,7 @@
 openapi: "3.0.2"
 info:
   title: Race Card API
-  version: "0.1.0"
+  version: "0.0.1"
   description: Race Card is an implementation of the card game Mille Bornes.
   contact:
     name: Krys Lawrence
