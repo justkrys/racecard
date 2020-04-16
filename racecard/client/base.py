@@ -24,5 +24,5 @@ class ClientError(exceptions.ExceptionBase):
     """Base class for all client exceptions."""
 
 
-class ClientBase:
+class ClientBase:  # pylint: disable=too-few-public-methods
     """Base class for all clients."""

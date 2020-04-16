@@ -25,7 +25,7 @@ from connexion.resolver import Resolution, Resolver
 from prance import ResolvingParser
 from prance.util.resolver import RESOLVE_FILES, RESOLVE_HTTP
 
-app = App(__name__)
+app = App(__name__)  # pylint: disable=invalid-name
 
 
 class ImplicitPackageResolver(Resolver):
@@ -61,7 +61,9 @@ class ImplicitPackageResolver(Resolver):
 
 
 def get_bundled_specs(main_file_path):
-    # Based on https://github.com/zalando/connexion/issues/254
+    """Stiches all external $ref references in to the main openapi spec file."""
+    # Connexion cannot currently handle external file $refs.  This works around the
+    # issue.  Based on https://github.com/zalando/connexion/issues/254
     parser = ResolvingParser(
         str(Path(main_file_path).absolute()),
         lazy=True,
@@ -74,6 +76,7 @@ def get_bundled_specs(main_file_path):
 
 
 def main():
+    """The main entry point for the Race Card REST server."""
     app.add_api(
         get_bundled_specs(Path(__file__).parent / "openapi" / "openapi.yaml"),
         strict_validation=True,
