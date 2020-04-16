@@ -18,6 +18,8 @@
 """API for game resources."""
 
 
+from flask import url_for
+
 from racecard.server.rest import store
 
 
@@ -28,4 +30,19 @@ def search():
 
     Currently does not support searching or filtering.
     """
-    return list(store.games), 200
+    games = list(store.games) + ["1234"]
+    result = dict(
+        jsonapi=dict(version="1.0"),
+        data=[],
+        meta=dict(count=len(games)),
+        links=dict(self=url_for(".games_search")),
+    )
+    for game_id in games:
+        result["data"].append(
+            dict(
+                id=game_id,
+                type="game",
+                links=dict(self=url_for(".games_search") + f"/{game_id}"),
+            )
+        )
+    return result, 200, {"Content-Type": "application/vnd.api+json"}
