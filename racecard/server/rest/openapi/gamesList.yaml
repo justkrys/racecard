@@ -1,0 +1,98 @@
+openapi: "3.0.2"
+info:
+  title: GamesList Component
+  version: "0.0.1"
+paths: {}
+components:
+  schemas:
+    gamesList:
+      description:
+        List of games in JSON:API format, possibly paginated if the list is
+        large.
+      type: object
+      additionalProperties: false
+      required:
+        - jsonapi
+        - data
+        - links
+        - meta
+      properties:
+        jsonapi:
+          description: The version of JSON:API being used.
+          type: object
+          additionalProperties: false
+          required:
+            - version
+          properties:
+            version:
+              type: string
+        data:
+          description: The list of games that currently exist along with links to them.
+          type: array
+          uniqueItems: true
+          items:
+            type: object
+            additionalProperties: false
+            required:
+              - type
+              - id
+              - links
+            properties:
+              type:
+                type: string
+              id:
+                type: string
+                format: uuid
+              links:
+                type: object
+                additionalProperties: false
+                required:
+                  - self
+                properties:
+                  self:
+                    type: string
+                    format: uri-reference
+        links:
+          description: Links for the list itself and any pagination resources if needed.
+          type: object
+          additionalProperties: false
+          required:
+            - self
+          properties:
+            self:
+              type: string
+              format: uri-reference
+            first:
+              type: string
+              format: uri-reference
+              nullable: true
+            last:
+              type: string
+              format: uri-reference
+              nullable: true
+            next:
+              type: string
+              format: uri-reference
+              nullable: true
+            prev:
+              type: string
+              format: uri-reference
+              nullable: true
+        meta:
+          type: object
+          additionalProperties: false
+          required:
+            - total
+          properties:
+            total:
+              description: The total games that exist.
+              type: integer
+              format: int64
+            pageSize:
+              description: The number of games listed per page if pagination is used.
+              type: integer
+              format: int64
+            pages:
+              description: The number of pages if pagination is used.
+              type: integer
+              format: int64
