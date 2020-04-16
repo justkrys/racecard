@@ -19,6 +19,7 @@ connexion = {extras = ["swagger-ui"],version = "*"}
 flask = "*"
 python-dotenv = "*"
 rfc3987 = "*"
+prance = {extras = ["osv"],version = "*"}
 racecard = {editable = true,extras = ["rest"],path = "."}
 
 [requires]

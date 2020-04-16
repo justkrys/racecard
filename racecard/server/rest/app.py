@@ -18,10 +18,14 @@
 """OpenAPI 3 RESTful web service application entry point."""
 
 
-from connexion import FlaskApp
-from connexion.resolver import Resolution, Resolver
+from pathlib import Path
 
-app = FlaskApp(__name__, specification_dir="openapi/")
+from connexion import App
+from connexion.resolver import Resolution, Resolver
+from prance import ResolvingParser
+from prance.util.resolver import RESOLVE_FILES, RESOLVE_HTTP
+
+app = App(__name__)
 
 
 class ImplicitPackageResolver(Resolver):
@@ -56,12 +60,25 @@ class ImplicitPackageResolver(Resolver):
         return Resolution(function, operation_id)
 
 
+def get_bundled_specs(main_file_path):
+    # Based on https://github.com/zalando/connexion/issues/254
+    parser = ResolvingParser(
+        str(Path(main_file_path).absolute()),
+        lazy=True,
+        strict=True,
+        backend="openapi-spec-validator",
+        resolve_types=RESOLVE_HTTP | RESOLVE_FILES,
+    )
+    parser.parse()
+    return parser.specification
+
+
 def main():
     app.add_api(
-        "openapi.yaml",
+        get_bundled_specs(Path(__file__).parent / "openapi" / "openapi.yaml"),
         strict_validation=True,
         validate_responses=True,
-        resolver=ImplicitPackageResolver("racecard.server.rest.api"),
+        resolver=ImplicitPackageResolver(__package__ + ".api"),
     )
     app.run()
 
