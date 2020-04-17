@@ -12,7 +12,9 @@ info:
     url: https://www.gnu.org/licenses/
 tags:
   - name: games
-    description: All API parts related to game-level resources.
+    description: All API parts related to game resources.
+  - name: users
+    description: All API parts related to user resources.
 servers:
   - url: /v0
     description: Pre-release version of API.  All things can change without notice.
@@ -25,13 +27,29 @@ paths:
       responses:
         "200":
           description:
-            Returns a list of IDs for all the games that currently exist or an empty
-            list if no games exist.
+            Returns a list of game IDs and links for all the users that currently exist.
+            Result is in JSON:API format.
           content:
             "application/vnd.api+json":
               schema:
                 $ref: "#/components/schemas/gamesList"
+  /users:
+    get:
+      operationId: users.search
+      summary: List all the users that currently exist.
+      tags: [users]
+      responses:
+        "200":
+          description:
+            Returns a list of user IDs and links for all the users that currently exist.
+            Result is in JSON:API format.
+          content:
+            "application/vnd.api+json":
+              schema:
+                $ref: "#/components/schemas/userList"
 components:
   schemas:
     gamesList:
       $ref: "gamesList.yaml#/components/schemas/gamesList" # Included by prance
+    userList:
+      $ref: "userList.yaml#/components/schemas/userList" # Included by prance

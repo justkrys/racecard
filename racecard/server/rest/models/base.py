@@ -15,17 +15,25 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-"""In-memory storage of global state.
-
-This serves as a temporary substitute for an actualy db or storage backend.
-"""
+"""Base/common data model objects for resources."""
 
 
+import dataclasses
 import typing
-import uuid
 
-# TODO: Convert all imports everywhere to relative
-from .models import game, user
 
-games: typing.Dict[uuid.UUID, game.Game] = {}
-users: typing.Dict[uuid.UUID, user.User] = {}
+class ModelBase:
+    """Base class for all Race Card data models."""
+
+
+@dataclasses.dataclass
+class CollectionMeta:
+    """Common meta-data attributes to add to collections of resources.
+
+    These would go in the document-level "meta" attribute in JSON:API, for example.
+    """
+
+    total: int
+    page: typing.Union[int, None] = None
+    page_size: typing.Union[int, None] = None
+    total_pages: typing.Union[int, None] = None

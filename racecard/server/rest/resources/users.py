@@ -15,17 +15,17 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-"""In-memory storage of global state.
+"""API for user resources."""
 
-This serves as a temporary substitute for an actualy db or storage backend.
-"""
+from .. import store
+from ..models import base
+from ..schemas import userschema
 
 
-import typing
-import uuid
-
-# TODO: Convert all imports everywhere to relative
-from .models import game, user
-
-games: typing.Dict[uuid.UUID, game.Game] = {}
-users: typing.Dict[uuid.UUID, user.User] = {}
+def search():
+    """Handler for GET /users."""
+    users = list(store.users.values())
+    meta = base.CollectionMeta(total=len(users))
+    schema = userschema.UserSchema(document_meta=meta)
+    resource = schema.dump(users, many=True)
+    return resource, 200, {"Content-Type": "application/vnd.api+json"}

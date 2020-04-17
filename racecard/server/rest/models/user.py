@@ -15,17 +15,22 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-"""In-memory storage of global state.
+"""Data model for users."""
 
-This serves as a temporary substitute for an actualy db or storage backend.
-"""
-
-
+import dataclasses
 import typing
 import uuid
 
-# TODO: Convert all imports everywhere to relative
-from .models import game, user
+from . import base
 
-games: typing.Dict[uuid.UUID, game.Game] = {}
-users: typing.Dict[uuid.UUID, user.User] = {}
+
+@dataclasses.dataclass
+class User(base.ModelBase):
+    """A single game consisting of several hands, played by several players."""
+
+    id: uuid.UUID
+    name: str
+    email: str
+    owned: typing.AbstractSet[uuid.UUID] = dataclasses.field(default_factory=set)
+    playing: typing.AbstractSet[uuid.UUID] = dataclasses.field(default_factory=set)
+    completed: typing.AbstractSet[uuid.UUID] = dataclasses.field(default_factory=set)

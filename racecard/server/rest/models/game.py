@@ -15,17 +15,18 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-"""In-memory storage of global state.
-
-This serves as a temporary substitute for an actualy db or storage backend.
-"""
+"""Data model for Race Card games."""
 
 
-import typing
+import dataclasses
 import uuid
 
-# TODO: Convert all imports everywhere to relative
-from .models import game, user
+from racecard.core import game
 
-games: typing.Dict[uuid.UUID, game.Game] = {}
-users: typing.Dict[uuid.UUID, user.User] = {}
+
+@dataclasses.dataclass
+class Game(game.Game):
+    """A single game consisting of several hands, played by several players."""
+
+    id: uuid.UUID
+    owner_id: uuid.UUID
