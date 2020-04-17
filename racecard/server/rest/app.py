@@ -23,7 +23,7 @@ from uuid import UUID
 
 from connexion import App
 from connexion.resolver import Resolution, Resolver
-from jsonschema import FormatChecker
+from jsonschema import compat, draft4_format_checker
 from prance import ResolvingParser
 from prance.util.resolver import RESOLVE_FILES, RESOLVE_HTTP
 
@@ -62,10 +62,13 @@ class ImplicitPackageResolver(Resolver):
         return Resolution(function, operation_id)
 
 
-@FormatChecker.cls_checks("uuid", ValueError)
-def uuid_format_checker(value):
+# connexion's OpenAPI 3 validation uses JSON Schema Draft 4 as a base.
+@draft4_format_checker.checks("uuid", ValueError)
+def uuid_format_checker(instance):
     """Validates strings with "format: uuid" as being uuid v4."""
-    UUID(value, version=4)
+    if not isinstance(instance, compat.str_types):
+        return True
+    UUID(instance, version=4)
     return True
 
 
@@ -90,7 +93,7 @@ def main():
         get_bundled_specs(Path(__file__).parent / "openapi" / "openapi.yaml"),
         strict_validation=True,
         validate_responses=True,
-        resolver=ImplicitPackageResolver(__package__ + ".api"),
+        resolver=ImplicitPackageResolver(__package__ + ".resources"),
     )
     app.run()
 
