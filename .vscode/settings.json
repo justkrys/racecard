@@ -10,7 +10,6 @@
   "python.linting.pylintUseMinimalCheckers": false,
   "editor.formatOnSave": true,
   "python.linting.mypyEnabled": true,
-  "python.sortImports.path": "isort",
   "files.exclude": {
     ".mypy_cache": true,
     ".venv": true,
