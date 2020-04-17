@@ -23,6 +23,7 @@ import setuptools
 with open("README.md", "r") as fh:
     LONG_DESCRIPTION = fh.read()
 
+# TODO: Make sure data files are included in sdist and wheel distributions.
 setuptools.setup(
     name="racecard",
     version="0.0.1",
@@ -64,6 +65,7 @@ setuptools.setup(
             "Flask",
             "python-dotenv",
             "jsonschema[format]",
+            "marshmallow-jsonapi",
         ]
     },
 )
