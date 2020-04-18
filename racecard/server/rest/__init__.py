@@ -19,6 +19,3 @@
 
 Pair it with an appropriate client for a full app.
 """
-
-
-from racecard.server.rest.app import main  # noqa: F401

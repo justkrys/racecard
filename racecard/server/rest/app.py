@@ -18,17 +18,18 @@
 """OpenAPI 3 RESTful web service application entry point."""
 
 
-from pathlib import Path
-from uuid import UUID
+import pathlib
+import uuid
 
-from connexion import App
-from connexion.resolver import Resolution, Resolver
-from jsonschema import compat, draft4_format_checker
-from prance import ResolvingParser
-from prance.util.resolver import RESOLVE_FILES, RESOLVE_HTTP
+import connexion
+import jsonschema
+import prance
+from connexion import resolver as c_resolver
+from jsonschema import compat
+from prance.util import resolver as p_resolver
 
 
-class ImplicitPackageResolver(Resolver):
+class ImplicitPackageResolver(c_resolver.Resolver):
     """Resolver that uses an implicit base package to resolve operationId functions.
 
     This basically provides and implied router_controller value.
@@ -57,16 +58,16 @@ class ImplicitPackageResolver(Resolver):
         operation_id = self.resolve_operation_id(operation)
         full_operation_id = f"{self._base_package_name}.{operation_id}"
         function = self.resolve_function_from_operation_id(full_operation_id)
-        return Resolution(function, operation_id)
+        return c_resolver.Resolution(function, operation_id)
 
 
 # connexion's OpenAPI 3 validation uses JSON Schema Draft 4 as a base.
-@draft4_format_checker.checks("uuid", ValueError)
+@jsonschema.draft4_format_checker.checks("uuid", ValueError)
 def uuid_format_checker(instance):
     """Validates strings with "format: uuid" as being uuid v4."""
     if not isinstance(instance, compat.str_types):
         return True
-    UUID(instance, version=4)
+    uuid.UUID(instance, version=4)
     return True
 
 
@@ -74,20 +75,20 @@ def get_bundled_specs(main_file_path):
     """Stiches all external $ref references in to the main openapi spec file."""
     # Connexion cannot currently handle external file $refs.  This works around the
     # issue.  Based on https://github.com/zalando/connexion/issues/254
-    parser = ResolvingParser(
-        str(Path(main_file_path).absolute()),
+    parser = prance.ResolvingParser(
+        str(pathlib.Path(main_file_path).absolute()),
         lazy=True,
         strict=True,
         backend="openapi-spec-validator",
-        resolve_types=RESOLVE_HTTP | RESOLVE_FILES,
+        resolve_types=p_resolver.RESOLVE_HTTP | p_resolver.RESOLVE_FILES,
     )
     parser.parse()
     return parser.specification
 
 
-app = App(__package__)  # pylint: disable=invalid-name
+app = connexion.App(__package__)  # pylint: disable=invalid-name
 app.add_api(
-    get_bundled_specs(Path(__file__).parent / "openapi" / "openapi.yaml"),
+    get_bundled_specs(pathlib.Path(__file__).parent / "openapi" / "openapi.yaml"),
     strict_validation=True,
     validate_responses=True,
     resolver=ImplicitPackageResolver(__package__ + ".resources"),

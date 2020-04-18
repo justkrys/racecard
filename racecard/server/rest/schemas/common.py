@@ -18,13 +18,13 @@
 """Common utilities for schema objects."""
 
 import marshmallow as ma
-from marshmallow_jsonapi import Schema as _MJSchema
+import marshmallow_jsonapi as js
 from marshmallow_jsonapi import fields  # noqa: F401
 
 from ..models import common as commonmodels
 
 
-class Schema(_MJSchema):
+class Schema(js.Schema):
     """Customized marshmallow-jsonapi Schema to include extra features.
 
     document_meta can be passed in to the schema and it will be added to any provided by
