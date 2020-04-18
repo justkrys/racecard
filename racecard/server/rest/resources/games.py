@@ -18,7 +18,7 @@
 """API for game resources."""
 
 
-from flask import url_for
+import flask
 
 from .. import store
 from .common import j
@@ -36,14 +36,14 @@ def search():
         jsonapi=dict(version="1.0"),
         data=[],
         meta=dict(total=len(games)),
-        links=dict(self=url_for(".games_search")),
+        links=dict(self=flask.url_for(".games_search")),
     )
     for game_id in games:
         doc["data"].append(
             dict(
                 type="game",
                 id=game_id,
-                links=dict(self=url_for(".games_search") + f"/{game_id}"),
+                links=dict(self=flask.url_for(".games_search") + f"/{game_id}"),
             )
         )
     return j(doc)
