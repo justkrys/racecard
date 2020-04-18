@@ -20,6 +20,7 @@
 
 import sys
 import typing
+import uuid
 from dataclasses import asdict, dataclass
 
 from racecard.core import exceptions
@@ -39,7 +40,7 @@ class Move:
 
 
 game = Game()  # pylint: disable=invalid-name
-player_names: typing.Dict[str, str] = {}  # pylint: disable=invalid-name
+player_names: typing.Dict[uuid.UUID, str] = {}  # pylint: disable=invalid-name
 
 
 def get_num_players():

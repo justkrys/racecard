@@ -15,14 +15,4 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-"""Common and base classes for all clients."""
-
-from racecard.core import exceptions
-
-
-class ClientError(exceptions.ExceptionBase):
-    """Base class for all client exceptions."""
-
-
-class ClientBase:  # pylint: disable=too-few-public-methods
-    """Base class for all clients."""
+"""Data models for resources."""

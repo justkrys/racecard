@@ -1,0 +1,55 @@
+openapi: "3.0.2"
+info:
+  title: Race Card API
+  version: "0.0.1"
+  description: Race Card is an implementation of the card game Mille Bornes.
+  contact:
+    name: Krys Lawrence
+    url: http://krys.ca
+    email: "code@krys.ca"
+  license:
+    name: GNU AGPLv3+
+    url: https://www.gnu.org/licenses/
+tags:
+  - name: games
+    description: All API parts related to game resources.
+  - name: users
+    description: All API parts related to user resources.
+servers:
+  - url: /v0
+    description: Pre-release version of API.  All things can change without notice.
+paths:
+  /games:
+    get:
+      operationId: games.search
+      summary: List all the games that currently exist.
+      tags: [games]
+      responses:
+        "200":
+          description:
+            Returns a list of game IDs and links for all the users that currently exist.
+            Result is in JSON:API format.
+          content:
+            "application/vnd.api+json":
+              schema:
+                $ref: "#/components/schemas/gamesList"
+  /users:
+    get:
+      operationId: users.search
+      summary: List all the users that currently exist.
+      tags: [users]
+      responses:
+        "200":
+          description:
+            Returns a list of user IDs and links for all the users that currently exist.
+            Result is in JSON:API format.
+          content:
+            "application/vnd.api+json":
+              schema:
+                $ref: "#/components/schemas/userList"
+components:
+  schemas:
+    gamesList:
+      $ref: "gamesList.yaml#/components/schemas/gamesList" # Included by prance
+    userList:
+      $ref: "userList.yaml#/components/schemas/userList" # Included by prance

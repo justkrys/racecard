@@ -23,9 +23,10 @@ import setuptools
 with open("README.md", "r") as fh:
     LONG_DESCRIPTION = fh.read()
 
+# TODO: Make sure data files are included in sdist and wheel distributions.
 setuptools.setup(
     name="racecard",
-    version="0.1.0",
+    version="0.0.1",
     description="Race Card: An implementation of the game card game Mille Bornes",
     long_description=LONG_DESCRIPTION,
     long_description_content_type="text/markdown",
@@ -52,5 +53,19 @@ setuptools.setup(
     },
     packages=setuptools.find_packages(),
     python_requires=">=3.8",
-    entry_points={"console_scripts": ["racecard = racecard.app.simplecli:main"]},
+    entry_points={
+        "console_scripts": [
+            "racecard = racecard.app.simplecli:main",
+            "racecard-rest = racecard.server.rest:main [REST]",
+        ]
+    },
+    extras_require={
+        "REST": [
+            "connexion[swagger-ui]",
+            "Flask",
+            "python-dotenv",
+            "jsonschema[format]",
+            "marshmallow-jsonapi",
+        ]
+    },
 )

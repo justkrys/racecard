@@ -15,14 +15,10 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-"""Common and base classes for all clients."""
+"""OpenAPI 3 RESTful web service implementation.
 
-from racecard.core import exceptions
-
-
-class ClientError(exceptions.ExceptionBase):
-    """Base class for all client exceptions."""
+Pair it with an appropriate client for a full app.
+"""
 
 
-class ClientBase:  # pylint: disable=too-few-public-methods
-    """Base class for all clients."""
+from racecard.server.rest.app import main  # noqa: F401

@@ -15,14 +15,18 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-"""Common and base classes for all clients."""
-
-from racecard.core import exceptions
+"""Data model for Race Card games."""
 
 
-class ClientError(exceptions.ExceptionBase):
-    """Base class for all client exceptions."""
+import dataclasses
+import uuid
+
+from racecard.core import game
 
 
-class ClientBase:  # pylint: disable=too-few-public-methods
-    """Base class for all clients."""
+@dataclasses.dataclass
+class Game(game.Game):
+    """A single game consisting of several hands, played by several players."""
+
+    id: uuid.UUID
+    owner_id: uuid.UUID

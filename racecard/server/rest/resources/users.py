@@ -15,14 +15,17 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-"""Common and base classes for all clients."""
+"""API for user resources."""
 
-from racecard.core import exceptions
-
-
-class ClientError(exceptions.ExceptionBase):
-    """Base class for all client exceptions."""
+from .. import store
+from ..models import base
+from ..schemas import userschema
 
 
-class ClientBase:  # pylint: disable=too-few-public-methods
-    """Base class for all clients."""
+def search():
+    """Handler for GET /users."""
+    users = list(store.users.values())
+    meta = base.CollectionMeta(total=len(users))
+    schema = userschema.UserSchema(document_meta=meta)
+    resource = schema.dump(users, many=True)
+    return resource, 200, {"Content-Type": "application/vnd.api+json"}

@@ -15,14 +15,17 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-"""Common and base classes for all clients."""
+"""In-memory storage of global state.
 
-from racecard.core import exceptions
-
-
-class ClientError(exceptions.ExceptionBase):
-    """Base class for all client exceptions."""
+This serves as a temporary substitute for an actualy db or storage backend.
+"""
 
 
-class ClientBase:  # pylint: disable=too-few-public-methods
-    """Base class for all clients."""
+import typing
+import uuid
+
+# TODO: Convert all imports everywhere to relative
+from .models import game, user
+
+games: typing.Dict[uuid.UUID, game.Game] = {}
+users: typing.Dict[uuid.UUID, user.User] = {}

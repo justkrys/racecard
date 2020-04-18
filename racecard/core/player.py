@@ -36,6 +36,7 @@ class _States(Enum):
 
 @dataclass
 class ScoreCard:
+    """A player's score card once the hand is completed."""
 
     distance: int = 0
     safeties: int = 0
@@ -51,6 +52,8 @@ class ScoreCard:
 
 @dataclass
 class _PlayerState:
+    """The state data for a player, including all cards and their positions."""
+
     state: str
     winner: bool
     hand: tuple

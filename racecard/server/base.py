@@ -25,5 +25,5 @@ class ServerError(exceptions.ExceptionBase):
     """Base class for all server exceptions."""
 
 
-class ServerBase:
+class ServerBase:  # pylint: disable=too-few-public-methods
     """Base class for all servers."""

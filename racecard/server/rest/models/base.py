@@ -15,14 +15,25 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-"""Common and base classes for all clients."""
-
-from racecard.core import exceptions
+"""Base/common data model objects for resources."""
 
 
-class ClientError(exceptions.ExceptionBase):
-    """Base class for all client exceptions."""
+import dataclasses
+import typing
 
 
-class ClientBase:  # pylint: disable=too-few-public-methods
-    """Base class for all clients."""
+class ModelBase:
+    """Base class for all Race Card data models."""
+
+
+@dataclasses.dataclass
+class CollectionMeta:
+    """Common meta-data attributes to add to collections of resources.
+
+    These would go in the document-level "meta" attribute in JSON:API, for example.
+    """
+
+    total: int
+    page: typing.Union[int, None] = None
+    page_size: typing.Union[int, None] = None
+    total_pages: typing.Union[int, None] = None

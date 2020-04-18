@@ -15,14 +15,22 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-"""Common and base classes for all clients."""
+"""Data model for users."""
 
-from racecard.core import exceptions
+import dataclasses
+import typing
+import uuid
+
+from . import base
 
 
-class ClientError(exceptions.ExceptionBase):
-    """Base class for all client exceptions."""
+@dataclasses.dataclass
+class User(base.ModelBase):
+    """A single game consisting of several hands, played by several players."""
 
-
-class ClientBase:  # pylint: disable=too-few-public-methods
-    """Base class for all clients."""
+    id: uuid.UUID
+    name: str
+    email: str
+    owned: typing.AbstractSet[uuid.UUID] = dataclasses.field(default_factory=set)
+    playing: typing.AbstractSet[uuid.UUID] = dataclasses.field(default_factory=set)
+    completed: typing.AbstractSet[uuid.UUID] = dataclasses.field(default_factory=set)

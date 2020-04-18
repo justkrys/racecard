@@ -15,14 +15,34 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-"""Common and base classes for all clients."""
-
-from racecard.core import exceptions
+"""API for game resources."""
 
 
-class ClientError(exceptions.ExceptionBase):
-    """Base class for all client exceptions."""
+from flask import url_for
+
+from racecard.server.rest import store
 
 
-class ClientBase:  # pylint: disable=too-few-public-methods
-    """Base class for all clients."""
+def search():
+    """Returns the list of all games that currently exist.
+
+    Implements GET on /games.
+
+    Currently does not support searching or filtering.
+    """
+    games = list(store.games)
+    result = dict(
+        jsonapi=dict(version="1.0"),
+        data=[],
+        meta=dict(total=len(games)),
+        links=dict(self=url_for(".games_search")),
+    )
+    for game_id in games:
+        result["data"].append(
+            dict(
+                type="game",
+                id=game_id,
+                links=dict(self=url_for(".games_search") + f"/{game_id}"),
+            )
+        )
+    return result, 200, {"Content-Type": "application/vnd.api+json"}
