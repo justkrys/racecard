@@ -56,7 +56,7 @@ setuptools.setup(
     entry_points={
         "console_scripts": [
             "racecard = racecard.app.simplecli:main",
-            "racecard-rest = racecard.server.rest.app:main [REST]",
+            "racecard-rest = racecard.server.rest:main [REST]",
         ]
     },
     extras_require={
