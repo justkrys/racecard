@@ -21,6 +21,7 @@ This serves as a temporary substitute for an actualy db or storage backend.
 """
 
 
+import os
 import typing
 import uuid
 
@@ -28,3 +29,8 @@ from .models import game, user
 
 games: typing.Dict[uuid.UUID, game.Game] = {}
 users: typing.Dict[uuid.UUID, user.User] = {}
+
+if os.environ.get("RACECARD_DEV", "").lower() == "true":
+    for name in ("Krys", "Cheesebutt"):
+        id = uuid.uuid4()
+        users[id] = user.User(id=id, name=name, email=f"{name.lower()}@example.com")

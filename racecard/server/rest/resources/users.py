@@ -20,7 +20,7 @@
 import uuid
 
 from .. import store
-from ..models import common, user
+from ..models import common
 from ..schemas import userschema
 from .common import j
 
@@ -28,9 +28,7 @@ from .common import j
 def search():
     """Handler for GET /users."""
     users = list(store.users.values())
-    a_user = user.User(id=uuid.uuid4(), name="bob", email="bob@bob")
-    users.append(a_user)
-    meta = common.CollectionMeta(total=len(users), page=1, page_size=20, total_pages=4)
+    meta = common.CollectionMeta(total=len(users))
     schema = userschema.UserSchema(document_meta=meta)
     doc = schema.dump(users, many=True)
     return j(doc)
@@ -38,8 +36,8 @@ def search():
 
 def get(id):  # pylint: disable=invalid-name,redefined-builtin
     """Handler for GET /users/<id>."""
-    # user = store.users[id]
-    user_ = user.User(id=id, name="bob", email="bob@bob")
+    id = uuid.UUID(id)
+    user = store.users[id]
     schema = userschema.UserSchema()
-    doc = schema.dump(user_)
+    doc = schema.dump(user)
     return j(doc)
