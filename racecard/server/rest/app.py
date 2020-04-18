@@ -27,8 +27,6 @@ from jsonschema import compat, draft4_format_checker
 from prance import ResolvingParser
 from prance.util.resolver import RESOLVE_FILES, RESOLVE_HTTP
 
-app = App(__name__)  # pylint: disable=invalid-name
-
 
 class ImplicitPackageResolver(Resolver):
     """Resolver that uses an implicit base package to resolve operationId functions.
@@ -87,14 +85,22 @@ def get_bundled_specs(main_file_path):
     return parser.specification
 
 
+app = App(__package__)  # pylint: disable=invalid-name
+app.add_api(
+    get_bundled_specs(Path(__file__).parent / "openapi" / "openapi.yaml"),
+    strict_validation=True,
+    validate_responses=True,
+    resolver=ImplicitPackageResolver(__package__ + ".resources"),
+)
+
+
+def flask_app():
+    """Entry point for the "flask run" command."""
+    return app.app
+
+
 def main():
-    """The main entry point for the Race Card REST server."""
-    app.add_api(
-        get_bundled_specs(Path(__file__).parent / "openapi" / "openapi.yaml"),
-        strict_validation=True,
-        validate_responses=True,
-        resolver=ImplicitPackageResolver(__package__ + ".resources"),
-    )
+    """Entry point for the "racecard-rest" command and for running app.py directly."""
     app.run()
 
 
