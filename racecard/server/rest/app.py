@@ -28,6 +28,8 @@ from connexion import resolver as c_resolver
 from jsonschema import compat
 from prance.util import resolver as p_resolver
 
+from .. import common
+
 
 class ImplicitPackageResolver(c_resolver.Resolver):
     """Resolver that uses an implicit base package to resolve operationId functions.
@@ -61,6 +63,36 @@ class ImplicitPackageResolver(c_resolver.Resolver):
         return c_resolver.Resolution(function, operation_id)
 
 
+class RESTApp(common.ServerBase, connexion.App):  # noqa
+    """REST server application."""
+
+    def __init__(self):
+        super().__init__(__package__)
+        self.add_api(
+            self.get_bundled_specs(
+                pathlib.Path(__file__).parent / "openapi" / "openapi.yaml"
+            ),
+            strict_validation=True,
+            validate_responses=True,
+            resolver=ImplicitPackageResolver(__package__ + ".resources"),
+        )
+
+    @staticmethod
+    def get_bundled_specs(main_file_path):
+        """Stiches all external $ref references in to the main openapi spec file."""
+        # Connexion cannot currently handle external file $refs.  This works around the
+        # issue.  Based on https://github.com/zalando/connexion/issues/254
+        parser = prance.ResolvingParser(
+            str(pathlib.Path(main_file_path).absolute()),
+            lazy=True,
+            strict=True,
+            backend="openapi-spec-validator",
+            resolve_types=p_resolver.RESOLVE_HTTP | p_resolver.RESOLVE_FILES,
+        )
+        parser.parse()
+        return parser.specification
+
+
 # connexion's OpenAPI 3 validation uses JSON Schema Draft 4 as a base.
 @jsonschema.draft4_format_checker.checks("uuid", ValueError)
 def uuid_format_checker(instance):
@@ -71,28 +103,7 @@ def uuid_format_checker(instance):
     return True
 
 
-def get_bundled_specs(main_file_path):
-    """Stiches all external $ref references in to the main openapi spec file."""
-    # Connexion cannot currently handle external file $refs.  This works around the
-    # issue.  Based on https://github.com/zalando/connexion/issues/254
-    parser = prance.ResolvingParser(
-        str(pathlib.Path(main_file_path).absolute()),
-        lazy=True,
-        strict=True,
-        backend="openapi-spec-validator",
-        resolve_types=p_resolver.RESOLVE_HTTP | p_resolver.RESOLVE_FILES,
-    )
-    parser.parse()
-    return parser.specification
-
-
-app = connexion.App(__package__)  # pylint: disable=invalid-name
-app.add_api(
-    get_bundled_specs(pathlib.Path(__file__).parent / "openapi" / "openapi.yaml"),
-    strict_validation=True,
-    validate_responses=True,
-    resolver=ImplicitPackageResolver(__package__ + ".resources"),
-)
+app = RESTApp()  # pylint: disable=invalid-name
 
 
 def flask_app():
