@@ -18,25 +18,25 @@
 """Define all card types and create decks from which to draw."""
 
 
+import abc
 import random
-from abc import ABC, abstractmethod
 
-from racecard.core import config
+from . import config
 
 # Base Classes
 
 
-class Card(ABC):  # pylint: disable=too-few-public-methods
+class Card(abc.ABC):  # pylint: disable=too-few-public-methods
 
     """Base class for all cards."""
 
     @property
-    @abstractmethod
+    @abc.abstractmethod
     def name(self):
         """The name of the card."""
 
     @property
-    @abstractmethod
+    @abc.abstractmethod
     def weight(self):
         """A weight number of the card when sorting a hand. Higher = more top/left."""
 
@@ -68,12 +68,12 @@ class HazardCard(Card):  # pylint: disable=too-few-public-methods
     """Hazard cards are for attacking opponents."""
 
     @property
-    @abstractmethod
+    @abc.abstractmethod
     def remedied_by(self):
         """Can be remedied by this card type."""
 
     @property
-    @abstractmethod
+    @abc.abstractmethod
     def prevented_by(self):
         """Can be prevented by this card type."""
 
@@ -82,7 +82,7 @@ class DistanceCard(Card):  # pylint: disable=too-few-public-methods
     """Distance cards increase player scores."""
 
     @property
-    @abstractmethod
+    @abc.abstractmethod
     def value(self):
         """The numeric value of the card."""
 

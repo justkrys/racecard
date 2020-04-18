@@ -18,26 +18,24 @@
 """Top-level of core.  The Game class runs a whole game."""
 
 
+import dataclasses
 import random
 import typing
 import uuid
-from dataclasses import asdict, dataclass
 
-from racecard.core import config, exceptions
-from racecard.core.hand import Hand, PlayResults
-from racecard.core.player import ScoreCard
+from . import config, exceptions, hand, player
 
 
-@dataclass
+@dataclasses.dataclass
 class _PlayerData:
     """Stores game-level player data."""
 
     sort_hand: bool = False  # Remembers toggle_sort() choice between hands.
-    score_card: typing.Union[ScoreCard, None] = None
+    score_card: typing.Union[player.ScoreCard, None] = None
 
 
-@dataclass
-class _GameScoreCard(ScoreCard):
+@dataclasses.dataclass
+class _GameScoreCard(player.ScoreCard):
 
     game_total: int = 0
 
@@ -78,8 +76,8 @@ class Game:
     def _get_game_total(self, player_id):
         """Calculates and returns the current game total for the given player."""
         game_total = 0
-        for hand in self._hands:
-            score_card = hand.get_player_state(player_id).score_card
+        for hand_ in self._hands:
+            score_card = hand_.get_player_state(player_id).score_card
             if score_card:
                 game_total += score_card.total
         return game_total
@@ -133,12 +131,12 @@ class Game:
         if self._hands and not self._current_hand.is_completed:
             raise exceptions.HandInProgressError()
         self._turn_order.append(self._turn_order.pop(0))
-        hand = Hand(self._turn_order)
+        next_hand = hand.Hand(self._turn_order)
         # Preserve toggle_sort() setting between hands.
         for id_, data in self._players.items():
             if data.sort_hand:
-                hand.toggle_sort(id_)
-        self._hands.append(hand)
+                next_hand.toggle_sort(id_)
+        self._hands.append(next_hand)
 
     def get_hand_scores(self):
         """Returns the current hand score cards for all players.
@@ -167,10 +165,10 @@ class Game:
         for id_, data in self._players.items():
             if data.score_card is not None:
                 continue  # Already calculated
-            game_card = data.score_card = ScoreCard()
-            for hand in self._hands:
-                hand_card = hand.get_player_state(id_).score_card
-                for point_type, hand_score in asdict(hand_card).items():
+            game_card = data.score_card = player.ScoreCard()
+            for hand_ in self._hands:
+                hand_card = hand_.get_player_state(id_).score_card
+                for point_type, hand_score in dataclasses.asdict(hand_card).items():
                     current_score = getattr(game_card, point_type)
                     setattr(game_card, point_type, current_score + hand_score)
         return {id_: data.score_card for id_, data in self._players.items()}
@@ -200,7 +198,7 @@ class Game:
         """
         # This overrides Hand.play to include extra game-level logic.
         result = self._current_hand.play(player_id, card_index, targed_id)
-        if result == PlayResults.WIN_CANNOT_EXTEND:
+        if result == hand.PlayResults.WIN_CANNOT_EXTEND:
             self._check_game_complete()
         return result
 

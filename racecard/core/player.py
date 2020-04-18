@@ -18,23 +18,23 @@
 """Finite state machine to track a player's state."""
 
 
-from dataclasses import astuple, dataclass, field
-from enum import Enum, auto, unique
+import dataclasses
+import enum
 
-from racecard.core import config, deck, exceptions
+from . import config, deck, exceptions
 
 
-@unique
-class _States(Enum):
+@enum.unique
+class _States(enum.Enum):
     """The states in which a player can be."""
 
-    STOPPED = auto()
-    ROLLING = auto()
-    BROKEN = auto()
-    COMPLETED = auto()
+    STOPPED = enum.auto()
+    ROLLING = enum.auto()
+    BROKEN = enum.auto()
+    COMPLETED = enum.auto()
 
 
-@dataclass
+@dataclasses.dataclass
 class ScoreCard:
     """A player's score card once the hand is completed."""
 
@@ -50,7 +50,7 @@ class ScoreCard:
     total: int = 0
 
 
-@dataclass
+@dataclasses.dataclass
 class _PlayerState:
     """The state data for a player, including all cards and their positions."""
 
@@ -61,10 +61,10 @@ class _PlayerState:
     sort_hand: bool
     running_total: int
     score_card: ScoreCard
-    safeties_pile: tuple = field(default_factory=tuple)
-    battle_pile: tuple = field(default_factory=tuple)
-    speed_pile: tuple = field(default_factory=tuple)
-    distance_pile: tuple = field(default_factory=tuple)
+    safeties_pile: tuple = dataclasses.field(default_factory=tuple)
+    battle_pile: tuple = dataclasses.field(default_factory=tuple)
+    speed_pile: tuple = dataclasses.field(default_factory=tuple)
+    distance_pile: tuple = dataclasses.field(default_factory=tuple)
 
 
 class Player:
@@ -399,7 +399,7 @@ class Player:
                 card.shut_out = config.SHUT_OUT_SCORE
             if is_extended:
                 card.extension = config.EXTENSION_SCORE
-        card.total = sum(astuple(card))
+        card.total = sum(dataclasses.astuple(card))
         self._score_card = card
 
     def get_state(self):

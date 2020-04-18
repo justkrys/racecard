@@ -18,22 +18,20 @@
 """Code to run/handle one hand of Race Card.  This is the heart of the game."""
 
 
-from enum import Enum, auto, unique
+import enum
 
-from racecard.core import config, deck, exceptions
-from racecard.core.player import Player
-from racecard.core.tray import Tray
+from . import config, deck, exceptions, player, tray
 
 
-@unique
-class PlayResults(Enum):
+@enum.unique
+class PlayResults(enum.Enum):
     """Return values from Hand.play()."""
 
-    OK = auto()
-    CAN_COUP_FOURRE = auto()
-    WIN_CAN_EXTEND = auto()
-    WIN_CANNOT_EXTEND = auto()
-    COMPLETED_NO_WINNER = auto()
+    OK = enum.auto()
+    CAN_COUP_FOURRE = enum.auto()
+    WIN_CAN_EXTEND = enum.auto()
+    WIN_CANNOT_EXTEND = enum.auto()
+    COMPLETED_NO_WINNER = enum.auto()
 
 
 class Hand:
@@ -46,9 +44,11 @@ class Hand:
         self._turn_index = 0
         self._extended = False
         self._last_target = None
-        self._players = {player_id: Player() for player_id in player_ids_in_turn_order}
+        self._players = {
+            player_id: player.Player() for player_id in player_ids_in_turn_order
+        }
         self._small_deck = len(self._players) < config.LARGE_DECK_PLAYERS
-        self._tray = Tray(deck.make_deck(self._small_deck))
+        self._tray = tray.Tray(deck.make_deck(self._small_deck))
         self._win_score = (
             config.SMALL_WIN_SCORE if self._small_deck else config.LARGE_WIN_SCORE
         )
@@ -170,8 +170,8 @@ class Hand:
             loser.lost()
         shutout = all([loser.is_shutout for loser in losers])
         draw_empty = not self._tray.cards_remaining
-        for player in self._players.values():
-            player.calc_score(draw_empty, self._extended, shutout)
+        for player_ in self._players.values():
+            player_.calc_score(draw_empty, self._extended, shutout)
         self.is_completed = True
 
     def _check_no_more_cards(self, result=None, next_turn=True):

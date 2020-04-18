@@ -23,8 +23,7 @@ import typing
 import uuid
 from dataclasses import asdict, dataclass
 
-from racecard.core import exceptions
-from racecard.core.game import Game, PlayResults
+from racecard.core import Game, PlayResults, exceptions
 
 
 class QuitException(exceptions.ExceptionBase):

@@ -18,7 +18,7 @@
 """Tracks cards in the draw and discard piles."""
 
 
-from racecard.core import exceptions
+from . import exceptions
 
 
 class Tray:
