@@ -23,10 +23,12 @@ import uuid
 
 from racecard.core import game
 
+from . import common
+
 
 @dataclasses.dataclass
-class Game(game.Game):
+class Game(common.ModelBase, game.Game):
     """A single game consisting of several hands, played by several players."""
 
-    id: uuid.UUID
+    id: uuid.UUID  # pylint: disable=invalid-name
     owner_id: uuid.UUID

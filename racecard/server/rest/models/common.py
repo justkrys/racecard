@@ -15,19 +15,19 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-"""Base/common data model objects for resources."""
+"""Common utilities for data models."""
 
 
 import dataclasses
 import typing
 
 
-class ModelBase:
+class ModelBase:  # pylint: disable=too-few-public-methods
     """Base class for all Race Card data models."""
 
 
 @dataclasses.dataclass
-class CollectionMeta:
+class CollectionMeta:  # pylint: disable=too-few-public-methods
     """Common meta-data attributes to add to collections of resources.
 
     These would go in the document-level "meta" attribute in JSON:API, for example.

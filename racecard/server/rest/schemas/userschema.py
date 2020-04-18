@@ -18,11 +18,11 @@
 """Schema for user resources."""
 
 
-from .baseschema import Schema, fields
+from .common import Schema, fields
 
 
 class UserSchema(Schema):
-    """Data model schema for user resources."""
+    """Schema for user resources."""
 
     id = fields.UUID(dump_only=True)
     name = fields.Str()
@@ -54,7 +54,9 @@ class UserSchema(Schema):
     #     schema=,
     # )
 
-    class Meta:
+    class Meta:  # pylint: disable=too-few-public-methods
+        """Metadata options for the schema."""
+
         type_ = "users"
         self_url = "/users/{id}"
         self_url_kwargs = {"id": "<id>"}

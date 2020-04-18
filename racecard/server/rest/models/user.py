@@ -21,14 +21,14 @@ import dataclasses
 import typing
 import uuid
 
-from . import base
+from . import common
 
 
 @dataclasses.dataclass
-class User(base.ModelBase):
+class User(common.ModelBase):
     """A single game consisting of several hands, played by several players."""
 
-    id: uuid.UUID
+    id: uuid.UUID  # pylint: disable=invalid-name
     name: str
     email: str
     owned: typing.AbstractSet[uuid.UUID] = dataclasses.field(default_factory=set)

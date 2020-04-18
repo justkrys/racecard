@@ -15,13 +15,13 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-"""Base/common schema objects for resources."""
+"""Common utilities for schema objects."""
 
 import marshmallow as ma
 from marshmallow_jsonapi import Schema as _MJSchema
 from marshmallow_jsonapi import fields  # noqa: F401
 
-from ..models import base
+from ..models import common as commonmodels
 
 
 class Schema(_MJSchema):
@@ -38,17 +38,22 @@ class Schema(_MJSchema):
     def __init__(self, *args, **kwargs):
         document_meta = kwargs.pop("document_meta", {})
         super().__init__(*args, **kwargs)
-        if isinstance(document_meta, base.CollectionMeta):
+        if isinstance(document_meta, commonmodels.CollectionMeta):
             document_meta = CollectionMetaSchema().dump(document_meta)
         self.document_meta.update(document_meta)
 
     @ma.post_dump(pass_many=True)
     def format_json_api_response(self, data, many, **kwargs):
+        """Post-dump hook that formats serialized data as a top-level JSON API object.
+
+        Overridden to also add a jsonapi verion property.
+        """
         ret = super().format_json_api_response(data, many, **kwargs)
         ret["jsonapi"] = {"version": "1.0"}
         return ret
 
     def inflect(self, text):
+        """Inflect text from using underscores to camelCase."""
         parts = iter(text.split("_"))
         return next(parts) + "".join(part.title() for part in parts)
 
@@ -66,5 +71,6 @@ class CollectionMetaSchema(ma.Schema):
     total_pages = fields.Integer(data_key="totalPages")
 
     @ma.post_dump()
-    def remove_skip_values(self, data, many):
+    def remove_none_values(self, data, _):  # pylint: disable=no-self-use
+        """Removes properties with None/null values."""
         return {key: value for key, value in data.items() if value is not None}

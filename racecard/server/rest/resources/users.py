@@ -20,7 +20,7 @@
 import uuid
 
 from .. import store
-from ..models import base, user
+from ..models import common, user
 from ..schemas import userschema
 from .common import j
 
@@ -30,7 +30,7 @@ def search():
     users = list(store.users.values())
     a_user = user.User(id=uuid.uuid4(), name="bob", email="bob@bob")
     users.append(a_user)
-    meta = base.CollectionMeta(total=len(users), page=1, page_size=20, total_pages=4)
+    meta = common.CollectionMeta(total=len(users), page=1, page_size=20, total_pages=4)
     schema = userschema.UserSchema(document_meta=meta)
     doc = schema.dump(users, many=True)
     return j(doc)
