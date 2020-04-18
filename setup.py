@@ -23,7 +23,6 @@ import setuptools
 with open("README.md", "r") as fh:
     LONG_DESCRIPTION = fh.read()
 
-# TODO: Make sure data files are included in sdist and wheel distributions.
 setuptools.setup(
     name="racecard",
     version="0.0.1",
@@ -52,13 +51,15 @@ setuptools.setup(
         # 'Tracker': '',
     },
     packages=setuptools.find_packages(),
-    python_requires=">=3.8",
+    package_data={"racecard.server.rest": ["openapi/*.yaml"]},
+    zip_safe=False,
     entry_points={
         "console_scripts": [
             "racecard = racecard.app.simplecli:main",
             "racecard-rest = racecard.server.rest:main [REST]",
         ]
     },
+    python_requires=">=3.8",
     extras_require={
         "REST": [
             "connexion[swagger-ui]",
