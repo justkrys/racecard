@@ -57,7 +57,7 @@ class UserSchema(Schema):
     class Meta:  # pylint: disable=too-few-public-methods
         """Metadata options for the schema."""
 
-        type_ = "users"
-        self_url = "/users/{id}"
-        self_url_kwargs = {"id": "<id>"}
-        self_url_many = "/users"
+        type_ = "user"
+        self_view = ".users_search"
+        self_view_kwargs = {"id": "<id>"}
+        self_view_many = ".users_search"
