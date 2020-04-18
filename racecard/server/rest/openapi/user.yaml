@@ -28,19 +28,23 @@ components:
               format: email
         links:
           $ref: "common.yaml#/components/schemas/linksSelf"
-    userList:
-      description: A list of users along with links to them.
-      type: object
-      required:
-        - data
-      properties:
-        data:
-          type: array
-          items:
-            $ref: "#/components/schemas/user"
-    userListDoc:
+    userSingle:
+      description: A JSON:API document of a user resource.
+      allOf:
+        - $ref: "common.yaml#/components/schemas/success"
+        - $ref: "common.yaml#/components/schemas/single"
+        - type: object
+          properties:
+            data:
+              $ref: "#/components/schemas/user"
+    userMany:
       description: A JSON:API document of a list of user resources, possibly paginated.
       allOf:
-        - $ref: "common.yaml#/components/schemas/document"
-        - $ref: "common.yaml#/components/schemas/collection"
-        - $ref: "#/components/schemas/userList"
+        - $ref: "common.yaml#/components/schemas/success"
+        - $ref: "common.yaml#/components/schemas/many"
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                $ref: "#/components/schemas/user"

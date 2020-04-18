@@ -34,3 +34,12 @@ def search():
     schema = userschema.UserSchema(document_meta=meta)
     doc = schema.dump(users, many=True)
     return j(doc)
+
+
+def get(id):  # pylint: disable=invalid-name,redefined-builtin
+    """Handler for GET /users/<id>."""
+    # user = store.users[id]
+    user_ = user.User(id=id, name="bob", email="bob@bob")
+    schema = userschema.UserSchema()
+    doc = schema.dump(user_)
+    return j(doc)

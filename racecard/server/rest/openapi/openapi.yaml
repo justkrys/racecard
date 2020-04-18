@@ -22,7 +22,7 @@ paths:
   /games:
     get:
       operationId: games.search
-      summary: List all the games that currently exist.
+      summary: A list of all the games that currently exist.
       tags: [games]
       responses:
         "200":
@@ -32,11 +32,11 @@ paths:
           content:
             "application/vnd.api+json":
               schema:
-                $ref: "#/components/schemas/gameList"
+                $ref: "#/components/schemas/gameMany"
   /users:
     get:
       operationId: users.search
-      summary: List all the users that currently exist.
+      summary: A list all the users that currently exist.
       tags: [users]
       responses:
         "200":
@@ -46,10 +46,36 @@ paths:
           content:
             "application/vnd.api+json":
               schema:
-                $ref: "#/components/schemas/userList"
+                $ref: "#/components/schemas/userMany"
+  /users/{id}:
+    get:
+      operationId: users.get
+      summary: Details about the user with the given id.
+      tags: [users]
+      parameters:
+        - name: id
+          in: path
+          description: The id of the desired user, in UUID format.
+          required: True
+          schema:
+            $ref: "#/components/schemas/id"
+      responses:
+        "200":
+          description:
+            Returns a details about the user and links to the games to which they are
+            associated.
+            Result is in JSON:API format.
+          content:
+            "application/vnd.api+json":
+              schema:
+                $ref: "#/components/schemas/userSingle"
 components:
   schemas:
-    gameList:
-      $ref: "game.yaml#/components/schemas/gameListDoc" # Included by prance
-    userList:
-      $ref: "user.yaml#/components/schemas/userListDoc" # Included by prance
+    id:
+      $ref: "common.yaml#/components/schemas/id"
+    gameMany:
+      $ref: "game.yaml#/components/schemas/gameMany" # Included by prance
+    userSingle:
+      $ref: "user.yaml#/components/schemas/userSingle" # Included by prance
+    userMany:
+      $ref: "user.yaml#/components/schemas/userMany" # Included by prance

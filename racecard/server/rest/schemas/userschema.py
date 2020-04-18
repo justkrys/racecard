@@ -58,6 +58,6 @@ class UserSchema(Schema):
         """Metadata options for the schema."""
 
         type_ = "user"
-        self_view = ".users_search"
+        self_view = ".users_get"
         self_view_kwargs = {"id": "<id>"}
         self_view_many = ".users_search"

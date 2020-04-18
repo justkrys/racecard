@@ -44,19 +44,34 @@ components:
           type: string
           format: uri-reference
           nullable: true
-    document:
+    success:
       description: A JSON:API document with a link to it's own resource.
       type: object
       required:
         - jsonapi
+        - data
         - links
       properties:
         jsonapi:
           $ref: "#/components/schemas/jsonapi"
+        data:
+          oneOf:
+            - type: object
+            - type: array
+              items:
+                type: object
         links:
           $ref: "#/components/schemas/linksSelf"
-    collection:
-      description: A collection of objects, possibly paginated.
+    single:
+      description: A single resource.
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          type: object
+    many:
+      description: A collection of resources, possibly paginated.
       type: object
       required:
         - data
