@@ -90,14 +90,14 @@ class Hand:
         if not player_id == self.current_player_id:
             raise exceptions.OutOfTurnError()
 
-    def _ensure_hand_full(self, player):
+    def _ensure_hand_full(self, player_):
         """Checks that the player's hand is full or there are no more cards to draw."""
-        if not player.is_hand_full and self.cards_remaining > 0:
+        if not player_.is_hand_full and self.cards_remaining > 0:
             raise exceptions.MustDrawError()
 
-    def _ensure_can_draw(self, player):
+    def _ensure_can_draw(self, player_):
         """Checks that the player can draw a card unless there are no more to draw."""
-        if player.is_hand_full or not self.cards_remaining:
+        if player_.is_hand_full or not self.cards_remaining:
             raise exceptions.CannotDrawError()
 
     def _get_player(self, player_id):
@@ -126,33 +126,33 @@ class Hand:
         self._turn_index = turn_index
 
     @staticmethod
-    def _play_safetycard(player, card_index, _):
+    def _play_safetycard(player_, card_index, _):
         """Handler for playing Safety cards."""
-        player.play_safety(card_index)
+        player_.play_safety(card_index)
         return PlayResults.OK
 
     @staticmethod
-    def _play_remedycard(player, card_index, _):
+    def _play_remedycard(player_, card_index, _):
         """Handler for playing Remedy cards."""
-        player.play_remedy(card_index)
+        player_.play_remedy(card_index)
         return PlayResults.OK
 
-    def _play_hazardcard(self, player, card_index, target):
+    def _play_hazardcard(self, player_, card_index, target):
         """Handler for playing Hazard cards."""
-        card = player.play_hazard(card_index)
+        card = player_.play_hazard(card_index)
         try:
             target.recieve_hazard(card)
         except exceptions.InvalidPlayError:
-            player.recieve_card(card)
+            player_.recieve_card(card)
             raise
         if target.can_coup_fourre:
             self._last_target = target
             return PlayResults.CAN_COUP_FOURRE
         return PlayResults.OK
 
-    def _play_distancecard(self, player, card_index, _):
+    def _play_distancecard(self, player_, card_index, _):
         """Handler for playing Distance cards."""
-        is_winner = player.play_distance(card_index, self._win_score)
+        is_winner = player_.play_distance(card_index, self._win_score)
         if not is_winner:
             return PlayResults.OK
         if is_winner and self._can_extend:
@@ -213,10 +213,10 @@ class Hand:
     def draw(self, player_id, discard=False):
         """Draw a card from either the draw or discard pile."""
         self._ensure_not_completed()
-        player = self._get_player(player_id)
+        player_ = self._get_player(player_id)
         self._ensure_player_turn(player_id)
-        self._ensure_can_draw(player)
-        player.recieve_card(self._tray.draw(discard))
+        self._ensure_can_draw(player_)
+        player_.recieve_card(self._tray.draw(discard))
 
     def discard(self, player_id, card_index, force=False):
         """Discards a card from the player's hand.
@@ -225,10 +225,10 @@ class Hand:
         set to True.
         """
         self._ensure_not_completed()
-        player = self._get_player(player_id)
+        player_ = self._get_player(player_id)
         self._ensure_player_turn(player_id)
-        self._ensure_hand_full(player)
-        card = player.discard(card_index, force)
+        self._ensure_hand_full(player_)
+        card = player_.discard(card_index, force)
         self._tray.discard(card)
         return self._check_no_more_cards()
 
@@ -240,14 +240,14 @@ class Hand:
         automatically selected as the target.
         """
         self._ensure_not_completed()
-        player = self._get_player(player_id)
+        player_ = self._get_player(player_id)
         self._ensure_player_turn(player_id)
-        self._ensure_hand_full(player)
-        card_type = player.card_type(card_index)
+        self._ensure_hand_full(player_)
+        card_type = player_.card_type(card_index)
         target = self._resolve_target(player_id, target_id, card_type)
         self._last_target = None
         handler_name = "_play_" + card_type.__name__.lower()
-        result = getattr(self, handler_name)(player, card_index, target)
+        result = getattr(self, handler_name)(player_, card_index, target)
         # No exceptions raised so far so play was successful.
         next_turn = (
             card_type is not deck.SafetyCard and result != PlayResults.WIN_CAN_EXTEND
@@ -257,12 +257,12 @@ class Hand:
     def coup_fourre(self, player_id):
         """Triggers a Coup Fourré if possible."""
         self._ensure_not_completed()
-        player = self._get_player(player_id)
+        player_ = self._get_player(player_id)
         # Even if multiple players think they can Coup Fourré, only the player that last
         # recieved a hazard card is allowed to Coup Fourré.
-        if player != self._last_target:
+        if player_ != self._last_target:
             raise exceptions.CannotCoupFourreError()
-        discards = player.coup_fourre()
+        discards = player_.coup_fourre()
         # No exception raised, so the coup was successful.
         for card in discards:
             self._tray.discard(card)
@@ -272,11 +272,11 @@ class Hand:
     def extension(self, player_id):
         """Call an extension to the game."""
         self._ensure_not_completed()
-        player = self._get_player(player_id)
+        player_ = self._get_player(player_id)
         self._ensure_player_turn(player_id)
-        if not self._can_extend or not player.is_winner:
+        if not self._can_extend or not player_.is_winner:
             raise exceptions.CannotExtendError()
-        player.extension()
+        player_.extension()
         self._win_score = config.LARGE_WIN_SCORE
         self._extended = True
         self._next_turn()
@@ -284,14 +284,14 @@ class Hand:
     def no_extension(self, player_id):
         """Signal that an extension was declined and the hand should complete."""
         self._ensure_not_completed()
-        player = self._get_player(player_id)
+        player_ = self._get_player(player_id)
         self._ensure_player_turn(player_id)
-        if not self._can_extend or not player.is_winner:
+        if not self._can_extend or not player_.is_winner:
             raise exceptions.CannotExtendError()
         self._complete()
 
     def toggle_sort(self, player_id):
         """Toggles whether or not a player's hand should always be sorted."""
         self._ensure_not_completed()
-        player = self._get_player(player_id)
-        player.toggle_sort()
+        player_ = self._get_player(player_id)
+        player_.toggle_sort()
