@@ -22,6 +22,7 @@ import uuid
 from .. import store
 from ..models import base, user
 from ..schemas import userschema
+from .common import j
 
 
 def search():
@@ -31,5 +32,5 @@ def search():
     users.append(a_user)
     meta = base.CollectionMeta(total=len(users), page=1, page_size=20, total_pages=4)
     schema = userschema.UserSchema(document_meta=meta)
-    resource = schema.dump(users, many=True)
-    return resource, 200, {"Content-Type": "application/vnd.api+json"}
+    doc = schema.dump(users, many=True)
+    return j(doc)

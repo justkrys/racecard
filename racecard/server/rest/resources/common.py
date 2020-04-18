@@ -15,35 +15,9 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-"""API for game resources."""
+"""Common utilities for resources."""
 
 
-from flask import url_for
-
-from .. import store
-from .common import j
-
-
-def search():
-    """Returns the list of all games that currently exist.
-
-    Implements GET on /games.
-
-    Currently does not support searching or filtering.
-    """
-    games = list(store.games)
-    doc = dict(
-        jsonapi=dict(version="1.0"),
-        data=[],
-        meta=dict(total=len(games)),
-        links=dict(self=url_for(".games_search")),
-    )
-    for game_id in games:
-        doc["data"].append(
-            dict(
-                type="game",
-                id=game_id,
-                links=dict(self=url_for(".games_search") + f"/{game_id}"),
-            )
-        )
-    return j(doc)
+def j(document, code=200):
+    """Returns document and code, but with content type set to JSON:API."""
+    return document, code, {"Content-Type": "application/vnd.api+json"}
