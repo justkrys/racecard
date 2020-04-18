@@ -18,7 +18,7 @@
 """Common and base classes for all servers."""
 
 
-from racecard.core import exceptions
+from ..core import exceptions
 
 
 class ServerError(exceptions.ExceptionBase):
