@@ -17,7 +17,8 @@
 
 """All correct schema fields are importable from here."""
 
+# pylint: disable=wildcard-import,unused-wildcard-import,unused-import
 
-from marshmallow.fields import *  # noqa: F403, F401
+from marshmallow.fields import *  # noqa: F403,F401
 from marshmallow_jsonapi.fields import DocumentMeta, ResourceMeta  # noqa: F401
 from marshmallow_jsonapi.flask import Relationship  # noqa: F401
