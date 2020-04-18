@@ -1,4 +1,4 @@
-openapi: "3.0.2"
+openapi: "3.0.3"
 info:
   title: Race Card API
   version: "0.0.1"
@@ -32,7 +32,7 @@ paths:
           content:
             "application/vnd.api+json":
               schema:
-                $ref: "#/components/schemas/gamesList"
+                $ref: "#/components/schemas/gameList"
   /users:
     get:
       operationId: users.search
@@ -49,7 +49,7 @@ paths:
                 $ref: "#/components/schemas/userList"
 components:
   schemas:
-    gamesList:
-      $ref: "gamesList.yaml#/components/schemas/gamesList" # Included by prance
+    gameList:
+      $ref: "game.yaml#/components/schemas/gameListDoc" # Included by prance
     userList:
-      $ref: "userList.yaml#/components/schemas/userList" # Included by prance
+      $ref: "user.yaml#/components/schemas/userListDoc" # Included by prance

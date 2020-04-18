@@ -1,0 +1,101 @@
+openapi: "3.0.3"
+info:
+  title: Common components
+  version: "ignore me"
+paths: {}
+components:
+  schemas:
+    jsonapi:
+      description: The version of JSON:API being used.
+      type: object
+      additionalProperties: false
+      required:
+        - version
+      properties:
+        version:
+          type: string
+    id:
+      type: string
+      format: uuid
+    linksSelf:
+      type: object
+      required:
+        - self
+      properties:
+        self:
+          type: string
+          format: uri-reference
+    linksPagination:
+      type: object
+      properties:
+        first:
+          type: string
+          format: uri-reference
+          nullable: true
+        last:
+          type: string
+          format: uri-reference
+          nullable: true
+        next:
+          type: string
+          format: uri-reference
+          nullable: true
+        prev:
+          type: string
+          format: uri-reference
+          nullable: true
+    document:
+      description: A JSON:API document with a link to it's own resource.
+      type: object
+      required:
+        - jsonapi
+        - links
+      properties:
+        jsonapi:
+          $ref: "#/components/schemas/jsonapi"
+        links:
+          $ref: "#/components/schemas/linksSelf"
+    collection:
+      description: A collection of objects, possibly paginated.
+      type: object
+      required:
+        - data
+        - links
+        - meta
+      properties:
+        data:
+          description: The collection of objects.
+          type: array
+          uniqueItems: true
+          items:
+            type: object
+        links:
+          allOf:
+            - $ref: "#/components/schemas/linksSelf"
+            - $ref: "#/components/schemas/linksPagination"
+        meta:
+          type: object
+          required:
+            - total
+          properties:
+            total:
+              description: The total users that exist.
+              type: integer
+              format: int64
+            page:
+              description: The current page number if pagination is used.
+              type: integer
+              format: int64
+              nullable: true
+            pageSize:
+              description: The number of users listed per page if pagination is used.
+              type: integer
+              format: int64
+              nullable: true
+            totalPages:
+              description:
+                The number of pages at the current page size, if pagination is
+                used.
+              type: integer
+              format: int64
+              nullable: true

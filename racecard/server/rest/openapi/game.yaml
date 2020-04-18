@@ -1,0 +1,38 @@
+openapi: "3.0.3"
+info:
+  title: GamesList Component
+  version: "ignore me"
+paths: {}
+components:
+  schemas:
+    game:
+      description: A single game resource along with a link to itself.
+      type: object
+      additionalProperties: false
+      required:
+        - type
+        - id
+        - links
+      properties:
+        type:
+          type: string
+        id:
+          $ref: "common.yaml#/components/schemas/id"
+        links:
+          $ref: "common.yaml#/components/schemas/linksSelf"
+    gameList:
+      description: A list of games along with links to them.
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/game"
+    gameListDoc:
+      description: A JSON:API document of a list of game resources, possibly paginated.
+      allOf:
+        - $ref: "common.yaml#/components/schemas/document"
+        - $ref: "common.yaml#/components/schemas/collection"
+        - $ref: "#/components/schemas/gameList"
