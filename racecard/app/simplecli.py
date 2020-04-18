@@ -18,19 +18,20 @@
 """A simple CLI interface to Race Card."""
 
 
+import dataclasses
 import sys
 import typing
 import uuid
-from dataclasses import asdict, dataclass
 
-from racecard.core import Game, PlayResults, exceptions
+from .. import core
+from ..core import exceptions
 
 
 class QuitException(exceptions.ExceptionBase):
     """Raised when quitting the game."""
 
 
-@dataclass
+@dataclasses.dataclass
 class Move:
     """A player's move, as entered by the user."""
 
@@ -38,7 +39,7 @@ class Move:
     target: typing.Union[str, None] = None
 
 
-game = Game()  # pylint: disable=invalid-name
+game = core.Game()  # pylint: disable=invalid-name
 player_names: typing.Dict[uuid.UUID, str] = {}  # pylint: disable=invalid-name
 
 
@@ -212,10 +213,10 @@ def get_last_discarded():
 
 def handle_play_result(result, player_id, target_id):
     """Handles the result of sending a play to ther server."""
-    if result == PlayResults.WIN_CAN_EXTEND:
+    if result == core.PlayResults.WIN_CAN_EXTEND:
         # Playing a distance card can return True if the player wins.
         handle_extension(player_id)
-    elif result == PlayResults.CAN_COUP_FOURRE:
+    elif result == core.PlayResults.CAN_COUP_FOURRE:
         handle_coup_fourre(target_id)
 
 
@@ -283,7 +284,7 @@ def print_scores(title_prefix, winner_id, score_cards):
         print("-" * 10)
         print(f"Player {index+1}: [{name}] {winner}\n")
         score_card = score_cards[id_]
-        for point_type, score in asdict(score_card).items():
+        for point_type, score in dataclasses.asdict(score_card).items():
             point_type = point_type.replace("_", " ").title()
             print(f"{point_type}: {score}")
         print()
