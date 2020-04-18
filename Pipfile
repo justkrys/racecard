@@ -13,6 +13,7 @@ bandit = "*"
 isort = "*"
 pre-commit = "*"
 mypy = "*"
+watchdog = "*"
 
 [packages]
 connexion = {extras = ["swagger-ui"],version = "*"}
