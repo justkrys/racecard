@@ -71,6 +71,8 @@ class CollectionMetaSchema(ma.Schema):
     total_pages = fields.Integer(data_key="totalPages")
 
     @ma.post_dump()
-    def remove_none_values(self, data, _):  # pylint: disable=no-self-use
+    def remove_none_values(
+        self, data, many
+    ):  # pylint: disable=no-self-use,unused-argument
         """Removes properties with None/null values."""
         return {key: value for key, value in data.items() if value is not None}
