@@ -30,7 +30,14 @@ from .models import game, user
 games: typing.Dict[uuid.UUID, game.Game] = {}
 users: typing.Dict[uuid.UUID, user.User] = {}
 
+
+def load_dummy_data():
+    """Loads dummy data."""
+    id_ = uuid.UUID("90c6058e-5982-4e8c-85d5-40cd7251faad")
+    users[id_] = user.User(id=id_, name="Krys", email="krys@example.com")
+    id_ = uuid.UUID("57eea3c9-b699-4f99-82a3-f44f2307ec2b")
+    users[id_] = user.User(id=id_, name="Cheesebutt", email="cheesebutt@example.com")
+
+
 if os.environ.get("RACECARD_DEV", "").lower() == "true":
-    for name in ("Krys", "Cheesebutt"):
-        id_ = uuid.uuid4()
-        users[id_] = user.User(id=id_, name=name, email=f"{name.lower()}@example.com")
+    load_dummy_data()
