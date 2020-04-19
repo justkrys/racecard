@@ -32,5 +32,5 @@ users: typing.Dict[uuid.UUID, user.User] = {}
 
 if os.environ.get("RACECARD_DEV", "").lower() == "true":
     for name in ("Krys", "Cheesebutt"):
-        id = uuid.uuid4()
-        users[id] = user.User(id=id, name=name, email=f"{name.lower()}@example.com")
+        id_ = uuid.uuid4()
+        users[id_] = user.User(id=id_, name=name, email=f"{name.lower()}@example.com")
