@@ -30,7 +30,7 @@ class UserNotFoundError(exceptions.RESTAppException):
 
     status = 404
     parameter = "id"
-    schema_class = userschema.UserErrorSchema
+    schema_class = userschema.UserSchema
 
 
 def search():

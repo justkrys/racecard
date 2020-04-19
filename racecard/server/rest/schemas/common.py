@@ -119,13 +119,7 @@ class _SourceSchema(ma.Schema):
     parameter = fields.String()
 
 
-class ErrorMeta:  # pylint: disable=too-few-public-methods
-    """Metadata options for the schema."""
-
-    type_ = "error"  # Must exist, but removed during serializaion per JSON:API spec.
-
-
-class ErrorSchema(FailureSchema):  # pylint: disable=too-many-ancestors
+class _ErrorSchema(FailureSchema):  # pylint: disable=too-many-ancestors
     """Schema for application errors and exceptions."""
 
     id = fields.Str(
@@ -137,4 +131,22 @@ class ErrorSchema(FailureSchema):  # pylint: disable=too-many-ancestors
     detail = fields.String()
     source = fields.Nested(_SourceSchema)
 
-    Meta = ErrorMeta
+
+def create_error_schema(base_schema):
+    """Creates a JSON:API error schema that includes the base_schema's Meta class."""
+    # Here there by dragons!  Dynamic class creation is magic.
+    base_name = base_schema.__name__
+    name = base_name[:-6] if base_name.lower().endswith("schema") else base_name
+    name += "ErrorSchema"
+
+    class NewMeta(base_schema.Meta):  # pylint: disable=too-few-public-methods
+        """Replacement metadata class for error schemas."""
+
+        # Using flask schema so, self_view is used, not self_url.  Need to erase the
+        # lower level url attributes.  They will get repopulated when the error subclass
+        # is created.
+        self_url = None
+        self_url_kwargs = None
+        self_url_many = None
+
+    return type(name, (_ErrorSchema,), {"Meta": NewMeta})

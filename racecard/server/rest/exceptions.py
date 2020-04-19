@@ -33,7 +33,7 @@ class RESTAppException(servercommon.ServerError):
     detail: typing.Union[str, None] = None
     pointer: typing.Union[str, None] = None
     parameter: typing.Union[str, None] = None
-    schema_class: typing.Type[schemascommon.ErrorSchema] = schemascommon.ErrorSchema
+    schema_class: typing.Type[schemascommon.Schema]
 
     def __init__(self, id_, *, detail=None, pointer=None, parameter=None):
         # Not supporting instance-level messages because we are mapping message to

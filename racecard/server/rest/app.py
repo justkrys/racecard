@@ -32,6 +32,7 @@ from .. import common as servercommon
 from . import exceptions
 from .models import common as modelscommon
 from .resources import common as resourcescommon
+from .schemas import common as schemascommon
 
 
 class ImplicitPackageResolver(connexionresolver.Resolver):
@@ -106,16 +107,13 @@ class RESTApp(servercommon.ServerBase, connexion.App):  # noqa
             title=str(error),
             detail=error.detail,
         )
-        print(error.pointer)
         if error.pointer or error.parameter:
-            print("hello)")
             data.source = modelscommon.ErrorSource(
                 pointer=error.pointer, parameter=error.parameter
             )
-        print(data)
-        schema = error.schema_class()
+        error_schema_class = schemascommon.create_error_schema(error.schema_class)
+        schema = error_schema_class()
         doc = schema.dump(data)
-        print(doc)
         return resourcescommon.j(doc, error.status)
 
 
