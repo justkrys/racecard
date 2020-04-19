@@ -19,23 +19,18 @@
 
 import uuid
 
-from .. import store
+from .. import exceptions, store
 from ..models import common
 from ..schemas import userschema
 from .common import j
 
 
-class UserNotFound(common.Error):  # pylint: disable=too-few-public-methods
-    """Error result when a given user cannot be found."""
+class UserNotFoundError(exceptions.RESTAppException):
+    """User not found."""
 
-    def __init__(self, id_):
-        super().__init__(
-            id=id_,
-            status="404",
-            code=self.__class__.__name__,
-            title="User not found.",
-            source=common.ErrorSource(parameter="id"),
-        )
+    status = 404
+    parameter = "id"
+    schema_class = userschema.UserErrorSchema
 
 
 def search():
@@ -49,13 +44,10 @@ def search():
 
 def get(id):  # pylint: disable=invalid-name,redefined-builtin
     """Handler for GET /users/<id>."""
-    id = uuid.UUID(id)  # id already guaranteed to be a valid UUID string.
-    user = store.users.get(id)
-    if not user:
-        error = UserNotFound(id)
-        schema = userschema.UserErrorSchema()
-        doc = schema.dump(error)
-        return j(doc, 404)
+    try:
+        user = store.users[uuid.UUID(id)]
+    except KeyError:
+        raise UserNotFoundError(id)
     schema = userschema.UserSchema()
     doc = schema.dump(user)
     return j(doc)
