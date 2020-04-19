@@ -69,10 +69,29 @@ paths:
             "application/vnd.api+json":
               schema:
                 $ref: "#/components/schemas/userSingle"
+        "404":
+          description: User with the given id was not found.
+          content:
+            "application/vnd.api+json":
+              schema:
+                $ref: "#/components/schemas/failure"
+        "400":
+          description:
+            Application framework error response, probably due to input/output not
+            validating against this OpenAPI specification.
+            Result is in Problem Detail [RFC7807] format.
+          content:
+            "application/problem+json":
+              schema:
+                $ref: "#/components/schemas/problemDetail"
 components:
   schemas:
     id:
       $ref: "common.yaml#/components/schemas/id"
+    failure:
+      $ref: "common.yaml#/components/schemas/failure"
+    problemDetail:
+      $ref: "common.yaml#/components/schemas/problemDetail"
     gameMany:
       $ref: "game.yaml#/components/schemas/gameMany" # Included by prance
     userSingle:

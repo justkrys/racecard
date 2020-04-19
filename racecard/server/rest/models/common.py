@@ -37,3 +37,26 @@ class CollectionMeta:  # pylint: disable=too-few-public-methods
     page: typing.Union[int, None] = None
     page_size: typing.Union[int, None] = None
     total_pages: typing.Union[int, None] = None
+
+
+@dataclasses.dataclass
+class ErrorSource:
+    """Class for describing appication error sources.
+
+    At least one of the two attributes should be specified.
+    """
+
+    pointer: typing.Union[str, None] = None
+    parameter: typing.Union[str, None] = None
+
+
+@dataclasses.dataclass
+class Error(ModelBase):
+    """Class for describing applicaion errors."""
+
+    id: str  # pylint: disable=invalid-name
+    status: str
+    code: str
+    title: str
+    detail: typing.Union[str, None] = None
+    source: typing.Union[ErrorSource, None] = None

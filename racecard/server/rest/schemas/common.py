@@ -17,6 +17,8 @@
 
 """Common utilities for schema objects."""
 
+from collections import abc
+
 import marshmallow as ma
 from marshmallow_jsonapi import flask
 
@@ -58,7 +60,24 @@ class Schema(flask.Schema):
         return next(parts) + "".join(part.title() for part in parts)
 
 
-class CollectionMetaSchema(ma.Schema):
+class RemoveNonesMixin:  # pylint: disable=too-few-public-methods
+    """Schema mixin class that recusively removes properties with None/null values."""
+
+    @ma.post_dump()
+    def remove_none_values(
+        self, data, many
+    ):  # pylint: disable=no-self-use,unused-argument
+        """Removes properties with None/null values."""
+        if not isinstance(data, abc.Mapping):
+            return data
+        return {
+            key: self.remove_none_values(value, many)
+            for key, value in data.items()
+            if value is not None
+        }
+
+
+class CollectionMetaSchema(ma.Schema, RemoveNonesMixin):
     """Schema to handle our custom collection meta data.
 
     None/null values are removed automatically.
@@ -70,9 +89,48 @@ class CollectionMetaSchema(ma.Schema):
     page_size = fields.Integer(data_key="pageSize")
     total_pages = fields.Integer(data_key="totalPages")
 
-    @ma.post_dump()
-    def remove_none_values(
-        self, data, many
-    ):  # pylint: disable=no-self-use,unused-argument
-        """Removes properties with None/null values."""
-        return {key: value for key, value in data.items() if value is not None}
+
+class FailureSchema(Schema, RemoveNonesMixin):
+    """Schema for error responses."""
+
+    @ma.post_dump(pass_many=True)
+    def format_json_api_response(self, data, many, **kwargs):
+        """Post-dump hook that formats serialized data as a top-level JSON API object.
+
+        Overridden to also add a jsonapi verion property.
+        """
+        orig_ret = super().format_json_api_response(data, many, **kwargs)
+        ret = {"jsonapi": orig_ret["jsonapi"], "links": orig_ret["links"]}
+        errors = orig_ret["data"]["attributes"]
+        if not many:
+            errors = [errors]
+        ret["errors"] = errors
+        return ret
+
+
+class _SourceSchema(ma.Schema):
+    """Failure source schema."""
+
+    pointer = fields.String()
+    parameter = fields.String()
+
+
+class ErrorMeta:  # pylint: disable=too-few-public-methods
+    """Metadata options for the schema."""
+
+    type_ = "error"  # Must exist, but removed during serializaion per JSON:API spec.
+
+
+class ErrorSchema(FailureSchema):  # pylint: disable=too-many-ancestors
+    """Schema for application errors and exceptions."""
+
+    id = fields.Str(
+        required=True
+    )  # Must exist, but removed during serializaion per JSON:API spec.
+    status = fields.String(required=True)
+    code = fields.String(required=True)
+    title = fields.String(required=True)
+    detail = fields.String()
+    source = fields.Nested(_SourceSchema)
+
+    Meta = ErrorMeta
