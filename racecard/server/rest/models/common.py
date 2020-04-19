@@ -41,7 +41,7 @@ class CollectionMeta:  # pylint: disable=too-few-public-methods
 
 @dataclasses.dataclass
 class ErrorSource:
-    """Class for describing appication error sources.
+    """Data model for describing appication error sources in JSON:API format.
 
     At least one of the two attributes should be specified.
     """
@@ -52,7 +52,7 @@ class ErrorSource:
 
 @dataclasses.dataclass
 class Error(ModelBase):
-    """Class for describing applicaion errors."""
+    """Data model for describing applicaion errors in JSON:API format."""
 
     id: str  # pylint: disable=invalid-name
     status: str
