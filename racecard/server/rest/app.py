@@ -24,14 +24,17 @@ import uuid
 import connexion
 import jsonschema
 import prance
-from connexion import resolver as c_resolver
+from connexion import resolver as connexionresolver
 from jsonschema import compat
-from prance.util import resolver as p_resolver
+from prance.util import resolver as pranceresolver
 
-from .. import common
+from .. import common as servercommon
+from . import exceptions
+from .models import common as modelscommon
+from .resources import common as resourcescommon
 
 
-class ImplicitPackageResolver(c_resolver.Resolver):
+class ImplicitPackageResolver(connexionresolver.Resolver):
     """Resolver that uses an implicit base package to resolve operationId functions.
 
     This basically provides and implied router_controller value.
@@ -60,10 +63,10 @@ class ImplicitPackageResolver(c_resolver.Resolver):
         operation_id = self.resolve_operation_id(operation)
         full_operation_id = f"{self._base_package_name}.{operation_id}"
         function = self.resolve_function_from_operation_id(full_operation_id)
-        return c_resolver.Resolution(function, operation_id)
+        return connexionresolver.Resolution(function, operation_id)
 
 
-class RESTApp(common.ServerBase, connexion.App):  # noqa
+class RESTApp(servercommon.ServerBase, connexion.App):  # noqa
     """REST server application."""
 
     def __init__(self):
@@ -76,6 +79,7 @@ class RESTApp(common.ServerBase, connexion.App):  # noqa
             validate_responses=True,
             resolver=ImplicitPackageResolver(__package__ + ".resources"),
         )
+        self.add_error_handler(exceptions.RESTAppException, self.handle_app_exceptions)
 
     @staticmethod
     def get_bundled_specs(main_file_path):
@@ -87,10 +91,32 @@ class RESTApp(common.ServerBase, connexion.App):  # noqa
             lazy=True,
             strict=True,
             backend="openapi-spec-validator",
-            resolve_types=p_resolver.RESOLVE_HTTP | p_resolver.RESOLVE_FILES,
+            resolve_types=pranceresolver.RESOLVE_HTTP | pranceresolver.RESOLVE_FILES,
         )
         parser.parse()
         return parser.specification
+
+    @staticmethod
+    def handle_app_exceptions(error):
+        """Return application exceptions as JSON:API documents."""
+        data = modelscommon.Error(
+            id=error.id_,
+            status=str(error.status),
+            code=error.__class__.__name__,
+            title=str(error),
+            detail=error.detail,
+        )
+        print(error.pointer)
+        if error.pointer or error.parameter:
+            print("hello)")
+            data.source = modelscommon.ErrorSource(
+                pointer=error.pointer, parameter=error.parameter
+            )
+        print(data)
+        schema = error.schema_class()
+        doc = schema.dump(data)
+        print(doc)
+        return resourcescommon.j(doc, error.status)
 
 
 # connexion's OpenAPI 3 validation uses JSON Schema Draft 4 as a base.
