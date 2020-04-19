@@ -17,33 +17,23 @@
 
 """API for game resources."""
 
+import uuid
 
-import flask
-
-from .. import store
+from .. import exceptions, store
+from ..schemas import gameschema
 from . import common
 
 
 def search():
-    """Returns the list of all games that currently exist.
+    """Handler for GET /games."""
+    games = list(store.games.values())
+    return common.many(games, gameschema.GameSchema)
 
-    Implements GET on /games.
 
-    Currently does not support searching or filtering.
-    """
-    games = list(store.games)
-    doc = dict(
-        jsonapi=dict(version="1.0"),
-        data=[],
-        meta=dict(total=len(games)),
-        links=dict(self=flask.url_for(".games_search")),
-    )
-    for game_id in games:
-        doc["data"].append(
-            dict(
-                type="game",
-                id=game_id,
-                links=dict(self=flask.url_for(".games_search") + f"/{game_id}"),
-            )
-        )
-    return common.document(doc)
+def get(id):  # pylint: disable=invalid-name,redefined-builtin
+    """Handler for GET /games/<id>."""
+    try:
+        game = store.games[uuid.UUID(id)]
+    except KeyError:
+        raise exceptions.NotFoundError(id, gameschema.GameSchema)
+    return common.single(game, gameschema.GameSchema)

@@ -34,9 +34,15 @@ users: typing.Dict[uuid.UUID, user.User] = {}
 def load_dummy_data():
     """Loads dummy data."""
     id_ = uuid.UUID("90c6058e-5982-4e8c-85d5-40cd7251faad")
-    users[id_] = user.User(id=id_, name="Krys", email="krys@example.com")
+    krys = users[id_] = user.User(id=id_, name="Krys", email="krys@example.com")
     id_ = uuid.UUID("57eea3c9-b699-4f99-82a3-f44f2307ec2b")
-    users[id_] = user.User(id=id_, name="Cheesebutt", email="cheesebutt@example.com")
+    cheesebutt = users[id_] = user.User(
+        id=id_, name="Cheesebutt", email="cheesebutt@example.com"
+    )
+    id_ = uuid.UUID("864c5ff8-9883-4494-b76f-2d5365e37a6c")
+    games[id_] = game.Game(id_=id_, owner_id=krys.id)
+    id_ = uuid.UUID("2e343883-6983-4d06-a23d-c6da97764e06")
+    games[id_] = game.Game(id_=id_, owner_id=cheesebutt.id)
 
 
 if os.environ.get("RACECARD_DEV", "").lower() == "true":

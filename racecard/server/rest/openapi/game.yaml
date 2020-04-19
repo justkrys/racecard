@@ -20,6 +20,20 @@ components:
           $ref: "common.yaml#/components/schemas/id"
         links:
           $ref: "common.yaml#/components/schemas/linksSelf"
+        attributes:
+          type: object
+          properties:
+            owner_id:
+              $ref: "common.yaml#/components/schemas/id"
+    gameSingle:
+      description: A JSON:API document of a game resource.
+      allOf:
+        - $ref: "common.yaml#/components/schemas/success"
+        - $ref: "common.yaml#/components/schemas/single"
+        - type: object
+          properties:
+            data:
+              $ref: "#/components/schemas/game"
     gameMany:
       description: A JSON:API document of a list of game resources, possibly paginated.
       allOf:

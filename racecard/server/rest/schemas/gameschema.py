@@ -15,23 +15,24 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-"""Data model for Race Card games."""
+"""Schema for game resources."""
 
 
-import uuid
-
-from racecard.core import game
-
-from . import common
+from . import common, fields
 
 
-class Game(common.ModelBase, game.Game):
-    """A single game consisting of several hands, played by several players."""
+class GameSchema(common.Schema):
+    """Schema for game resources."""
 
-    id: uuid.UUID  # pylint: disable=invalid-name
-    owner_id: uuid.UUID
+    id = fields.UUID(dump_only=True)
+    owner_id = fields.UUID()
+    document_meta = fields.DocumentMeta()
+    resource_meta = fields.ResourceMeta()
 
-    def __init__(self, id_, owner_id):
-        super().__init__()
-        self.id = id_  # pylint: disable=invalid-name
-        self.owner_id = owner_id
+    class Meta:  # pylint: disable=too-few-public-methods
+        """Metadata options for the schema."""
+
+        type_ = "game"
+        self_view = ".games_get"
+        self_view_kwargs = {"id": "<id>"}
+        self_view_many = ".games_search"
