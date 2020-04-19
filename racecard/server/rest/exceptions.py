@@ -35,7 +35,9 @@ class RESTAppException(servercommon.ServerError):
     parameter: typing.Union[str, None] = None
     schema_class: typing.Type[schemascommon.Schema]
 
-    def __init__(self, id_, *, detail=None, pointer=None, parameter=None):
+    def __init__(
+        self, id_, schema_class=None, *, detail=None, pointer=None, parameter=None
+    ):
         # Not supporting instance-level messages because we are mapping message to
         # title in the JSON:API output and title is specified as not changing for all
         # occurances of the error type.
@@ -43,9 +45,18 @@ class RESTAppException(servercommon.ServerError):
         # docstring will be used.
         super().__init__()
         self.id_ = id_
+        if schema_class is not None:
+            self.schema_class = schema_class
         if detail is not None:
             self.detail = detail
         if pointer is not None:
             self.pointer = pointer
         if parameter is not None:
             self.parameter = parameter
+
+
+class NotFoundError(RESTAppException):
+    """Resource not found."""
+
+    status = 404
+    parameter = "id"

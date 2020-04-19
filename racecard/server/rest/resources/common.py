@@ -18,6 +18,37 @@
 """Common utilities for resources."""
 
 
-def j(document, code=200):
+from ..models import common
+
+
+def document(doc, code=200):
     """Returns document and code, but with content type set to JSON:API."""
-    return document, code, {"Content-Type": "application/vnd.api+json"}
+    return doc, code, {"Content-Type": "application/vnd.api+json"}
+
+
+def single(data, schema_or_class, code=200):
+    """Returns data and code, but with content type set to JSON:API.
+
+    Converts data to a JSON:API document using the given schema.
+    schema can be a Schema class or an instance of it.
+    """
+    schema = schema_or_class() if isinstance(schema_or_class, type) else schema_or_class
+    doc = schema.dump(data)
+    return document(doc, code)
+
+
+def many(data, schema_class, code=200, **collectionmeta_kwargs):
+    """Returns collection data and code, but with content type set to JSON:API.
+
+    Converts collection data using the given schema class.
+    Includes CollectionMeta data model as document meta data.
+    Any extra keyword arguments are passed to CollectionMeta.
+    If no total is given for CollectionMeta, it is calculated as len(data) and included
+    automatically.
+    """
+    if collectionmeta_kwargs.get("total", None) is None:
+        collectionmeta_kwargs["total"] = len(data)
+    meta = common.CollectionMeta(**collectionmeta_kwargs)
+    schema = schema_class(document_meta=meta)
+    doc = schema.dump(data, many=True)
+    return document(doc, code)

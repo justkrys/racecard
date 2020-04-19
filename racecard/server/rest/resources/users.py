@@ -20,26 +20,14 @@
 import uuid
 
 from .. import exceptions, store
-from ..models import common
 from ..schemas import userschema
-from .common import j
-
-
-class UserNotFoundError(exceptions.RESTAppException):
-    """User not found."""
-
-    status = 404
-    parameter = "id"
-    schema_class = userschema.UserSchema
+from . import common
 
 
 def search():
     """Handler for GET /users."""
     users = list(store.users.values())
-    meta = common.CollectionMeta(total=len(users))
-    schema = userschema.UserSchema(document_meta=meta)
-    doc = schema.dump(users, many=True)
-    return j(doc)
+    return common.many(users, userschema.UserSchema)
 
 
 def get(id):  # pylint: disable=invalid-name,redefined-builtin
@@ -47,7 +35,5 @@ def get(id):  # pylint: disable=invalid-name,redefined-builtin
     try:
         user = store.users[uuid.UUID(id)]
     except KeyError:
-        raise UserNotFoundError(id)
-    schema = userschema.UserSchema()
-    doc = schema.dump(user)
-    return j(doc)
+        raise exceptions.NotFoundError(id, userschema.UserSchema)
+    return common.single(user, userschema.UserSchema)

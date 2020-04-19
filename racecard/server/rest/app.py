@@ -112,9 +112,7 @@ class RESTApp(servercommon.ServerBase, connexion.App):  # noqa
                 pointer=error.pointer, parameter=error.parameter
             )
         error_schema_class = schemascommon.create_error_schema(error.schema_class)
-        schema = error_schema_class()
-        doc = schema.dump(data)
-        return resourcescommon.j(doc, error.status)
+        return resourcescommon.single(data, error_schema_class, error.status)
 
 
 # connexion's OpenAPI 3 validation uses JSON Schema Draft 4 as a base.

@@ -21,7 +21,7 @@
 import flask
 
 from .. import store
-from .common import j
+from . import common
 
 
 def search():
@@ -46,4 +46,4 @@ def search():
                 links=dict(self=flask.url_for(".games_search") + f"/{game_id}"),
             )
         )
-    return j(doc)
+    return common.document(doc)
