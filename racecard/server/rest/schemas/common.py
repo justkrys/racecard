@@ -35,11 +35,15 @@ class Schema(flask.Schema):
     A jsonapi key is always added that contains {"version": "1.0"}.
 
     Keys in output are always coverted to camelCase if they have underscores.
+
+    self_view is required on Meta.
     """
 
     def __init__(self, *args, **kwargs):
         document_meta = kwargs.pop("document_meta", {})
         super().__init__(*args, **kwargs)
+        if not self.opts.self_url:
+            raise ValueError("Must specify self_view Meta option.")
         if isinstance(document_meta, commonmodels.CollectionMeta):
             document_meta = CollectionMetaSchema().dump(document_meta)
         self.document_meta.update(document_meta)
