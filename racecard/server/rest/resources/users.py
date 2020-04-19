@@ -25,6 +25,19 @@ from ..schemas import userschema
 from .common import j
 
 
+class UserNotFound(common.Error):  # pylint: disable=too-few-public-methods
+    """Error result when a given user cannot be found."""
+
+    def __init__(self, id_):
+        super().__init__(
+            id=id_,
+            status="404",
+            code=self.__class__.__name__,
+            title="User not found.",
+            source=common.ErrorSource(parameter="id"),
+        )
+
+
 def search():
     """Handler for GET /users."""
     users = list(store.users.values())
@@ -36,8 +49,13 @@ def search():
 
 def get(id):  # pylint: disable=invalid-name,redefined-builtin
     """Handler for GET /users/<id>."""
-    id = uuid.UUID(id)
-    user = store.users[id]
+    id = uuid.UUID(id)  # id already guaranteed to be a valid UUID string.
+    user = store.users.get(id)
+    if not user:
+        error = UserNotFound(id)
+        schema = userschema.UserErrorSchema()
+        doc = schema.dump(error)
+        return j(doc, 404)
     schema = userschema.UserSchema()
     doc = schema.dump(user)
     return j(doc)

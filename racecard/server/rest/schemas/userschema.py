@@ -18,10 +18,18 @@
 """Schema for user resources."""
 
 
-from .common import Schema, fields
+from . import common, fields
 
 
-class UserSchema(Schema):
+class _UserMeta:  # pylint: disable=too-few-public-methods
+    """Common metadata options for user schemas."""
+
+    self_view = ".users_get"
+    self_view_kwargs = {"id": "<id>"}
+    self_view_many = ".users_search"
+
+
+class UserSchema(common.Schema):
     """Schema for user resources."""
 
     id = fields.UUID(dump_only=True)
@@ -54,10 +62,17 @@ class UserSchema(Schema):
     #     schema=,
     # )
 
-    class Meta:  # pylint: disable=too-few-public-methods
+    class Meta(_UserMeta):  # pylint: disable=too-few-public-methods
         """Metadata options for the schema."""
 
         type_ = "user"
-        self_view = ".users_get"
-        self_view_kwargs = {"id": "<id>"}
-        self_view_many = ".users_search"
+
+
+class UserErrorSchema(common.ErrorSchema):  # pylint: disable=too-many-ancestors
+    """Schema for user errors."""
+
+    class Meta(common.ErrorMeta, _UserMeta):  # pylint: disable=too-few-public-methods
+        """Metadata options for the schema.
+
+        Added the user-specific metadata to the error.
+        """
