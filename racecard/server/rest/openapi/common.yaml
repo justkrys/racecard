@@ -45,7 +45,11 @@ components:
           format: uri-reference
           nullable: true
     success:
-      description: A JSON:API document with a link to it's own resource.
+      description:
+        A JSON:API success document with included data and a link to it's own
+        resource.
+        JSON:API requires use of the "application/vnd.api+json" media type for
+        exchanging data.
       type: object
       required:
         - jsonapi
