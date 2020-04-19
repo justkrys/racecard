@@ -62,7 +62,7 @@ paths:
       responses:
         "200":
           description:
-            Returns a details about the user and links to the games to which they are
+            Returns details about the user and links to the games to which they are
             associated.
             Result is in JSON:API format.
           content:
