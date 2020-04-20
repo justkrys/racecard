@@ -37,7 +37,7 @@ def single(data, schema_or_class, code=200):
     return document(doc, code)
 
 
-def many(data, schema_class, code=200, **collectionmeta_kwargs):
+def many(data, schema_class, code=200, include_data=None, **collectionmeta_kwargs):
     """Returns collection data and code, but with content type set to JSON:API.
 
     Converts collection data using the given schema class.
@@ -49,6 +49,6 @@ def many(data, schema_class, code=200, **collectionmeta_kwargs):
     if collectionmeta_kwargs.get("total", None) is None:
         collectionmeta_kwargs["total"] = len(data)
     meta = common.CollectionMeta(**collectionmeta_kwargs)
-    schema = schema_class(document_meta=meta)
+    schema = schema_class(document_meta=meta, include_data=include_data)
     doc = schema.dump(data, many=True)
     return document(doc, code)
