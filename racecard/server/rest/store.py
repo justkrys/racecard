@@ -107,5 +107,4 @@ def get_game(id_: uuid.UUID) -> game.Game:
     """Returns the game that matches the given id."""
     if id_ in games:
         return games[id_]
-    else:
-        raise exceptions.NotFoundError(id)
+    raise exceptions.NotFoundError(id)

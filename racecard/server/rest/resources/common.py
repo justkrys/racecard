@@ -78,6 +78,7 @@ def id_is_uuid(func):
         if is_keyword and key in kwargs:
             kwargs[key] = uuid.UUID(kwargs[key])
         elif is_positional and len(args) > index:
+            args = list(args)
             args[index] = uuid.UUID(args[index])
         return func(*args, **kwargs)
 
