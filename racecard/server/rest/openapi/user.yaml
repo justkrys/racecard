@@ -38,18 +38,21 @@ components:
           type: object
           additionalProperties: false
           required:
-            - owned
-            - created
-            - playing
-            - completed
+            - games
+            - gamesNotStarted
+            - gamesRunning
+            - gamesCompleted
+            - gamesOwned
           properties:
-            owned:
+            games:
               $ref: "common.yaml#/components/schemas/relationshipRelated"
-            created:
+            gamesNotStarted:
               $ref: "common.yaml#/components/schemas/relationshipRelated"
-            playing:
+            gamesRunning:
               $ref: "common.yaml#/components/schemas/relationshipRelated"
-            completed:
+            gamesCompleted:
+              $ref: "common.yaml#/components/schemas/relationshipRelated"
+            gamesOwned:
               $ref: "common.yaml#/components/schemas/relationshipRelated"
     userSingle:
       description: A JSON:API document of a user resource.

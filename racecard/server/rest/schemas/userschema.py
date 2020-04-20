@@ -30,23 +30,26 @@ class UserSchema(common.Schema):
     document_meta = fields.DocumentMeta()
     resource_meta = fields.ResourceMeta()
 
-    owned = fields.Relationship(
-        related_view=".games_search", related_view_kwargs={"owner": "<id>"}, many=True,
+    games = fields.Relationship(
+        related_view=".games_search", related_view_kwargs={"player": "<id>"}, many=True,
     )
-
-    created = fields.Relationship(
+    games_not_started = fields.Relationship(
         related_view=".games_search",
-        related_view_kwargs={"player": "<id>", "state": "created"},
+        related_view_kwargs={"player": "<id>", "state": "notstarted"},
+        many=True,
     )
-
-    playing = fields.Relationship(
+    games_running = fields.Relationship(
         related_view=".games_search",
         related_view_kwargs={"player": "<id>", "state": "running"},
+        many=True,
     )
-
-    completed = fields.Relationship(
+    games_completed = fields.Relationship(
         related_view=".games_search",
         related_view_kwargs={"player": "<id>", "state": "completed"},
+        many=True,
+    )
+    games_owned = fields.Relationship(
+        related_view=".games_search", related_view_kwargs={"owner": "<id>"}, many=True,
     )
 
     class Meta:  # pylint: disable=too-few-public-methods

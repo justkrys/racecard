@@ -91,15 +91,15 @@ def find_games(*, owner_id=None, player_id=None, state=None):
             player_id = uuid.UUID(player_id)
         raise NotImplementedError()
     if state is not None:
-        valid_states = ("completed", "running", "created")
+        valid_states = ("notstarted", "running", "completed")
         if state not in valid_states:
             raise ValueError(f"state must be one of {str(valid_states)}.")
-        if state == "completed":
-            matches = [game for game in matches if game.is_completed]
+        if state == "notstarted":
+            raise NotImplementedError()
         elif state == "running":
             raise NotImplementedError()
-        elif state == "created":
-            raise NotImplementedError()
+        elif state == "completed":
+            matches = [game for game in matches if game.is_completed]
     return matches
 
 

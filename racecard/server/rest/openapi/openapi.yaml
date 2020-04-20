@@ -40,7 +40,7 @@ paths:
           description: |
             List only games that match the given state.
             Valid states are:
-              - created:
+              - notstarted:
                   Games that are created but not yet started.  I.e. Waiting for the
                   owner to start the game.
               - running:
@@ -49,7 +49,7 @@ paths:
                   Games have been completed.  No further plays are possible.
           schema:
             type: string
-            enum: [created, running, completed]
+            enum: [notstarted, running, completed]
       responses:
         "200":
           description:
