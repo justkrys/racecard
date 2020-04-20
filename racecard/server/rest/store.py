@@ -25,13 +25,14 @@ import os
 import typing
 import uuid
 
+from . import exceptions
 from .models import game, user
 
 games: typing.Dict[uuid.UUID, game.Game] = {}
 users: typing.Dict[uuid.UUID, user.User] = {}
 
 
-def load_dummy_data():
+def load_dummy_data() -> None:
     """Loads dummy data."""
     krys = user.User(
         id=uuid.UUID("90c6058e-5982-4e8c-85d5-40cd7251faad"),
@@ -59,36 +60,35 @@ if os.environ.get("RACECARD_DEV", "").lower() == "true":
     load_dummy_data()
 
 
-def find_users(*, name=None):
+def find_users(*, name: str = None) -> typing.Iterable[user.User]:
     """Returns users that match the given criteria."""
-    matches = users.values()
+    matches = list(users.values())
     if name is not None:
         matches = [user for user in matches if user.name.lower() == name.lower()]
     return matches
 
 
-def get_user(id_=None, email=None):
+def get_user(id_: uuid.UUID = None, email: str = None) -> user.User:
     """Returns the user that matches either the id or the email."""
-    if id_ is None and email is None:
-        raise TypeError("At least one argument must be provided.")
-    if id_ is not None:
-        if not isinstance(id, uuid.UUID):
-            id_ = uuid.UUID(id_)
+    if id_ is not None and id_ in users:
         return users[id_]
-    return [user for user in users if user.email.lower() == email.lower()][0]
+    if email is not None:
+        for user_ in users.values():
+            if user_.email.lower() == email.lower():
+                return user_
+        raise exceptions.NotFoundError(id)
+    raise ValueError("At least one argument must be provided")
 
 
-def find_games(*, owner_id=None, player_id=None, state=None):
+def find_games(
+    *, owner_id: uuid.UUID = None, player_id: uuid.UUID = None, state: str = None
+) -> typing.Iterable[game.Game]:
     """Returns games that match the given criteria."""
-    matches = games.values()
+    matches = list(games.values())
     if owner_id is not None:
-        if not isinstance(owner_id, uuid.UUID):
-            owner_id = uuid.UUID(owner_id)
-        matches = [game for game in matches if game.owner.id == owner_id]
+        matches = [game_ for game_ in matches if game_.owner.id == owner_id]
     # TODO: Implement support for remaining game filtering.
     if player_id is not None:
-        if not isinstance(player_id, uuid.UUID):
-            player_id = uuid.UUID(player_id)
         raise NotImplementedError()
     if state is not None:
         valid_states = ("notstarted", "running", "completed")
@@ -103,8 +103,9 @@ def find_games(*, owner_id=None, player_id=None, state=None):
     return matches
 
 
-def get_game(id_):
+def get_game(id_: uuid.UUID) -> game.Game:
     """Returns the game that matches the given id."""
-    if not isinstance(id_, uuid.UUID):
-        id_ = uuid.UUID(id_)
-    return games[id_]
+    if id_ in games:
+        return games[id_]
+    else:
+        raise exceptions.NotFoundError(id)

@@ -26,6 +26,10 @@ from . import common
 
 def search(*, owner=None, player=None, state=None):
     """Handler for GET /games."""
+    if owner is not None:
+        owner = uuid.UUID(owner)
+    if player is not None:
+        player = uuid.UUID(player)
     games = store.find_games(owner_id=owner, player_id=player, state=state)
     return common.many(games, gameschema.GameSchema)
 
@@ -34,7 +38,8 @@ def search(*, owner=None, player=None, state=None):
 def get(id):  # pylint: disable=invalid-name,redefined-builtin
     """Handler for GET /games/<id>."""
     try:
-        game = store.games[uuid.UUID(id)]
-    except KeyError:
-        raise exceptions.NotFoundError(id, gameschema.GameSchema)
+        game = store.get_game(id)
+    except exceptions.NotFoundError as error:
+        error.schema_class = gameschema.GameSchema
+        raise
     return common.single(game, gameschema.GameSchema)

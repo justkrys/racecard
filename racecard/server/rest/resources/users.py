@@ -33,6 +33,7 @@ def get(id):  # pylint: disable=invalid-name,redefined-builtin
     """Handler for GET /users/<id>."""
     try:
         data = store.get_user(id)
-    except KeyError:
-        raise exceptions.NotFoundError(id, userschema.UserSchema)
+    except exceptions.NotFoundError as error:
+        error.schema_class = userschema.UserSchema
+        raise
     return common.single(data, userschema.UserSchema)
