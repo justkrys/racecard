@@ -52,6 +52,13 @@ components:
           type: string
           format: uri-reference
           nullable: true
+    relationshipRelated:
+      type: object
+      required:
+        - links
+      properties:
+        links:
+          $ref: "#/components/schemas/linksRelated"
     success:
       description:
         A JSON:API success document with included data and a link to it's own
