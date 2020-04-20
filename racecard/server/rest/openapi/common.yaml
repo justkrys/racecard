@@ -25,6 +25,14 @@ components:
         self:
           type: string
           format: uri-reference
+    linksRelated:
+      type: object
+      required:
+        - related
+      properties:
+        related:
+          type: string
+          format: uri-reference
     linksPagination:
       type: object
       properties:
