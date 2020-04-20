@@ -24,6 +24,32 @@ paths:
       operationId: games.search
       summary: A list of all the games that currently exist.
       tags: [games]
+      parameters:
+        - name: owner
+          in: query
+          description: List only games that are owned by the requested owner.
+          schema:
+            $ref: "#/components/schemas/id"
+        - name: player
+          in: query
+          description: List only games in which the requested player is a participant.
+          schema:
+            $ref: "#/components/schemas/id"
+        - name: state
+          in: query
+          description: |
+            List only games that match the given state.
+            Valid states are:
+              - created:
+                  Games that are created but not yet started.  I.e. Waiting for the
+                  owner to start the game.
+              - running:
+                  Games that are currently in progress.
+              - completed:
+                  Games have been completed.  No further plays are possible.
+          schema:
+            type: string
+            enum: [created, running, completed]
       responses:
         "200":
           description:
