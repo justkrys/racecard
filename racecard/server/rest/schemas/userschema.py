@@ -34,14 +34,19 @@ class UserSchema(common.Schema):
         related_view=".games_search", related_view_kwargs={"owner": "<id>"}, many=True,
     )
 
+    created = fields.Relationship(
+        related_view=".games_search",
+        related_view_kwargs={"player": "<id>", "state": "created"},
+    )
+
     playing = fields.Relationship(
         related_view=".games_search",
-        related_view_kwargs={"player": "<id>", "completed": "false"},
+        related_view_kwargs={"player": "<id>", "state": "running"},
     )
 
     completed = fields.Relationship(
         related_view=".games_search",
-        related_view_kwargs={"player": "<id>", "completed": "true"},
+        related_view_kwargs={"player": "<id>", "state": "completed"},
     )
 
     class Meta:  # pylint: disable=too-few-public-methods

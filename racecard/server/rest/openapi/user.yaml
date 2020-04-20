@@ -39,10 +39,13 @@ components:
           additionalProperties: false
           required:
             - owned
+            - created
             - playing
             - completed
           properties:
             owned:
+              $ref: "common.yaml#/components/schemas/relationshipRelated"
+            created:
               $ref: "common.yaml#/components/schemas/relationshipRelated"
             playing:
               $ref: "common.yaml#/components/schemas/relationshipRelated"

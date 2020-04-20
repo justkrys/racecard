@@ -49,11 +49,13 @@ def load_dummy_data():
         id=uuid.UUID("864c5ff8-9883-4494-b76f-2d5365e37a6c"), owner=krys
     )
     krys.owned.add(krys_game)
+    krys.created.add(krys_game)
     games[krys_game.id] = krys_game
     cheesebutt_game = game.Game(
         id=uuid.UUID("2e343883-6983-4d06-a23d-c6da97764e06"), owner=cheesebutt
     )
     cheesebutt.owned.add(cheesebutt_game)
+    cheesebutt.created.add(krys_game)
     games[cheesebutt_game.id] = cheesebutt_game
 
 

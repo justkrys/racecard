@@ -34,5 +34,6 @@ class User(common.ModelBase):
     name: str
     email: str
     owned: typing.AbstractSet[game.Game] = dataclasses.field(default_factory=set)
+    created: typing.AbstractSet[game.Game] = dataclasses.field(default_factory=set)
     playing: typing.AbstractSet[game.Game] = dataclasses.field(default_factory=set)
     completed: typing.AbstractSet[game.Game] = dataclasses.field(default_factory=set)
