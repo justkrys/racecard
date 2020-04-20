@@ -40,8 +40,6 @@ components:
         - $ref: "common.yaml#/components/schemas/success"
         - $ref: "common.yaml#/components/schemas/many"
         - type: object
-          required:
-            - data
           properties:
             data:
               type: array
