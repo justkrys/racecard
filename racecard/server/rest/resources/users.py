@@ -17,8 +17,6 @@
 
 """API for user resources."""
 
-import uuid
-
 from .. import exceptions, store
 from ..schemas import userschema
 from . import common
@@ -26,14 +24,14 @@ from . import common
 
 def search():
     """Handler for GET /users."""
-    data = list(store.users.values())
+    data = store.find_users()
     return common.many(data, userschema.UserSchema)
 
 
 def get(id):  # pylint: disable=invalid-name,redefined-builtin
     """Handler for GET /users/<id>."""
     try:
-        data = store.users[uuid.UUID(id)]
+        data = store.get_user(id)
     except KeyError:
         raise exceptions.NotFoundError(id, userschema.UserSchema)
     return common.single(data, userschema.UserSchema)

@@ -48,16 +48,63 @@ def load_dummy_data():
     krys_game = game.Game(
         id=uuid.UUID("864c5ff8-9883-4494-b76f-2d5365e37a6c"), owner=krys
     )
-    krys.owned.add(krys_game)
-    krys.created.add(krys_game)
     games[krys_game.id] = krys_game
     cheesebutt_game = game.Game(
         id=uuid.UUID("2e343883-6983-4d06-a23d-c6da97764e06"), owner=cheesebutt
     )
-    cheesebutt.owned.add(cheesebutt_game)
-    cheesebutt.created.add(krys_game)
     games[cheesebutt_game.id] = cheesebutt_game
 
 
 if os.environ.get("RACECARD_DEV", "").lower() == "true":
     load_dummy_data()
+
+
+def find_users(*, name=None):
+    """Returns users that match the given criteria."""
+    matches = users.values()
+    if name is not None:
+        matches = [user for user in matches if user.name.lower() == name.lower()]
+    return matches
+
+
+def get_user(id_=None, email=None):
+    """Returns the user that matches either the id or the email."""
+    if id_ is None and email is None:
+        raise TypeError("At least one argument must be provided.")
+    if id_ is not None:
+        if not isinstance(id, uuid.UUID):
+            id_ = uuid.UUID(id_)
+        return users[id_]
+    return [user for user in users if user.email.lower() == email.lower()][0]
+
+
+def find_games(*, owner_id=None, player_id=None, state=None):
+    """Returns games that match the given criteria."""
+    matches = games.values()
+    if owner_id is not None:
+        if not isinstance(owner_id, uuid.UUID):
+            owner_id = uuid.UUID(owner_id)
+        matches = [game for game in matches if game.owner.id == owner_id]
+    # TODO: Implement support for remaining game filtering.
+    if player_id is not None:
+        if not isinstance(player_id, uuid.UUID):
+            player_id = uuid.UUID(player_id)
+        raise NotImplementedError()
+    if state is not None:
+        valid_states = ("completed", "running", "created")
+        if state not in valid_states:
+            raise ValueError(f"state must be one of {str(valid_states)}.")
+        if state == "completed":
+            matches = [game for game in matches if game.is_completed]
+        elif state == "running":
+            raise NotImplementedError()
+        elif state == "created":
+            raise NotImplementedError()
+    return matches
+
+
+def get_game(id_):
+    """Returns the game that matches the given id."""
+    if not isinstance(id_, uuid.UUID):
+        id_ = uuid.UUID(id_)
+    return games[id_]

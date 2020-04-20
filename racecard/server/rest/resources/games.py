@@ -26,21 +26,7 @@ from . import common
 
 def search(*, owner=None, player=None, state=None):
     """Handler for GET /games."""
-    games = list(store.games.values())
-    if owner is not None:
-        owner = uuid.UUID(owner)
-        games = [game for game in games if game.owner.id == owner]
-    # TODO: Implement support for remaining game filtering.
-    # if player is not None:
-    #     player = uuid.UUID(player)
-    #     games = [game for game in games if game.??? == player]
-    if state == "completed":
-        games = [game for game in games if game.is_completed]
-    # elif state == "running":
-    #     games = [game for game in games if not game.is_completed and game.???begun]
-    # elif state == "created":
-    #     games = [game for game in games if not game.is_completed and not
-    #     game.???begun]
+    games = store.find_games(owner_id=owner, player_id=player, state=state)
     return common.many(games, gameschema.GameSchema)
 
 
