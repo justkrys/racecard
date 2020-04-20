@@ -122,12 +122,10 @@ class _SourceSchema(ma.Schema):
 class _ErrorSchema(FailureSchema):  # pylint: disable=too-many-ancestors
     """Schema for application errors and exceptions."""
 
-    id = fields.Str(
-        required=True
-    )  # Must exist, but removed during serializaion per JSON:API spec.
-    status = fields.String(required=True)
-    code = fields.String(required=True)
-    title = fields.String(required=True)
+    id = fields.Str()  # Must exist, but removed during serializaion per JSON:API spec.
+    status = fields.String()
+    code = fields.String()
+    title = fields.String()
     detail = fields.String()
     source = fields.Nested(_SourceSchema)
 
