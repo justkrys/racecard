@@ -25,7 +25,9 @@ class GameSchema(common.Schema):
     """Schema for game resources."""
 
     id = fields.UUID(dump_only=True)
-    owner_id = fields.UUID()
+    owner = fields.Relationship(
+        related_view=".users_get", related_view_kwargs={"id": "<owner.id>"},
+    )
     document_meta = fields.DocumentMeta()
     resource_meta = fields.ResourceMeta()
 

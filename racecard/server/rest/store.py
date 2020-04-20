@@ -40,9 +40,9 @@ def load_dummy_data():
         id=id_, name="Cheesebutt", email="cheesebutt@example.com"
     )
     id_ = uuid.UUID("864c5ff8-9883-4494-b76f-2d5365e37a6c")
-    games[id_] = game.Game(id_=id_, owner_id=krys.id)
+    games[id_] = game.Game(id_=id_, owner=krys)
     id_ = uuid.UUID("2e343883-6983-4d06-a23d-c6da97764e06")
-    games[id_] = game.Game(id_=id_, owner_id=cheesebutt.id)
+    games[id_] = game.Game(id_=id_, owner=cheesebutt)
 
 
 if os.environ.get("RACECARD_DEV", "").lower() == "true":

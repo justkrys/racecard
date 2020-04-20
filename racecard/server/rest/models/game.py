@@ -22,16 +22,16 @@ import uuid
 
 from racecard.core import game
 
-from . import common
+from . import common, user
 
 
 class Game(common.ModelBase, game.Game):
     """A single game consisting of several hands, played by several players."""
 
     id: uuid.UUID  # pylint: disable=invalid-name
-    owner_id: uuid.UUID
+    owner: user.User
 
-    def __init__(self, id_, owner_id):
+    def __init__(self, id_, owner):
         super().__init__()
         self.id = id_  # pylint: disable=invalid-name
-        self.owner_id = owner_id
+        self.owner = owner
