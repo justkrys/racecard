@@ -31,7 +31,7 @@ class _PlayerData:
     """Stores game-level player data."""
 
     sort_hand: bool = False  # Remembers toggle_sort() choice between hands.
-    score_card: typing.Union[player.ScoreCard, None] = None
+    score_card: typing.Optional[player.ScoreCard] = None
 
 
 @dataclasses.dataclass

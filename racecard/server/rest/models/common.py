@@ -34,9 +34,9 @@ class CollectionMeta:  # pylint: disable=too-few-public-methods
     """
 
     total: int
-    page: typing.Union[int, None] = None
-    page_size: typing.Union[int, None] = None
-    total_pages: typing.Union[int, None] = None
+    page: typing.Optional[int] = None
+    page_size: typing.Optional[int] = None
+    total_pages: typing.Optional[int] = None
 
 
 @dataclasses.dataclass
@@ -46,8 +46,8 @@ class ErrorSource:
     At least one of the two attributes should be specified.
     """
 
-    pointer: typing.Union[str, None] = None
-    parameter: typing.Union[str, None] = None
+    pointer: typing.Optional[str] = None
+    parameter: typing.Optional[str] = None
 
 
 @dataclasses.dataclass
@@ -58,5 +58,5 @@ class Error(ModelBase):
     status: str
     code: str
     title: str
-    detail: typing.Union[str, None] = None
-    source: typing.Union[ErrorSource, None] = None
+    detail: typing.Optional[str] = None
+    source: typing.Optional[ErrorSource] = None

@@ -30,9 +30,9 @@ class RESTAppException(servercommon.ServerError):
     message = None
     id_: str
     status: int = 500
-    detail: typing.Union[str, None] = None
-    pointer: typing.Union[str, None] = None
-    parameter: typing.Union[str, None] = None
+    detail: typing.Optional[str] = None
+    pointer: typing.Optional[str] = None
+    parameter: typing.Optional[str] = None
     schema_class: typing.Type[schemascommon.Schema]
 
     def __init__(

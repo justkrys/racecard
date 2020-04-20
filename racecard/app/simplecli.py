@@ -36,7 +36,7 @@ class Move:
     """A player's move, as entered by the user."""
 
     action: str
-    target: typing.Union[str, None] = None
+    target: typing.Optional[str] = None
 
 
 game = core.Game()  # pylint: disable=invalid-name
