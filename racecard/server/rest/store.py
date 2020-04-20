@@ -33,16 +33,26 @@ users: typing.Dict[uuid.UUID, user.User] = {}
 
 def load_dummy_data():
     """Loads dummy data."""
-    id_ = uuid.UUID("90c6058e-5982-4e8c-85d5-40cd7251faad")
-    krys = users[id_] = user.User(id=id_, name="Krys", email="krys@example.com")
-    id_ = uuid.UUID("57eea3c9-b699-4f99-82a3-f44f2307ec2b")
-    cheesebutt = users[id_] = user.User(
-        id=id_, name="Cheesebutt", email="cheesebutt@example.com"
+    krys = user.User(
+        id=uuid.UUID("90c6058e-5982-4e8c-85d5-40cd7251faad"),
+        name="Krys",
+        email="krys@example.com",
     )
-    id_ = uuid.UUID("864c5ff8-9883-4494-b76f-2d5365e37a6c")
-    games[id_] = game.Game(id_=id_, owner=krys)
-    id_ = uuid.UUID("2e343883-6983-4d06-a23d-c6da97764e06")
-    games[id_] = game.Game(id_=id_, owner=cheesebutt)
+    users[krys.id] = krys
+    cheesebutt = user.User(
+        id=uuid.UUID("57eea3c9-b699-4f99-82a3-f44f2307ec2b"),
+        name="Cheesebutt",
+        email="cheesebutt@example.com",
+    )
+    users[cheesebutt.id] = cheesebutt
+    krys_game = game.Game(
+        id_=uuid.UUID("864c5ff8-9883-4494-b76f-2d5365e37a6c"), owner=krys
+    )
+    games[krys_game.id] = krys_game
+    cheesebutt_game = game.Game(
+        id_=uuid.UUID("2e343883-6983-4d06-a23d-c6da97764e06"), owner=cheesebutt
+    )
+    games[cheesebutt_game.id] = cheesebutt_game
 
 
 if os.environ.get("RACECARD_DEV", "").lower() == "true":
