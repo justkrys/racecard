@@ -28,10 +28,10 @@ from . import common, user
 class Game(common.ModelBase, game.Game):
     """A single game consisting of several hands, played by several players."""
 
-    id: uuid.UUID  # pylint: disable=invalid-name
+    id: uuid.UUID
     owner: user.User
 
-    def __init__(self, id_, owner):
+    def __init__(self, id, owner):  # pylint: disable=redefined-builtin
         super().__init__()
-        self.id = id_  # pylint: disable=invalid-name
+        self.id = id  # pylint: disable=invalid-name
         self.owner = owner

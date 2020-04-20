@@ -46,11 +46,11 @@ def load_dummy_data():
     )
     users[cheesebutt.id] = cheesebutt
     krys_game = game.Game(
-        id_=uuid.UUID("864c5ff8-9883-4494-b76f-2d5365e37a6c"), owner=krys
+        id=uuid.UUID("864c5ff8-9883-4494-b76f-2d5365e37a6c"), owner=krys
     )
     games[krys_game.id] = krys_game
     cheesebutt_game = game.Game(
-        id_=uuid.UUID("2e343883-6983-4d06-a23d-c6da97764e06"), owner=cheesebutt
+        id=uuid.UUID("2e343883-6983-4d06-a23d-c6da97764e06"), owner=cheesebutt
     )
     games[cheesebutt_game.id] = cheesebutt_game
 
