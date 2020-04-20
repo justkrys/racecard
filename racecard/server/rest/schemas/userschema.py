@@ -31,24 +31,18 @@ class UserSchema(common.Schema):
     resource_meta = fields.ResourceMeta()
 
     owned = fields.Relationship(
-        related_view=".users_get_owned", related_view_kwargs={"id": "<id>"}, many=True,
+        related_view=".games_search", related_view_kwargs={"owner": "<id>"}, many=True,
     )
 
-    # playing = fields.Relationship(
-    #     self_url="/users/{id}/playing",
-    #     self_url_kwargs={"id": "<id>"},
-    #     related_url="/games/{id}",
-    #     related_url_kwargs={"id": "<playing.id>"},
-    #     schema=,
-    # )
+    playing = fields.Relationship(
+        related_view=".games_search",
+        related_view_kwargs={"player": "<id>", "completed": "false"},
+    )
 
-    # completed = fields.Relationship(
-    #     self_url="/users/{id}/completed",
-    #     self_url_kwargs={"id": "<id>"},
-    #     related_url="/games/{id}",
-    #     related_url_kwargs={"id": "<completed.id>"},
-    #     schema=,
-    # )
+    completed = fields.Relationship(
+        related_view=".games_search",
+        related_view_kwargs={"player": "<id>", "completed": "true"},
+    )
 
     class Meta:  # pylint: disable=too-few-public-methods
         """Metadata options for the schema."""

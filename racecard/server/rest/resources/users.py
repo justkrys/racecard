@@ -20,7 +20,7 @@
 import uuid
 
 from .. import exceptions, store
-from ..schemas import gameschema, userschema
+from ..schemas import userschema
 from . import common
 
 
@@ -37,13 +37,3 @@ def get(id):  # pylint: disable=invalid-name,redefined-builtin
     except KeyError:
         raise exceptions.NotFoundError(id, userschema.UserSchema)
     return common.single(data, userschema.UserSchema)
-
-
-def get_owned(id):  # pylint: disable=invalid-name,redefined-builtin
-    """Handler for GET /users/<id>/owned."""
-    try:
-        data = store.users[uuid.UUID(id)].owned
-    except KeyError:
-        raise exceptions.NotFoundError(id, userschema.UserSchema)
-    # FIXME: self link is inaccurate when using GameSchema directly like this.
-    return common.many(data, gameschema.GameSchema)

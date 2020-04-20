@@ -39,14 +39,15 @@ components:
           additionalProperties: false
           required:
             - owned
+            - playing
+            - completed
           properties:
             owned:
-              type: object
-              required:
-                - links
-              properties:
-                links:
-                  $ref: "common.yaml#/components/schemas/linksRelated"
+              $ref: "common.yaml#/components/schemas/relationshipRelated"
+            playing:
+              $ref: "common.yaml#/components/schemas/relationshipRelated"
+            completed:
+              $ref: "common.yaml#/components/schemas/relationshipRelated"
     userSingle:
       description: A JSON:API document of a user resource.
       allOf:
