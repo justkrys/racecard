@@ -63,6 +63,15 @@ class Schema(flask.Schema):
         parts = iter(text.split("_"))
         return next(parts) + "".join(part.title() for part in parts)
 
+    @ma.pre_dump(pass_many=True)
+    def clear_includes(self, data, many):  # pylint: disable=unused-argument
+        """Clears any leftover included data."""
+        # Workaround for:
+        # https://github.com/marshmallow-code/marshmallow-jsonapi/issues/269
+        if self.included_data:
+            self.included_data = {}
+        return data
+
 
 class RemoveNonesMixin:  # pylint: disable=too-few-public-methods
     """Schema mixin class that recusively removes properties with None/null values."""
