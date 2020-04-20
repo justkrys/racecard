@@ -27,7 +27,7 @@ components:
             - owner
           properties:
             owner:
-              $ref: "common.yaml#/components/schemas/relationshopRelated"
+              $ref: "common.yaml#/components/schemas/relationshipRelated"
     gameSingle:
       description: A JSON:API document of a game resource.
       allOf:
