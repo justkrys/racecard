@@ -18,11 +18,13 @@
 """Data model for Race Card games."""
 
 
+from __future__ import annotations  # Solve circular type references with user.
+
 import uuid
 
 from racecard.core import game
 
-from . import common, user
+from . import common, user  # pylint:disable=cyclic-import
 
 
 class Game(common.ModelBase, game.Game):

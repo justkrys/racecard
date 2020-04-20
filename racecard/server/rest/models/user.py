@@ -17,11 +17,13 @@
 
 """Data model for users."""
 
+from __future__ import annotations  # Solve circular type references with game.
+
 import dataclasses
 import typing
 import uuid
 
-from . import common
+from . import common, game  # pylint:disable=cyclic-import
 
 
 @dataclasses.dataclass
@@ -31,6 +33,6 @@ class User(common.ModelBase):
     id: uuid.UUID  # pylint: disable=invalid-name
     name: str
     email: str
-    owned: typing.AbstractSet[uuid.UUID] = dataclasses.field(default_factory=set)
-    playing: typing.AbstractSet[uuid.UUID] = dataclasses.field(default_factory=set)
-    completed: typing.AbstractSet[uuid.UUID] = dataclasses.field(default_factory=set)
+    owned: typing.AbstractSet[game.Game] = dataclasses.field(default_factory=set)
+    playing: typing.AbstractSet[game.Game] = dataclasses.field(default_factory=set)
+    completed: typing.AbstractSet[game.Game] = dataclasses.field(default_factory=set)
