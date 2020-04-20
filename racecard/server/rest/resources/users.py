@@ -28,6 +28,7 @@ def search():
     return common.many(data, userschema.UserSchema)
 
 
+@common.id_is_uuid
 def get(id):  # pylint: disable=invalid-name,redefined-builtin
     """Handler for GET /users/<id>."""
     try:

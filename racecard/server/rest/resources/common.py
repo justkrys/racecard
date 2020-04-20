@@ -18,6 +18,10 @@
 """Common utilities for resources."""
 
 
+import functools
+import inspect
+import uuid
+
 from ..models import common
 
 
@@ -52,3 +56,29 @@ def many(data, schema_class, code=200, include_data=None, **collectionmeta_kwarg
     schema = schema_class(document_meta=meta, include_data=include_data)
     doc = schema.dump(data, many=True)
     return document(doc, code)
+
+
+def id_is_uuid(func):
+    """Decorator to automatically convert "id" or "id_" argument from string to UUID."""
+    # Pre-calculate as much as possible to keep actual invocation quick.
+    P = inspect.Parameter
+    parameters = inspect.signature(func).parameters
+    id_keys = [key for key in parameters if key in ("id", "id_")]
+    if not id_keys:
+        return func
+    key = id_keys[0]
+    parameter = parameters[key]
+    is_keyword = parameter.kind in (P.KEYWORD_ONLY, P.POSITIONAL_OR_KEYWORD)
+    is_positional = parameter.kind in (P.POSITIONAL_ONLY, P.POSITIONAL_OR_KEYWORD)
+    if is_positional:
+        index = list(parameters).index(key)
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if is_keyword and key in kwargs:
+            kwargs[key] = uuid.UUID(kwargs[key])
+        elif is_positional and len(args) > index:
+            args[index] = uuid.UUID(args[index])
+        return func(*args, **kwargs)
+
+    return wrapper

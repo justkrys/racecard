@@ -30,6 +30,7 @@ def search(*, owner=None, player=None, state=None):
     return common.many(games, gameschema.GameSchema)
 
 
+@common.id_is_uuid
 def get(id):  # pylint: disable=invalid-name,redefined-builtin
     """Handler for GET /games/<id>."""
     try:
