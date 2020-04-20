@@ -30,13 +30,9 @@ class UserSchema(common.Schema):
     document_meta = fields.DocumentMeta()
     resource_meta = fields.ResourceMeta()
 
-    # owned = fields.Relationship(
-    #     self_url="/users/{id}/owned",
-    #     self_url_kwargs={"id": "<id>"},
-    #     related_url="/games/{id}",
-    #     related_url_kwargs={"id": "<owned.id>"},
-    #     schema=,
-    # )
+    owned = fields.Relationship(
+        related_view=".users_get_owned", related_view_kwargs={"id": "<id>"}, many=True,
+    )
 
     # playing = fields.Relationship(
     #     self_url="/users/{id}/playing",

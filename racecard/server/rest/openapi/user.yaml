@@ -13,21 +13,40 @@ components:
         - type
         - id
         - links
+        - attributes
+        - relationships
       properties:
         type:
           type: string
         id:
           $ref: "common.yaml#/components/schemas/id"
+        links:
+          $ref: "common.yaml#/components/schemas/linksSelf"
         attributes:
           type: object
+          additionalProperties: false
+          required:
+            - name
+            - email
           properties:
             name:
               type: string
             email:
               type: string
               format: email
-        links:
-          $ref: "common.yaml#/components/schemas/linksSelf"
+        relationships:
+          type: object
+          additionalProperties: false
+          required:
+            - owned
+          properties:
+            owned:
+              type: object
+              required:
+                - links
+              properties:
+                links:
+                  $ref: "common.yaml#/components/schemas/linksRelated"
     userSingle:
       description: A JSON:API document of a user resource.
       allOf:

@@ -93,6 +93,26 @@ paths:
           $ref: "#/components/responses/notFoundError"
         "400":
           $ref: "#/components/responses/frameworkError"
+  /users/{id}/owned:
+    get:
+      operationId: users.get_owned
+      summary: A list of all the games the the requested user owns.
+      tags: [users]
+      parameters:
+        - $ref: "#/components/parameters/id"
+      responses:
+        "200":
+          description:
+            Returns the collection of games that the requested user ownes.
+            Result is in JSON:API format.
+          content:
+            "application/vnd.api+json":
+              schema:
+                $ref: "#/components/schemas/gameMany"
+        "404":
+          $ref: "#/components/responses/notFoundError"
+        "400":
+          $ref: "#/components/responses/frameworkError"
 components:
   parameters:
     id:
