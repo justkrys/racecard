@@ -25,11 +25,12 @@ class GameSchema(common.Schema):
     """Schema for game resources."""
 
     id = fields.UUID(dump_only=True)
+    document_meta = fields.DocumentMeta()
+    resource_meta = fields.ResourceMeta()
+
     owner = fields.Relationship(
         related_view=".users_get", related_view_kwargs={"id": "<owner.id>"},
     )
-    document_meta = fields.DocumentMeta()
-    resource_meta = fields.ResourceMeta()
 
     class Meta:  # pylint: disable=too-few-public-methods
         """Metadata options for the schema."""
