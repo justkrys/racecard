@@ -29,10 +29,10 @@ def search():
 
 
 @common.id_is_uuid
-def get(id):  # pylint: disable=invalid-name,redefined-builtin
+def get(id_):
     """Handler for GET /users/<id>."""
     try:
-        data = store.get_user(id)
+        data = store.get_user(id_)
     except exceptions.NotFoundError as error:
         error.schema_class = userschema.UserSchema
         raise

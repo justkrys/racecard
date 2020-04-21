@@ -73,17 +73,18 @@ class RESTApp(servercommon.ServerBase, connexion.App):  # noqa
     def __init__(self):
         super().__init__(__package__)
         self.add_api(
-            self.get_bundled_specs(
+            self._get_bundled_specs(
                 pathlib.Path(__file__).parent / "openapi" / "openapi.yaml"
             ),
             strict_validation=True,
             validate_responses=True,
+            pythonic_params=True,
             resolver=ImplicitPackageResolver(__package__ + ".resources"),
         )
-        self.add_error_handler(exceptions.RESTAppException, self.handle_app_exceptions)
+        self.add_error_handler(exceptions.RESTAppException, self._handle_app_exceptions)
 
     @staticmethod
-    def get_bundled_specs(main_file_path):
+    def _get_bundled_specs(main_file_path):
         """Stiches all external $ref references in to the main openapi spec file."""
         # Connexion cannot currently handle external file $refs.  This works around the
         # issue.  Based on https://github.com/zalando/connexion/issues/254
@@ -98,7 +99,7 @@ class RESTApp(servercommon.ServerBase, connexion.App):  # noqa
         return parser.specification
 
     @staticmethod
-    def handle_app_exceptions(error):
+    def _handle_app_exceptions(error):
         """Return application exceptions as JSON:API documents."""
         data = modelscommon.Error(
             id=error.id_,

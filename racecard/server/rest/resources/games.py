@@ -35,10 +35,10 @@ def search(*, owner=None, player=None, state=None):
 
 
 @common.id_is_uuid
-def get(id):  # pylint: disable=invalid-name,redefined-builtin
+def get(id_):
     """Handler for GET /games/<id>."""
     try:
-        game = store.get_game(id)
+        game = store.get_game(id_)
     except exceptions.NotFoundError as error:
         error.schema_class = gameschema.GameSchema
         raise
