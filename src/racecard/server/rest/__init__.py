@@ -19,5 +19,3 @@
 
 Pair it with an appropriate client for a full app.
 """
-
-from .app import flask_app, main  # noqa: F401

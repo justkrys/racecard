@@ -132,12 +132,3 @@ app = RESTApp()  # pylint: disable=invalid-name
 def flask_app():
     """Entry point for the "flask run" command."""
     return app.app
-
-
-def main():
-    """Entry point for the "racecard-rest" command and for running app.py directly."""
-    app.run()
-
-
-if __name__ == "__main__":
-    main()
