@@ -21,8 +21,8 @@ flask = "*"
 python-dotenv = "*"
 jsonschema = {extras = ["format"],version = "*"}
 prance = {extras = ["osv"],version = "*"}
-racecard = {editable = true,extras = ["rest"],path = "."}
 marshmallow-jsonapi = "*"
+racecard = {editable = true,extras = ["rest"],path = "."}
 
 [requires]
 python_version = "3.8"
