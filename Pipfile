@@ -4,6 +4,8 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
+setuptools = "*"
+wheel = "*"
 black = "==19.10b0"
 pylint = "*"
 flake8 = "*"
@@ -22,6 +24,7 @@ python-dotenv = "*"
 jsonschema = {extras = ["format"],version = "*"}
 prance = {extras = ["osv"],version = "*"}
 marshmallow-jsonapi = "*"
+click = "*"
 racecard = {editable = true,extras = ["rest"],path = "."}
 
 [requires]
