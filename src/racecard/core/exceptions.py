@@ -17,6 +17,9 @@
 
 """Core error types and base classes for all Race Card exceptions."""
 
+
+import typing
+
 # Base Classes
 
 
@@ -26,7 +29,7 @@ class ExceptionBase(Exception):
     Includes support for default messages and using doctstrings as messages.
     """
 
-    message = None
+    message: typing.Optional[str] = None
 
     def __init__(self, message=None):
         if message is None:
