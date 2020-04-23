@@ -4,27 +4,19 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
-setuptools = "*"
-wheel = "*"
-black = "==19.10b0"
-pylint = "*"
-flake8 = "*"
-pipenv = "*"
-flake8-bugbear = "*"
-bandit = "*"
-isort = "*"
-pre-commit = "*"
-mypy = "*"
-watchdog = "*"
+wheel = "~= 0.34"
+black = "== 19.10b0"
+pylint = "~= 2.4"
+flake8 = "~= 3.7"
+pipenv = ">= 2018.11.26"
+flake8-bugbear = "~= 20.1"
+bandit = "~= 1.6"
+isort = "~= 4.3"
+pre-commit = "~= 2.3"
+mypy = "~= 0.4"
+watchdog = "~= 0.10"
 
 [packages]
-connexion = {extras = ["swagger-ui"],version = "*"}
-flask = "*"
-python-dotenv = "*"
-jsonschema = {extras = ["format"],version = "*"}
-prance = {extras = ["osv"],version = "*"}
-marshmallow-jsonapi = "*"
-click = "*"
 racecard = {editable = true,extras = ["rest"],path = "."}
 
 [requires]
