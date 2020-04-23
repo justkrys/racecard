@@ -19,11 +19,11 @@
 
 
 import pathlib
-import uuid
 
 import connexion
 import jsonschema
 import prance
+import timeflake
 from connexion import resolver as connexionresolver
 from jsonschema import compat
 from prance.util import resolver as pranceresolver
@@ -117,12 +117,12 @@ class RESTApp(servercommon.ServerBase, connexion.App):  # noqa
 
 
 # connexion's OpenAPI 3 validation uses JSON Schema Draft 4 as a base.
-@jsonschema.draft4_format_checker.checks("uuid", ValueError)
-def uuid_format_checker(instance):
-    """Validates strings with "format: uuid" as being uuid v4."""
+@jsonschema.draft4_format_checker.checks("base62", Exception)
+def base62_format_checker(instance):
+    """Validates strings with "format: base62" as being a base62-encoded timeflake."""
     if not isinstance(instance, compat.str_types):
         return True
-    uuid.UUID(instance, version=4)
+    timeflake.parse(from_base62=instance)
     return True
 
 

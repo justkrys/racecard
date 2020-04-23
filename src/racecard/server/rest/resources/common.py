@@ -19,8 +19,8 @@
 
 
 import functools
-import inspect
-import uuid
+
+import timeflake
 
 from ..models import common
 
@@ -58,28 +58,31 @@ def many(data, schema_class, code=200, include_data=None, **collectionmeta_kwarg
     return document(doc, code)
 
 
-def id_is_uuid(func):
-    """Decorator to automatically convert "id" or "id_" argument from string to UUID."""
-    # Pre-calculate as much as possible to keep actual invocation quick.
-    P = inspect.Parameter
-    parameters = inspect.signature(func).parameters
-    id_keys = [key for key in parameters if key in ("id", "id_")]
-    if not id_keys:
-        return func
-    key = id_keys[0]
-    parameter = parameters[key]
-    is_keyword = parameter.kind in (P.KEYWORD_ONLY, P.POSITIONAL_OR_KEYWORD)
-    is_positional = parameter.kind in (P.POSITIONAL_ONLY, P.POSITIONAL_OR_KEYWORD)
-    if is_positional:
-        index = list(parameters).index(key)
+def convert_kwargs(**type_map):
+    """Decorator to automatically convert named kwargs to given types.
 
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        if is_keyword and key in kwargs:
-            kwargs[key] = uuid.UUID(kwargs[key])
-        elif is_positional and len(args) > index:
-            args = list(args)
-            args[index] = uuid.UUID(args[index])
-        return func(*args, **kwargs)
+    arguments should be "arg_name=cast_func, ...", where cast_func is a one-parameter
+    callable that returns the converted value.
+    """
 
-    return wrapper
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            for arg, value in kwargs.items():
+                if arg in type_map and value is not None:
+                    kwargs[arg] = type_map[arg](value)
+            return func(*args, **kwargs)
+
+        return wrapper
+
+    return decorator
+
+
+def timeflake_kwargs(*timeflake_args):
+    """Decorator to automatically convert base62 strings to Timeflakes."""
+
+    def convert(value):
+        return timeflake.parse(from_base62=value)
+
+    type_map = {arg: convert for arg in timeflake_args}
+    return convert_kwargs(**type_map)

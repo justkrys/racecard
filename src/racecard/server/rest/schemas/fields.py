@@ -19,6 +19,32 @@
 
 # pylint: disable=wildcard-import,unused-wildcard-import,unused-import
 
+import typing
+
+import timeflake
 from marshmallow.fields import *  # noqa: F403,F401
 from marshmallow_jsonapi.fields import DocumentMeta, ResourceMeta  # noqa: F401
 from marshmallow_jsonapi.flask import Relationship  # noqa: F401
+
+
+# Copied / based on marshmallow.fields.UUID.
+class Timeflake(String):  # noqa: F405
+    """A Timeflake field."""
+
+    default_error_messages = {"invalid_timeflake": "Not a valid Timeflake."}
+
+    def _validated(self, value) -> typing.Optional[timeflake.Timeflake]:
+        """Format the value or raise a :exc:`ValidationError` if an error occurs."""
+        if value is None:
+            return None
+        if isinstance(value, timeflake.Timeflake):
+            return value
+        try:
+            return timeflake.parse(from_base62=value)
+        except (ValueError, AttributeError, TypeError) as error:
+            raise self.make_error("invalid_timeflake") from error
+
+    def _deserialize(
+        self, value, attr, data, **kwargs
+    ) -> typing.Optional[timeflake.Timeflake]:
+        return self._validated(value)

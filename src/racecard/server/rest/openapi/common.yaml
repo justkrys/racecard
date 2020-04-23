@@ -15,8 +15,11 @@ components:
         version:
           type: string
     id:
+      description:
+        IDs are base62-encoded database-friendly UUID-compatible numbers.
+        See https://github.com/anthonynsimon/timeflake for implementation details.
       type: string
-      format: uuid
+      format: base62
     linksSelf:
       type: object
       required:

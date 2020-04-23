@@ -20,7 +20,7 @@
 
 from __future__ import annotations  # Solve circular type references with user.
 
-import uuid
+import timeflake
 
 from racecard.core import game
 
@@ -30,10 +30,18 @@ from . import common, user  # pylint:disable=cyclic-import
 class Game(common.ModelBase, game.Game):
     """A single game consisting of several hands, played by several players."""
 
-    id: uuid.UUID
+    id: timeflake.Timeflake
     owner: user.User
 
     def __init__(self, id, owner):  # pylint: disable=redefined-builtin
         super().__init__()
         self.id = id  # pylint: disable=invalid-name
         self.owner = owner
+
+    @staticmethod
+    def _make_player_id():
+        """Returns new unique player id.
+
+        Overridden to use timeflake instead of uuid.
+        """
+        return timeflake.random()

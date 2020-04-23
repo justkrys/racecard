@@ -17,24 +17,19 @@
 
 """API for game resources."""
 
-import uuid
-
 from .. import exceptions, store
 from ..schemas import gameschema
 from . import common
 
 
+@common.timeflake_kwargs("owner", "player")
 def search(*, owner=None, player=None, state=None):
     """Handler for GET /games."""
-    if owner is not None:
-        owner = uuid.UUID(owner)
-    if player is not None:
-        player = uuid.UUID(player)
     games = store.find_games(owner_id=owner, player_id=player, state=state)
     return common.many(games, gameschema.GameSchema)
 
 
-@common.id_is_uuid
+@common.timeflake_kwargs("id_")
 def get(id_):
     """Handler for GET /games/<id>."""
     try:

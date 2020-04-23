@@ -23,35 +23,36 @@ This serves as a temporary substitute for an actualy db or storage backend.
 
 import os
 import typing
-import uuid
+
+import timeflake
 
 from . import exceptions
 from .models import game, user
 
-games: typing.Dict[uuid.UUID, game.Game] = {}
-users: typing.Dict[uuid.UUID, user.User] = {}
+games: typing.Dict[timeflake.Timeflake, game.Game] = {}
+users: typing.Dict[timeflake.Timeflake, user.User] = {}
 
 
 def load_dummy_data() -> None:
     """Loads dummy data."""
     krys = user.User(
-        id=uuid.UUID("90c6058e-5982-4e8c-85d5-40cd7251faad"),
+        id=timeflake.parse(from_base62="02ivWdgcJ6uB0sdvq8ZqA5"),
         name="Krys",
         email="krys@example.com",
     )
     users[krys.id] = krys
     cheesebutt = user.User(
-        id=uuid.UUID("57eea3c9-b699-4f99-82a3-f44f2307ec2b"),
+        id=timeflake.parse(from_base62="02ivWfqYf0alI2UxQw3AZU"),
         name="Cheesebutt",
         email="cheesebutt@example.com",
     )
     users[cheesebutt.id] = cheesebutt
     krys_game = game.Game(
-        id=uuid.UUID("864c5ff8-9883-4494-b76f-2d5365e37a6c"), owner=krys
+        id=timeflake.parse(from_base62="02ivWgA7Lz8eWuI313ix0w"), owner=krys
     )
     games[krys_game.id] = krys_game
     cheesebutt_game = game.Game(
-        id=uuid.UUID("2e343883-6983-4d06-a23d-c6da97764e06"), owner=cheesebutt
+        id=timeflake.parse(from_base62="02ivWgB8W6JaY1BpwbE28g"), owner=cheesebutt
     )
     games[cheesebutt_game.id] = cheesebutt_game
 
@@ -68,20 +69,24 @@ def find_users(*, name: str = None) -> typing.Iterable[user.User]:
     return matches
 
 
-def get_user(id_: uuid.UUID = None, email: str = None) -> user.User:
+def get_user(id_: timeflake.Timeflake = None, email: str = None) -> user.User:
     """Returns the user that matches either the id or the email."""
+    if id_ is None and email is None:
+        raise ValueError("At least one argument must be provided")
     if id_ is not None and id_ in users:
         return users[id_]
     if email is not None:
         for user_ in users.values():
             if user_.email.lower() == email.lower():
                 return user_
-        raise exceptions.NotFoundError(id)
-    raise ValueError("At least one argument must be provided")
+    raise exceptions.NotFoundError(id_)
 
 
 def find_games(
-    *, owner_id: uuid.UUID = None, player_id: uuid.UUID = None, state: str = None
+    *,
+    owner_id: timeflake.Timeflake = None,
+    player_id: timeflake.Timeflake = None,
+    state: str = None,
 ) -> typing.Iterable[game.Game]:
     """Returns games that match the given criteria."""
     matches = list(games.values())
@@ -103,7 +108,7 @@ def find_games(
     return matches
 
 
-def get_game(id_: uuid.UUID) -> game.Game:
+def get_game(id_: timeflake.Timeflake) -> game.Game:
     """Returns the game that matches the given id."""
     if id_ in games:
         return games[id_]

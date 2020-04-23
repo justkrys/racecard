@@ -67,7 +67,7 @@ paths:
       parameters:
         - name: id
           in: path
-          description: The id of the desired game, in UUID format.
+          description: The id of the desired game, as a base62-encoded string.
           required: True
           schema:
             $ref: "#/components/schemas/id"
@@ -124,7 +124,7 @@ components:
     id:
       name: id
       in: path
-      description: The id of the desired game, in UUID format.
+      description: The id of the desired game, as a base62-encoded string.
       required: True
       schema:
         $ref: "#/components/schemas/id"

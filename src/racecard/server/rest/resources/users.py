@@ -28,7 +28,7 @@ def search():
     return common.many(data, userschema.UserSchema)
 
 
-@common.id_is_uuid
+@common.timeflake_kwargs("id_")
 def get(id_):
     """Handler for GET /users/<id>."""
     try:

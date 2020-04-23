@@ -18,7 +18,8 @@
 """Data model for users."""
 
 import dataclasses
-import uuid
+
+import timeflake
 
 from . import common
 
@@ -27,6 +28,6 @@ from . import common
 class User(common.ModelBase):
     """A single game consisting of several hands, played by several players."""
 
-    id: uuid.UUID  # pylint: disable=invalid-name
+    id: timeflake.Timeflake  # pylint: disable=invalid-name
     name: str
     email: str
