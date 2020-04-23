@@ -20,6 +20,12 @@
 from collections import abc
 
 import marshmallow as ma
+from marshmallow import (  # noqa: F401  pylint: disable=unused-import
+    ValidationError,
+    post_dump,
+    post_load,
+    pre_load,
+)
 from marshmallow_jsonapi import flask
 
 from ..models import common as commonmodels
@@ -58,11 +64,6 @@ class Schema(flask.Schema):
         ret["jsonapi"] = {"version": "1.0"}
         return ret
 
-    def inflect(self, text):
-        """Inflect text from using underscores to camelCase."""
-        parts = iter(text.split("_"))
-        return next(parts) + "".join(part.title() for part in parts)
-
     @ma.pre_dump(pass_many=True)
     def clear_includes(self, data, many):  # pylint: disable=unused-argument
         """Clears any leftover included data."""
@@ -71,6 +72,11 @@ class Schema(flask.Schema):
         if self.included_data:
             self.included_data = {}
         return data
+
+    def inflect(self, text):
+        """Inflect text from using underscores to camelCase."""
+        parts = iter(text.split("_"))
+        return next(parts) + "".join(part.title() for part in parts)
 
 
 class RemoveNonesMixin:  # pylint: disable=too-few-public-methods
