@@ -96,6 +96,16 @@ class Game:
                 game_totals, key=lambda player_id: game_totals[player_id]
             )
 
+    @staticmethod
+    def _make_player_id():
+        """Create a new unique player ID.
+
+        Player IDs must be hashable so they can be used as dictionary keys and in sets.
+
+        Default implementation is a UUID v4.
+        """
+        return uuid.uuid4()
+
     # Public Attributes
 
     @property
@@ -113,7 +123,7 @@ class Game:
         """Adds a new player to the game and retruns their id."""
         if len(self._players) > config.MAX_PLAYERS:
             raise exceptions.TooManyPlayers()
-        new_id = uuid.uuid4()
+        new_id = self._make_player_id()
         self._players[new_id] = _PlayerData()
         return new_id
 
