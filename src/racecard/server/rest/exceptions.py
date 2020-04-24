@@ -20,6 +20,9 @@
 
 import typing
 
+import timeflake
+
+from ...core import exceptions as coreexceptions
 from .. import common as servercommon
 from .schemas import common as schemascommon
 
@@ -27,16 +30,23 @@ from .schemas import common as schemascommon
 class RESTAppException(servercommon.ServerError):
     """Base class for all REST server exceptions."""
 
-    message = None
-    id_: str
+    message: typing.Optional[str] = None
+    id_: timeflake.Timeflake
     status: int = 500
+    code: typing.Optional[str] = None
     detail: typing.Optional[str] = None
     pointer: typing.Optional[str] = None
     parameter: typing.Optional[str] = None
     schema_class: typing.Type[schemascommon.Schema]
 
     def __init__(
-        self, id_, schema_class=None, *, detail=None, pointer=None, parameter=None
+        self,
+        id_: timeflake.Timeflake,
+        schema_class: typing.Type[schemascommon.Schema] = None,
+        *,
+        detail: str = None,
+        pointer: str = None,
+        parameter: str = None
     ):
         # Not supporting instance-level messages because we are mapping message to
         # title in the JSON:API output and title is specified as not changing for all
@@ -60,3 +70,15 @@ class NotFoundError(RESTAppException):
 
     status = 404
     parameter = "id"
+
+
+class CoreError(RESTAppException):
+    """Wraps core exceptions so that they can be returned to clients."""
+
+    status = 400
+
+    def __init__(self, error: coreexceptions.CoreException, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.code = error.__class__.__name__
+        self.message = str(error)
+        self.original_error = error

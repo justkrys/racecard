@@ -104,7 +104,7 @@ class RESTApp(servercommon.ServerBase, connexion.App):  # noqa
         data = modelscommon.Error(
             id=error.id_,
             status=str(error.status),
-            code=error.__class__.__name__,
+            code=error.code if error.code is not None else error.__class__.__name__,
             title=str(error),
             detail=error.detail,
         )
