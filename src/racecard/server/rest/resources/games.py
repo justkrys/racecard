@@ -25,7 +25,11 @@ from . import common
 @common.timeflake_kwargs("owner", "player")
 def search(*, owner=None, player=None, state=None):
     """Handler for GET /games."""
-    games = store.find_games(owner_id=owner, player_id=player, state=state)
+    try:
+        games = store.find_games(owner=owner, player=player, state=state)
+    except exceptions.NotFoundError as error:
+        error.schema_class = gameschema.GameSchema
+        raise
     return common.many(games, gameschema.GameSchema)
 
 

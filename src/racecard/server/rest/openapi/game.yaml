@@ -25,8 +25,11 @@ components:
           type: object
           required:
             - owner
+            - players
           properties:
             owner:
+              $ref: "common.yaml#/components/schemas/relationshipRelated"
+            players:
               $ref: "common.yaml#/components/schemas/relationshipRelated"
     gameSingle:
       description: A JSON:API document of a game resource.

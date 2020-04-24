@@ -31,6 +31,9 @@ class GameSchema(common.Schema):
     owner = fields.Relationship(
         related_view=".users_get", related_view_kwargs={"id": "<owner.id>"},
     )
+    players = fields.Relationship(
+        related_view=".users_search", related_view_kwargs={"game": "<id>"}, many=True,
+    )
 
     class Meta:  # pylint: disable=too-few-public-methods
         """Metadata options for the schema."""

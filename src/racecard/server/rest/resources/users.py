@@ -22,9 +22,14 @@ from ..schemas import userschema
 from . import common
 
 
-def search():
+@common.timeflake_kwargs("game")
+def search(game=None):
     """Handler for GET /users."""
-    data = store.find_users()
+    try:
+        data = store.find_users(game=game)
+    except exceptions.NotFoundError as error:
+        error.schema_class = userschema.UserSchema
+        raise
     return common.many(data, userschema.UserSchema)
 
 

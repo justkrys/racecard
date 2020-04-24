@@ -59,6 +59,8 @@ paths:
             "application/vnd.api+json":
               schema:
                 $ref: "#/components/schemas/gameMany"
+        "400":
+          $ref: "#/components/responses/frameworkError"
   /games/{id}:
     get:
       operationId: games.get
@@ -89,6 +91,12 @@ paths:
       operationId: users.search
       summary: A list all the users that currently exist.
       tags: [users]
+      parameters:
+        - name: game
+          in: query
+          description: List only users that are players or the owner of the given game.
+          schema:
+            $ref: "#/components/schemas/id"
       responses:
         "200":
           description:
@@ -98,6 +106,8 @@ paths:
             "application/vnd.api+json":
               schema:
                 $ref: "#/components/schemas/userMany"
+        "400":
+          $ref: "#/components/responses/frameworkError"
   /users/{id}:
     get:
       operationId: users.get

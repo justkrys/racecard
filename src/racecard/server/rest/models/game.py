@@ -20,28 +20,59 @@
 
 from __future__ import annotations  # Solve circular type references with user.
 
+import functools
+import typing
+import uuid
+
 import timeflake
 
-from racecard.core import game
-
+from ....core import exceptions as coreexceptions
+from ....core import game as coregame
+from .. import exceptions
+from ..schemas import gameschema
 from . import common, user  # pylint:disable=cyclic-import
 
 
-class Game(common.ModelBase, game.Game):
+def _raises_core_exceptions(method):
+    """Decorator to handle converting core exceptions."""
+
+    @functools.wraps(method)
+    def wrapper(self, *args, **kwargs):
+        try:
+            return method(self, *args, **kwargs)
+        except coreexceptions.CoreException as error:
+            raise exceptions.CoreError(error, self.id, self.__schema__)
+
+    return wrapper
+
+
+class Game(common.ModelBase):
     """A single game consisting of several hands, played by several players."""
 
+    __schema__ = gameschema.GameSchema
     id: timeflake.Timeflake
     owner: user.User
+    players: typing.MutableSequence[user.User]
 
-    def __init__(self, id, owner):  # pylint: disable=redefined-builtin
+    def __init__(
+        self, id: timeflake.Timeflake, owner: user.User
+    ):  # pylint: disable=redefined-builtin
         super().__init__()
+        self._game = coregame.Game()
+        # Map user ids to internal player ids.
+        self._player_map: typing.Dict[timeflake.Timeflake, uuid.UUID] = {}
         self.id = id  # pylint: disable=invalid-name
         self.owner = owner
+        self.players = []
 
-    @staticmethod
-    def _make_player_id():
-        """Returns new unique player id.
+    @property
+    def is_completed(self):
+        """Returns True if the game is completed."""
+        return self._game.is_completed
 
-        Overridden to use timeflake instead of uuid.
-        """
-        return timeflake.random()
+    @_raises_core_exceptions
+    def add_player(self, player: user.User):
+        """Adds the given player to the game."""
+        player_id = self._game.add_player()
+        self.players.append(player)
+        self._player_map[player.id] = player_id
