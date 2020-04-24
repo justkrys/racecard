@@ -22,7 +22,7 @@ from ..schemas import userschema
 from . import common
 
 
-@common.timeflake_kwargs("game")
+@common.id_kwargs("game")
 def search(game=None):
     """Handler for GET /users."""
     try:
@@ -33,7 +33,7 @@ def search(game=None):
     return common.many(data, userschema.UserSchema)
 
 
-@common.timeflake_kwargs("id_")
+@common.id_kwargs("id_")
 def get(id_):
     """Handler for GET /users/<id>."""
     try:

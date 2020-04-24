@@ -20,8 +20,6 @@
 
 import functools
 
-import timeflake
-
 from ..models import common
 
 
@@ -78,11 +76,11 @@ def convert_kwargs(**type_map):
     return decorator
 
 
-def timeflake_kwargs(*timeflake_args):
+def id_kwargs(*timeflake_args):
     """Decorator to automatically convert base62 strings to Timeflakes."""
 
     def convert(value):
-        return timeflake.parse(from_base62=value)
+        return common.ID.parse(value)
 
     type_map = {arg: convert for arg in timeflake_args}
     return convert_kwargs(**type_map)

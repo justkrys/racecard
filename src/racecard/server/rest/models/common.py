@@ -18,8 +18,23 @@
 """Common utilities for data models."""
 
 
+from __future__ import annotations
+
 import dataclasses
 import typing
+
+import timeflake
+
+
+class ID(timeflake.Timeflake):
+    """All resource IDs should be of this type."""
+
+    @classmethod
+    def parse(cls, base62_str: str) -> ID:
+        """Return an instance of this class based on the given base62 string."""
+        if not len(base62_str) == 22:
+            raise ValueError("Not a valid base62 string.")
+        return cls(timeflake.parse(from_base62=base62_str).bytes)
 
 
 class ModelBase:  # pylint: disable=too-few-public-methods

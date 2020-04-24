@@ -24,7 +24,7 @@ from . import common, fields
 class UserSchema(common.Schema):
     """Schema for user resources."""
 
-    id = fields.Timeflake(dump_only=True)
+    id = fields.ID(dump_only=True)
     name = fields.Str()
     email = fields.Str()
     document_meta = fields.DocumentMeta()

@@ -20,10 +20,9 @@
 
 import typing
 
-import timeflake
-
 from ...core import exceptions as coreexceptions
 from .. import common as servercommon
+from .models import common as modelscommon
 from .schemas import common as schemascommon
 
 
@@ -31,7 +30,7 @@ class RESTAppException(servercommon.ServerError):
     """Base class for all REST server exceptions."""
 
     message: typing.Optional[str] = None
-    id_: timeflake.Timeflake
+    id_: modelscommon.ID
     status: int = 500
     code: typing.Optional[str] = None
     detail: typing.Optional[str] = None
@@ -41,7 +40,7 @@ class RESTAppException(servercommon.ServerError):
 
     def __init__(
         self,
-        id_: timeflake.Timeflake,
+        id_: modelscommon.ID,
         schema_class: typing.Type[schemascommon.Schema] = None,
         *,
         detail: str = None,

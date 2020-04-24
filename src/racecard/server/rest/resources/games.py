@@ -22,9 +22,10 @@ from ..schemas import gameschema
 from . import common
 
 
-@common.timeflake_kwargs("owner", "player")
+@common.id_kwargs("owner", "player")
 def search(*, owner=None, player=None, state=None):
     """Handler for GET /games."""
+    print(type(owner))
     try:
         games = store.find_games(owner=owner, player=player, state=state)
     except exceptions.NotFoundError as error:
@@ -33,7 +34,7 @@ def search(*, owner=None, player=None, state=None):
     return common.many(games, gameschema.GameSchema)
 
 
-@common.timeflake_kwargs("id_")
+@common.id_kwargs("id_")
 def get(id_):
     """Handler for GET /games/<id>."""
     try:

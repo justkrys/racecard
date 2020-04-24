@@ -19,8 +19,6 @@
 
 import dataclasses
 
-import timeflake
-
 from . import common
 
 
@@ -28,6 +26,6 @@ from . import common
 class User(common.ModelBase):
     """A single game consisting of several hands, played by several players."""
 
-    id: timeflake.Timeflake  # pylint: disable=invalid-name
+    id: common.ID  # pylint: disable=invalid-name
     name: str
     email: str

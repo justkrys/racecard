@@ -24,7 +24,7 @@ from . import common, fields
 class GameSchema(common.Schema):
     """Schema for game resources."""
 
-    id = fields.Timeflake(dump_only=True)
+    id = fields.ID(dump_only=True)
     document_meta = fields.DocumentMeta()
     resource_meta = fields.ResourceMeta()
 

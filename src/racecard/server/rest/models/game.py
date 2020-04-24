@@ -24,8 +24,6 @@ import functools
 import typing
 import uuid
 
-import timeflake
-
 from ....core import exceptions as coreexceptions
 from ....core import game as coregame
 from .. import exceptions
@@ -50,17 +48,17 @@ class Game(common.ModelBase):
     """A single game consisting of several hands, played by several players."""
 
     __schema__ = gameschema.GameSchema
-    id: timeflake.Timeflake
+    id: common.ID
     owner: user.User
     players: typing.MutableSequence[user.User]
 
     def __init__(
-        self, id: timeflake.Timeflake, owner: user.User
+        self, id: common.ID, owner: user.User
     ):  # pylint: disable=redefined-builtin
         super().__init__()
         self._game = coregame.Game()
         # Map user ids to internal player ids.
-        self._player_map: typing.Dict[timeflake.Timeflake, uuid.UUID] = {}
+        self._player_map: typing.Dict[common.ID, uuid.UUID] = {}
         self.id = id  # pylint: disable=invalid-name
         self.owner = owner
         self.players = []

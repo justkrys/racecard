@@ -23,7 +23,6 @@ import pathlib
 import connexion
 import jsonschema
 import prance
-import timeflake
 from connexion import resolver as connexionresolver
 from jsonschema import compat
 from prance.util import resolver as pranceresolver
@@ -122,9 +121,7 @@ def base62_format_checker(instance):
     """Validates strings with "format: base62" as being a base62-encoded timeflake."""
     if not isinstance(instance, compat.str_types):
         return True
-    if not len(instance) == 22:
-        raise ValueError("Not a base62 string.")
-    timeflake.parse(from_base62=instance)
+    modelscommon.ID.parse(instance)
     return True
 
 
