@@ -19,11 +19,21 @@
 
 
 import dataclasses
+import enum
 import random
 import typing
 import uuid
 
 from . import config, exceptions, hand, player
+
+
+@enum.unique
+class GameStates(enum.Enum):
+    """The states in which a game can be."""
+
+    NOTBEGUN = enum.auto()
+    RUNNING = enum.auto()
+    COMPLETED = enum.auto()
 
 
 @dataclasses.dataclass
@@ -59,6 +69,7 @@ class Game:
         self._turn_order = []
         self._hands = []
         self.winner_id = None
+        self.state = GameStates.NOTBEGUN
 
     # Internal Attributes
 
@@ -69,12 +80,23 @@ class Game:
         return self._hands[-1]
 
     def _ensure_begun(self):
-        """Raises exception of the game is not yet begug."""
-        if not self._hands:
+        """Raises exception of the game is not yet begun."""
+        if self.state == GameStates.NOTBEGUN:
             raise exceptions.NotBegunError()
+
+    def _ensure_not_begun(self):
+        """Raises exception of the game has already begun."""
+        if self.state != GameStates.NOTBEGUN:
+            raise exceptions.GameAlreadyBegun()
+
+    def _ensure_not_completed(self):
+        """Raises exception of the game has already completed."""
+        if self.state == GameStates.COMPLETED:
+            raise exceptions.GameAlreadyCompleted()
 
     def _get_game_total(self, player_id):
         """Calculates and returns the current game total for the given player."""
+        self._ensure_begun()
         game_total = 0
         for hand_ in self._hands:
             score_card = hand_.get_player_state(player_id).score_card
@@ -84,6 +106,7 @@ class Game:
 
     def _check_game_complete(self):
         """Checks if the game is completed and updates status accordingly."""
+        self._ensure_begun()
         if self.is_completed or not self.is_hand_completed:
             return
         game_totals = {
@@ -92,6 +115,7 @@ class Game:
         if any(
             True for total in game_totals.values() if total >= config.GAME_WIN_SCORE
         ):
+            self.state = GameStates.COMPLETED
             self.winner_id = max(
                 game_totals, key=lambda player_id: game_totals[player_id]
             )
@@ -117,10 +141,11 @@ class Game:
     @property
     def is_completed(self):
         """Returns True if the game is completed/finished/done."""
-        return bool(self.winner_id)
+        return self.state == GameStates.COMPLETED
 
     def add_player(self):
         """Adds a new player to the game and retruns their id."""
+        self._ensure_not_begun()
         if len(self._players) > config.MAX_PLAYERS:
             raise exceptions.TooManyPlayers()
         new_id = self._make_player_id()
@@ -129,15 +154,19 @@ class Game:
 
     def begin(self):
         """Begin the game or raise InsufficientPlayersError if not enough players."""
+        self._ensure_not_begun()
         if len(self._players) < 2:
             raise exceptions.InsufficientPlayersError()
         self._turn_order = list(self._players)
         for _ in range(config.NUM_SHUFFLES):
             random.shuffle(self._turn_order)
+        self.state = GameStates.RUNNING
         self.next_hand()
 
     def next_hand(self):
         """Creates a new hand or HandInProgressError if current one is still going."""
+        self._ensure_begun()
+        self._ensure_not_completed()
         if self._hands and not self._current_hand.is_completed:
             raise exceptions.HandInProgressError()
         self._turn_order.append(self._turn_order.pop(0))
@@ -154,8 +183,9 @@ class Game:
         Only  called once the current hand is completed.
         Also includes a game_total attribute.
         """
+        self._ensure_begun()
         if not self.is_hand_completed:
-            raise exceptions.GameNotCompleted()
+            raise exceptions.HandInProgressError()
         score_cards = {}
         for player_id in self._players:
             # score_card always exists because hand is guraranteed completed by check
@@ -169,7 +199,7 @@ class Game:
         return score_cards
 
     def get_game_scores(self):
-        """Returns game-total score cards for all players."""
+        """Returns game-total score cards for all players once the game is completed."""
         if not self.is_completed:
             raise exceptions.GameNotCompleted()
         for id_, data in self._players.items():
@@ -189,12 +219,14 @@ class Game:
     def is_hand_completed(self):
         """Returns True if the current hand is completed."""
         # Overridden to change name
+        self._ensure_begun()
         return self._current_hand.is_completed
 
     @property
     def hand_winner_id(self):
         """Returns the id of the player who won the current hand, if possible."""
         # Overridden to change name
+        self._ensure_begun()
         return self._current_hand.winner_id
 
     def play(self, player_id, card_index, targed_id=None):
@@ -207,6 +239,8 @@ class Game:
         automatically selected as the target.
         """
         # This overrides Hand.play to include extra game-level logic.
+        self._ensure_begun()
+        self._ensure_not_completed()
         result = self._current_hand.play(player_id, card_index, targed_id)
         if result == hand.PlayResults.WIN_CANNOT_EXTEND:
             self._check_game_complete()
@@ -215,6 +249,8 @@ class Game:
     def toggle_sort(self, player_id):
         """Toggles whether or not a player's hand should always be sorted."""
         # This overrides Hand.play to include extra game-level logic.
+        self._ensure_begun()
+        self._ensure_not_completed()
         self._current_hand.toggle_sort(player_id)
         self._players[player_id].sort_hand = not self._players[player_id].sort_hand
 
@@ -225,12 +261,16 @@ class Game:
         set to True.
         """
         # This overrides Hand.play to include extra game-level logic.
+        self._ensure_begun()
+        self._ensure_not_completed()
         self._current_hand.discard(player_id, card_index, force)
         self._check_game_complete()
 
     def no_extension(self, player_id):
         """Signal that an extension was declined and the hand should complete."""
         # This overrides Hand.play to include extra game-level logic.
+        self._ensure_begun()
+        self._ensure_not_completed()
         self._current_hand.no_extension(player_id)
         self._check_game_complete()
 
@@ -239,16 +279,19 @@ class Game:
     @property
     def round_number(self):
         """Returns the number of the current round."""
+        self._ensure_begun()
         return self._current_hand.round_number
 
     @property
     def current_player_id(self):
         """Returns the id of the current player."""
+        self._ensure_begun()
         return self._current_hand.current_player_id
 
     @property
     def cards_remaining(self):
         """Returns the number of cards left in the deck."""
+        self._ensure_begun()
         return self._current_hand.cards_remaining
 
     @property
@@ -257,20 +300,28 @@ class Game:
 
         Note: It does not remove the card from the pile. It just peeks at it.
         """
+        self._ensure_begun()
         return self._current_hand.top_discarded_card
 
     def draw(self, player_id, discard=False):
         """Draw a card from either the draw or discard pile."""
+        self._ensure_begun()
+        self._ensure_not_completed()
         self._current_hand.draw(player_id, discard)
 
     def coup_fourre(self, player_id):
         """Triggers a Coup Fourré if possible."""
+        self._ensure_begun()
+        self._ensure_not_completed()
         self._current_hand.coup_fourre(player_id)
 
     def extension(self, player_id):
         """Call an extension to the game."""
+        self._ensure_begun()
+        self._ensure_not_completed()
         self._current_hand.extension(player_id)
 
     def get_player_state(self, player_id):
         """Returns the state of the given player."""
+        self._ensure_begun()
         return self._current_hand.get_player_state(player_id)

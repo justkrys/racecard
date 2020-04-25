@@ -121,17 +121,25 @@ class CannotExtendError(CoreException):
 # Game Exceptions
 
 
-class InsufficientPlayersError(CoreException):
-    """Not enough player have joined this game!"""
-
-
 class NotBegunError(CoreException):
     """Game has not yet begun!"""
 
 
-class TooManyPlayers(CoreException):
-    """Too many players!  Max player count already met."""
+class GameAlreadyBegun(CoreException):
+    """Game has already begun!"""
 
 
 class GameNotCompleted(CoreException):
     """Game is not yet completed!"""
+
+
+class GameAlreadyCompleted(CoreException):
+    """Game is already completed!"""
+
+
+class InsufficientPlayersError(CoreException):
+    """Not enough player have joined this game!"""
+
+
+class TooManyPlayers(CoreException):
+    """Too many players!  Max player count already met."""
