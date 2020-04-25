@@ -26,6 +26,7 @@ import uuid
 
 from ....core import exceptions as coreexceptions
 from ....core import game as coregame
+from ....core.game import GameStates
 from .. import exceptions
 from ..schemas import gameschema
 from . import common, user  # pylint:disable=cyclic-import
@@ -48,6 +49,7 @@ class Game(common.ModelBase):
     """A single game consisting of several hands, played by several players."""
 
     __schema__ = gameschema.GameSchema
+
     id: common.ID
     owner: user.User
     players: typing.MutableSequence[user.User]
@@ -62,6 +64,11 @@ class Game(common.ModelBase):
         self.id = id  # pylint: disable=invalid-name
         self.owner = owner
         self.players = []
+
+    @property
+    def state(self) -> GameStates:
+        """Return the current state of the game."""
+        return self._game.state
 
     @property
     def is_completed(self):

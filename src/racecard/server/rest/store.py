@@ -90,7 +90,7 @@ def find_games(
     *,
     owner: typing.Union[usermodel.User, modelscommon.ID] = None,
     player: typing.Union[usermodel.User, modelscommon.ID] = None,
-    state: str = None,
+    state: typing.Union[gamemodel.GameStates, str] = None,
 ) -> typing.Iterable[gamemodel.Game]:
     """Returns games that match the given criteria."""
     matches = list(games.values())
@@ -103,16 +103,13 @@ def find_games(
             player = get_user(player)
         matches = [game_ for game_ in matches if player in game_.players]
     if state is not None:
-        valid_states = ("notstarted", "running", "completed")
-        if state not in valid_states:
-            raise ValueError(f"state must be one of {str(valid_states)}.")
-        # TODO: Implement support for remaining game filtering.
-        if state == "notstarted":
-            raise NotImplementedError()
-        elif state == "running":
-            raise NotImplementedError()
-        elif state == "completed":
-            matches = [game for game in matches if game.is_completed]
+        if not isinstance(state, gamemodel.GameStates):
+            try:
+                state = gamemodel.GameStates(state.upper())
+            except ValueError:
+                valid_states = [str(state).lower() for state in gamemodel.GameStates]
+                raise ValueError(f"Invalid state, must be one of {valid_states}.")
+        matches = [game for game in matches if game.state == state]
     return matches
 
 

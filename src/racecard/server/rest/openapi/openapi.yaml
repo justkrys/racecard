@@ -40,16 +40,16 @@ paths:
           description: |
             List only games that match the given state.
             Valid states are:
-              - notstarted:
-                  Games that are created but not yet started.  I.e. Waiting for the
-                  owner to start the game.
+              - notbegun:
+                  Games that are created but habe not yet begun.  I.e. Waiting for the
+                  owner to begin the game.
               - running:
                   Games that are currently in progress.
               - completed:
                   Games have been completed.  No further plays are possible.
           schema:
             type: string
-            enum: [notstarted, running, completed]
+            enum: [notbegun, running, completed]
       responses:
         "200":
           description:

@@ -12,6 +12,7 @@ components:
       required:
         - type
         - id
+        - attributes
         - links
         - relationships
       properties:
@@ -19,6 +20,14 @@ components:
           type: string
         id:
           $ref: "common.yaml#/components/schemas/id"
+        attributes:
+          type: object
+          additionalProperties: false
+          required:
+            - state
+          properties:
+            state:
+              type: string
         links:
           $ref: "common.yaml#/components/schemas/linksSelf"
         relationships:

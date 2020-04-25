@@ -25,6 +25,7 @@ class GameSchema(common.Schema):
     """Schema for game resources."""
 
     id = fields.ID(dump_only=True)
+    state = fields.Str()
     document_meta = fields.DocumentMeta()
     resource_meta = fields.ResourceMeta()
 
@@ -34,6 +35,18 @@ class GameSchema(common.Schema):
     players = fields.Relationship(
         related_view=".users_search", related_view_kwargs={"game": "<id>"}, many=True,
     )
+
+    @common.post_dump
+    def lowercase_state(
+        self, data, **kwargs
+    ):  # pylint: disable=unused-argument,no-self-use
+        """Converts state string to lowercase.
+
+        states are a) specified in lowercase in our spec and b) should be lowercase in
+        URLs per internet best practice.
+        """
+        data["state"] = data["state"].lower()
+        return data
 
     class Meta:  # pylint: disable=too-few-public-methods
         """Metadata options for the schema."""
