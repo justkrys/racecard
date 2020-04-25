@@ -25,7 +25,6 @@ from . import common
 @common.id_kwargs("owner", "player")
 def search(*, owner=None, player=None, state=None):
     """Handler for GET /games."""
-    print(type(owner))
     try:
         games = store.find_games(owner=owner, player=player, state=state)
     except exceptions.NotFoundError as error:
