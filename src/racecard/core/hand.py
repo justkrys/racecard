@@ -18,20 +18,12 @@
 """Code to run/handle one hand of Race Card.  This is the heart of the game."""
 
 
-import enum
+from . import common, config, deck, exceptions, player, tray
 
-from . import config, deck, exceptions, player, tray
-
-
-@enum.unique
-class PlayResults(enum.Enum):
-    """Return values from Hand.play()."""
-
-    OK = enum.auto()
-    CAN_COUP_FOURRE = enum.auto()
-    WIN_CAN_EXTEND = enum.auto()
-    WIN_CANNOT_EXTEND = enum.auto()
-    COMPLETED_NO_WINNER = enum.auto()
+PlayResults = common.Enum(  # pylint: disable=invalid-name
+    "PlayResults",
+    "OK CAN_COUP_FOURRE WIN_CAN_EXTEND WIN_CANNOT_EXTEND COMPLETED_NO_WINNER",
+)
 
 
 class Hand:

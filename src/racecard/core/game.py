@@ -19,21 +19,15 @@
 
 
 import dataclasses
-import enum
 import random
 import typing
 import uuid
 
-from . import config, exceptions, hand, player
+from . import common, config, exceptions, hand, player
 
-
-@enum.unique
-class GameStates(enum.Enum):
-    """The states in which a game can be."""
-
-    NOTBEGUN = enum.auto()
-    RUNNING = enum.auto()
-    COMPLETED = enum.auto()
+GameStates = common.Enum(  # pylint: disable=invalid-name
+    "GameStates", "NOTBEGUN RUNNING COMPLETED"
+)
 
 
 @dataclasses.dataclass

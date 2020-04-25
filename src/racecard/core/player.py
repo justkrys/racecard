@@ -19,19 +19,12 @@
 
 
 import dataclasses
-import enum
 
-from . import config, deck, exceptions
+from . import common, config, deck, exceptions
 
-
-@enum.unique
-class _States(enum.Enum):
-    """The states in which a player can be."""
-
-    STOPPED = enum.auto()
-    ROLLING = enum.auto()
-    BROKEN = enum.auto()
-    COMPLETED = enum.auto()
+_States = common.Enum(  # pylint: disable=invalid-name
+    "_States", "STOPPED ROLLING BROKEN COMPLETED"
+)
 
 
 @dataclasses.dataclass
@@ -405,7 +398,7 @@ class Player:
     def get_state(self):
         """Returns a representation of the player's state for display."""
         state = _PlayerState(
-            state=self._state.name,
+            state=self._state,
             winner=self._winner,
             coups_fourres=self._coup_fourre_count,
             sort_hand=self._should_sort_hand,
