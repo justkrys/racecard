@@ -60,7 +60,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/gameMany"
         "400":
-          $ref: "#/components/responses/frameworkError"
+          $ref: "#/components/responses/badRequestError"
   /games/{id}:
     get:
       operationId: games.get
@@ -85,7 +85,7 @@ paths:
         "404":
           $ref: "#/components/responses/notFoundError"
         "400":
-          $ref: "#/components/responses/frameworkError"
+          $ref: "#/components/responses/badRequestError"
   /users:
     get:
       operationId: users.search
@@ -107,7 +107,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/userMany"
         "400":
-          $ref: "#/components/responses/frameworkError"
+          $ref: "#/components/responses/badRequestError"
   /users/{id}:
     get:
       operationId: users.get
@@ -128,7 +128,7 @@ paths:
         "404":
           $ref: "#/components/responses/notFoundError"
         "400":
-          $ref: "#/components/responses/frameworkError"
+          $ref: "#/components/responses/badRequestError"
 components:
   parameters:
     id:
@@ -145,12 +145,19 @@ components:
         "application/vnd.api+json":
           schema:
             $ref: "#/components/schemas/failure"
-    frameworkError:
-      description:
-        Application framework error response, probably due to input/output not
-        validating against this OpenAPI specification.
-        Result is in Problem Detail [RFC7807] format.
+    badRequestError:
+      description: |
+        The request from the client was bad in some way.
+        Responses come in two types:
+          - JSON:API error responses come from the application level and usually
+            indicate some problem with the provided data values.
+          - Problem Detail [RFC7807] responses come from the framework level and usually
+            indicate a problem validating input or output against this OpenAPI
+            specification.
       content:
+        "application/vnd.api+json":
+          schema:
+            $ref: "#/components/schemas/failure"
         "application/problem+json":
           schema:
             $ref: "#/components/schemas/problemDetail"
