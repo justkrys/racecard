@@ -4,7 +4,7 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
-wheel = "~= 0.34"
+wheel = "~= 0.38"
 black = "== 19.10b0"
 pylint = "~= 2.4"
 flake8 = "~= 3.7"
